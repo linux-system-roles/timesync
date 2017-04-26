@@ -1,0 +1,9 @@
+
+- name: Configure time synchronization with single PTP domain
+  hosts: all
+  vars:
+    ptp_domains:
+      - number: 0
+        interfaces: "{{ [ ansible_default_ipv4['interface'] ] }}"
+  roles:
+    - timesync

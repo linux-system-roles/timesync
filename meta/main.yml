@@ -1,0 +1,12 @@
+galaxy_info:
+  author: Miroslav Lichvar <mlichvar@redhat.com>
+  description: Configure NTP and/or PTP
+  galaxy_tags: [ 'system', 'beta' ]
+  company: Red Hat, Inc.
+  license: MIT
+  min_ansible_version: 2.2
+  platforms:
+  - name: Fedora
+    versions: [ 24, 25 ]
+  - name: EL
+    versions: [ 6, 7 ]

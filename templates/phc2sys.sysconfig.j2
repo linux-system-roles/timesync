@@ -1,0 +1,3 @@
+# {{ ansible_managed }}
+
+OPTIONS="-a -r{{ ' -F ' ~ clock_step_threshold if clock_step_threshold >= 0.0 else '' }}"

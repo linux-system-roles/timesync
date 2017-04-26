@@ -1,0 +1,6 @@
+---
+ntp_servers: []
+ptp_domains: []
+dhcp_ntp_servers: false
+clock_step_threshold: -1.0
+min_time_sources: 1

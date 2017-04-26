@@ -1,0 +1,11 @@
+---
+- name: restart chronyd
+  service: "name=chronyd state=restarted"
+- name: restart ntpd
+  service: "name=ntpd state=restarted"
+- name: restart ptp4l
+  service: "name=ptp4l state=restarted"
+- name: restart phc2sys
+  service: "name=phc2sys state=restarted"
+- name: restart timemaster
+  service: "name=timemaster state=restarted"

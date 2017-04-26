@@ -1,0 +1,165 @@
+---
+
+- name: Check if only NTP is needed
+  set_fact:
+    sync_mode: 1
+  when: ptp_domains|length == 0
+
+- name: Check if single PTP is needed
+  set_fact:
+    sync_mode: 2
+  when: sync_mode is not defined and (ntp_servers|length == 0) and ptp_domains|length == 1 and ptp_domains[0].interfaces|length == 1
+
+- name: Check if both NTP and PTP are needed
+  set_fact:
+    sync_mode: 3
+  when: sync_mode is not defined
+
+- name: Select NTP implementation
+  set_fact:
+    ntp_implementation: "{{ 'ntp' if ansible_distribution in ['RedHat', 'CentOS'] and ansible_distribution_version|version_compare('6.8', '<') else 'chrony' }}"
+  when: sync_mode != 2
+
+- name: Install chrony
+  package: name=chrony state=present
+  when: sync_mode != 2 and ntp_implementation == 'chrony'
+
+- name: Install ntp
+  package: name=ntp state=present
+  when: sync_mode != 2 and ntp_implementation == 'ntp'
+
+- name: Install linuxptp
+  package: name=linuxptp state=present
+  when: sync_mode != 1
+
+- name: Run phc_ctl on PTP interface
+  command: phc_ctl -q {{ ptp_domains[0].interfaces[0] }}
+  register: phc_ctl_output
+  changed_when: False
+  when: sync_mode == 2
+  ignore_errors: yes
+
+- name: Check if PTP interface supports HW timestamping
+  set_fact:
+    mode2_hwts: "{{ phc_ctl_output.rc == 0 }}"
+  when: sync_mode == 2
+
+- name: Get chrony version
+  command: rpm -q --qf '%{version}' chrony
+  args:
+    warn: no
+  register: chrony_version
+  changed_when: False
+  when: sync_mode != 2 and ntp_implementation == 'chrony'
+
+- name: Get ntp version
+  command: rpm -q --qf '%{version}' ntp
+  args:
+    warn: no
+  register: ntp_version
+  changed_when: False
+  when: sync_mode != 2 and ntp_implementation == 'ntp'
+
+- name: Generate chrony.conf file
+  template: src=chrony.conf.j2 dest=/etc/chrony.conf backup=yes mode=0644
+  notify: restart {{ 'chronyd' if sync_mode == 1 else 'timemaster' }}
+  when: sync_mode != 2 and ntp_implementation == 'chrony'
+
+- name: Generate chronyd sysconfig file
+  template: src=chronyd.sysconfig.j2 dest=/etc/sysconfig/chronyd backup=yes mode=0644
+  notify: restart chronyd
+  when: sync_mode == 1 and ntp_implementation == 'chrony'
+
+- name: Generate ntp.conf file
+  template: src=ntp.conf.j2 dest=/etc/ntp.conf backup=yes mode=0644
+  notify: restart {{ 'ntpd' if sync_mode == 1 else 'timemaster' }}
+  when: sync_mode != 2 and ntp_implementation == 'ntp'
+
+- name: Generate ntpd sysconfig file
+  template: src=ntpd.sysconfig.j2 dest=/etc/sysconfig/ntpd backup=yes mode=0644
+  notify: restart ntpd
+  when: sync_mode == 1 and ntp_implementation == 'ntp'
+
+- name: Generate ptp4l.conf file
+  template: src=ptp4l.conf.j2 dest=/etc/ptp4l.conf backup=yes mode=0644
+  notify: restart ptp4l
+  when: sync_mode == 2
+
+- name: Generate ptp4l sysconfig file
+  template: src=ptp4l.sysconfig.j2 dest=/etc/sysconfig/ptp4l backup=yes mode=0644
+  notify: restart ptp4l
+  when: sync_mode == 2
+
+- name: Generate phc2sys sysconfig file
+  template: src=phc2sys.sysconfig.j2 dest=/etc/sysconfig/phc2sys backup=yes mode=0644
+  notify: restart phc2sys
+  when: sync_mode == 2 and mode2_hwts
+
+- name: Generate timemaster.conf file
+  template: src=timemaster.conf.j2 dest=/etc/timemaster.conf backup=yes mode=0644
+  notify: restart timemaster
+  when: sync_mode == 3
+
+- name: Update network sysconfig file
+  lineinfile:
+    dest: /etc/sysconfig/network
+    create: yes
+    mode: 0644
+    regexp: '^PEERNTP='
+    line: 'PEERNTP=no'
+    state: "{{ 'absent' if dhcp_ntp_servers else 'present' }}"
+  notify: restart {{ ntp_implementation + 'd' }}
+  when: sync_mode == 1
+
+- name: Disable chronyd
+  service: name=chronyd state=stopped enabled=no
+  when: sync_mode != 1 or ntp_implementation != 'chrony'
+  ignore_errors: yes
+
+- name: Disable ntpd
+  service: name=ntpd state=stopped enabled=no
+  when: sync_mode != 1 or ntp_implementation != 'ntp'
+  ignore_errors: yes
+
+- name: Disable ntpdate
+  service: name=ntpdate state=stopped enabled=no
+  ignore_errors: yes
+
+- name: Disable sntp
+  service: name=sntp state=stopped enabled=no
+  ignore_errors: yes
+
+- name: Disable ptp4l
+  service: name=ptp4l state=stopped enabled=no
+  when: sync_mode != 2
+  ignore_errors: yes
+
+- name: Disable phc2sys
+  service: name=phc2sys state=stopped enabled=no
+  when: sync_mode != 2 or not mode2_hwts
+  ignore_errors: yes
+
+- name: Disable timemaster
+  service: name=timemaster state=stopped enabled=no
+  when: sync_mode != 3
+  ignore_errors: yes
+
+- name: Enable chronyd
+  service: name=chronyd state=started enabled=yes
+  when: sync_mode == 1 and ntp_implementation == 'chrony'
+
+- name: Enable ntpd
+  service: name=ntpd state=started enabled=yes
+  when: sync_mode == 1 and ntp_implementation == 'ntp'
+
+- name: Enable ptp4l
+  service: name=ptp4l state=started enabled=yes
+  when: sync_mode == 2
+
+- name: Enable phc2sys
+  service: name=phc2sys state=started enabled=yes
+  when: sync_mode == 2 and mode2_hwts
+
+- name: Enable timemaster
+  service: name=timemaster state=started enabled=yes
+  when: sync_mode == 3
