@@ -1,5 +1,5 @@
 
-- name: Ensure that the rule runs with default parameters
+- name: Ensure that the role runs with default parameters
   hosts: all
 
   roles:
