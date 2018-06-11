@@ -104,6 +104,7 @@
   lineinfile:
     dest: /etc/sysconfig/network
     create: yes
+    backup: yes
     mode: 0644
     regexp: '^PEERNTP='
     line: 'PEERNTP=no'
