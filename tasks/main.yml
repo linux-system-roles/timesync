@@ -17,16 +17,16 @@
 
 - name: Select NTP implementation
   set_fact:
-    ntp_implementation: "{{ 'ntp' if ansible_distribution in ['RedHat', 'CentOS'] and ansible_distribution_version|version_compare('6.8', '<') else 'chrony' }}"
+    ntp_provider: "{{ 'ntp' if ansible_distribution in ['RedHat', 'CentOS'] and ansible_distribution_version|version_compare('6.8', '<') else 'chrony' }}"
   when: sync_mode != 2
 
 - name: Install chrony
   package: name=chrony state=present
-  when: sync_mode != 2 and ntp_implementation == 'chrony'
+  when: sync_mode != 2 and ntp_provider == 'chrony'
 
 - name: Install ntp
   package: name=ntp state=present
-  when: sync_mode != 2 and ntp_implementation == 'ntp'
+  when: sync_mode != 2 and ntp_provider == 'ntp'
 
 - name: Install linuxptp
   package: name=linuxptp state=present
@@ -50,7 +50,7 @@
     warn: no
   register: chrony_version
   changed_when: False
-  when: sync_mode != 2 and ntp_implementation == 'chrony'
+  when: sync_mode != 2 and ntp_provider == 'chrony'
 
 - name: Get ntp version
   command: rpm -q --qf '%{version}' ntp
@@ -58,27 +58,27 @@
     warn: no
   register: ntp_version
   changed_when: False
-  when: sync_mode != 2 and ntp_implementation == 'ntp'
+  when: sync_mode != 2 and ntp_provider == 'ntp'
 
 - name: Generate chrony.conf file
   template: src=chrony.conf.j2 dest=/etc/chrony.conf backup=yes mode=0644
   notify: restart {{ 'chronyd' if sync_mode == 1 else 'timemaster' }}
-  when: sync_mode != 2 and ntp_implementation == 'chrony'
+  when: sync_mode != 2 and ntp_provider == 'chrony'
 
 - name: Generate chronyd sysconfig file
   template: src=chronyd.sysconfig.j2 dest=/etc/sysconfig/chronyd backup=yes mode=0644
   notify: restart chronyd
-  when: sync_mode == 1 and ntp_implementation == 'chrony'
+  when: sync_mode == 1 and ntp_provider == 'chrony'
 
 - name: Generate ntp.conf file
   template: src=ntp.conf.j2 dest=/etc/ntp.conf backup=yes mode=0644
   notify: restart {{ 'ntpd' if sync_mode == 1 else 'timemaster' }}
-  when: sync_mode != 2 and ntp_implementation == 'ntp'
+  when: sync_mode != 2 and ntp_provider == 'ntp'
 
 - name: Generate ntpd sysconfig file
   template: src=ntpd.sysconfig.j2 dest=/etc/sysconfig/ntpd backup=yes mode=0644
   notify: restart ntpd
-  when: sync_mode == 1 and ntp_implementation == 'ntp'
+  when: sync_mode == 1 and ntp_provider == 'ntp'
 
 - name: Generate ptp4l.conf file
   template: src=ptp4l.conf.j2 dest=/etc/ptp4l.conf backup=yes mode=0644
@@ -109,17 +109,17 @@
     regexp: '^PEERNTP='
     line: 'PEERNTP=no'
     state: "{{ 'absent' if dhcp_ntp_servers else 'present' }}"
-  notify: restart {{ ntp_implementation + 'd' }}
+  notify: restart {{ ntp_provider + 'd' }}
   when: sync_mode == 1
 
 - name: Disable chronyd
   service: name=chronyd state=stopped enabled=no
-  when: sync_mode != 1 or ntp_implementation != 'chrony'
+  when: sync_mode != 1 or ntp_provider != 'chrony'
   ignore_errors: yes
 
 - name: Disable ntpd
   service: name=ntpd state=stopped enabled=no
-  when: sync_mode != 1 or ntp_implementation != 'ntp'
+  when: sync_mode != 1 or ntp_provider != 'ntp'
   ignore_errors: yes
 
 - name: Disable ntpdate
@@ -147,11 +147,11 @@
 
 - name: Enable chronyd
   service: name=chronyd state=started enabled=yes
-  when: sync_mode == 1 and ntp_implementation == 'chrony'
+  when: sync_mode == 1 and ntp_provider == 'chrony'
 
 - name: Enable ntpd
   service: name=ntpd state=started enabled=yes
-  when: sync_mode == 1 and ntp_implementation == 'ntp'
+  when: sync_mode == 1 and ntp_provider == 'ntp'
 
 - name: Enable ptp4l
   service: name=ptp4l state=started enabled=yes

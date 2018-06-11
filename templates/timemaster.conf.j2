@@ -15,7 +15,7 @@ ptp4l_option udp_ttl {{ value['udp_ttl'] }}
 
 {% endfor %}
 [timemaster]
-ntp_program {{ 'ntpd' if ntp_implementation == 'ntp' else 'chronyd' }}
+ntp_program {{ 'ntpd' if ntp_provider == 'ntp' else 'chronyd' }}
 
 [chrony.conf]
 include /etc/chrony.conf
@@ -27,7 +27,7 @@ includefile /etc/ntp.conf
 
 [chronyd]
 path /usr/sbin/chronyd
-{% if ntp_implementation == 'chrony' and chrony_version.stdout|version_compare('1.30', '<') %}
+{% if ntp_provider == 'chrony' and chrony_version.stdout|version_compare('1.30', '<') %}
 options -u chrony
 {% endif %}
 
