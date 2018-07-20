@@ -32,16 +32,9 @@
   package: name=linuxptp state=present
   when: sync_mode != 1
 
-- name: Run phc_ctl on PTP interface
-  command: phc_ctl -q {{ ptp_domains[0].interfaces[0] }}
-  register: phc_ctl_output
-  changed_when: False
-  when: sync_mode == 2
-  ignore_errors: yes
-
 - name: Check if PTP interface supports HW timestamping
   set_fact:
-    mode2_hwts: "{{ phc_ctl_output.rc == 0 }}"
+    mode2_hwts: "{{ 'raw_hardware' in vars[\"ansible_\" + ptp_domains[0].interfaces[0]]['timestamping'] }}"
   when: sync_mode == 2
 
 - name: Get chrony version
