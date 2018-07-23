@@ -1,0 +1,44 @@
+
+- name: Configure time synchronization with NTP servers and no installed providers
+  hosts: all
+  vars:
+    ntp_servers:
+      - hostname: 172.16.123.1
+      - hostname: 172.16.123.2
+        iburst: yes
+        minpoll: 4
+      - hostname: 172.16.123.3
+        pool: yes
+        iburst: yes
+        minpoll: 4
+        maxpoll: 6
+    clock_step_threshold: 0.01
+    dhcp_ntp_servers: yes
+    min_time_sources: 2
+  roles:
+    - timesync
+
+  pre_tasks:
+    - name: Remove NTP providers
+      package: name={{ item }} state=absent
+      with_items:
+        - chrony
+        - ntp
+
+  tasks:
+    - meta: flush_handlers
+
+    - name: Wait for services to start
+      wait_for:
+        timeout: 2
+
+    - name: Get list of currently used time sources
+      shell: chronyc -n sources || ntpq -pn
+      register: sources
+
+    - name: Check time sources
+      assert:
+        that:
+          - "'172.16.123.1' in sources.stdout"
+          - "'172.16.123.2' in sources.stdout"
+          - "'172.16.123.3' in sources.stdout"
