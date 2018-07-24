@@ -1,6 +1,6 @@
 # {{ ansible_managed }}
 
-{% for value in ntp_servers %}
+{% for value in timesync_ntp_servers %}
 {{ 'pool' if 'pool' in value and value['pool'] else 'server' }} {{
 value['hostname'] }}{{
 ' minpoll {0}'.format(value['minpoll']) if 'minpoll' in value else '' }}{{
@@ -8,24 +8,24 @@ value['hostname'] }}{{
 ' iburst' if 'iburst' in value and value else '' }}
 {% endfor %}
 
-{% if clock_step_threshold != 0.0 %}
+{% if timesync_step_threshold != 0.0 %}
 # Allow the system clock to be stepped in the first three updates.
-makestep {{ clock_step_threshold if clock_step_threshold > 0.0 else '1.0' }} 3
+makestep {{ timesync_step_threshold if timesync_step_threshold > 0.0 else '1.0' }} 3
 
 {% endif %}
 # Enable kernel synchronization of the real-time clock (RTC).
 rtcsync
 
-{% if min_time_sources > 1 %}
+{% if timesync_min_sources > 1 %}
 # Increase the minimum number of selectable sources required to adjust
 # the system clock.
-minsources {{ min_time_sources }}
+minsources {{ timesync_min_sources }}
 
 {% endif %}
 # Record the rate at which the system clock gains/losses time.
 driftfile /var/lib/chrony/drift
 
-{% if chrony_version.stdout|version_compare('2.0', '<') %}
+{% if timesync_chrony_version.stdout|version_compare('2.0', '<') %}
 # Decrease weight of stratum in source selection.
 stratumweight 0.001
 
@@ -34,7 +34,7 @@ bindcmdaddress 127.0.0.1
 bindcmdaddress ::1
 
 {% endif %}
-{% if chrony_version.stdout|version_compare('2.2', '<') %}
+{% if timesync_chrony_version.stdout|version_compare('2.2', '<') %}
 # Specify file containing keys for NTP and command authentication.
 keyfile /etc/chrony.keys
 

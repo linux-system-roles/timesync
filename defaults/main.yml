@@ -1,6 +1,6 @@
 ---
-ntp_servers: []
-ptp_domains: []
-dhcp_ntp_servers: false
-clock_step_threshold: -1.0
-min_time_sources: 1
+timesync_ntp_servers: []
+timesync_ptp_domains: []
+timesync_dhcp_ntp_servers: false
+timesync_step_threshold: -1.0
+timesync_min_sources: 1

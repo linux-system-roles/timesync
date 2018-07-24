@@ -13,7 +13,7 @@ The variables that can be passed to this role are as follows:
 
 ```
 # List of NTP servers
-ntp_servers:
+timesync_ntp_servers:
   - hostname: foo.example.com   # Hostname or address of the server
     minpoll: 4                  # Minimum polling interval (default 6)
     maxpoll: 8                  # Maximum polling interval (default 10)
@@ -24,7 +24,7 @@ ntp_servers:
                                 # (default no)
 
 # List of PTP domains
-ptp_domains:
+timesync_ptp_domains:
   - number: 0                   # PTP domain number
     interfaces: [ eth0 ]        # List of interfaces in the domain
     delay: 0.000010             # Assumed maximum network delay to the
@@ -36,22 +36,22 @@ ptp_domains:
                                 # (default 1)
 
 # Flag enabling use of NTP servers provided by DHCP (default no)
-dhcp_ntp_servers: no
+timesync_dhcp_ntp_servers: no
 
 # Minimum offset of the clock which can be corrected by stepping (default is
 # specific to NTP/PTP implementation: chrony 1.0, ntp 0.128, linuxptp 0.00002).
 # Zero threshold disables all steps.
-clock_step_threshold: 1.0
+timesync_step_threshold: 1.0
 
 # Minimum number of selectable time sources required to allow synchronization
 # of the clock (default 1)
-min_time_sources: 1
+timesync_min_sources: 1
 
 # Name of the package which should be installed and configured for NTP.
 # Possible values are "chrony" and "ntp". If not defined, the currently active
 # or enabled service will be configured. If no service is active or enabled, a
 # package specific to the system and its version will be selected.
-ntp_provider: chrony
+timesync_ntp_provider: chrony
 ```
 
 Example Playbook
@@ -62,7 +62,7 @@ Install and configure ntp to synchronize the system clock with three NTP servers
 ```
 - hosts: targets
   vars:
-    ntp_servers:
+    timesync_ntp_servers:
       - hostname: foo.example.com
         iburst: yes
       - hostname: bar.example.com
@@ -79,7 +79,7 @@ grandmaster in PTP domain number 0, which is accessible on interface eth0:
 ```
 - hosts: targets
   vars:
-    ptp_domains:
+    timesync_ptp_domains:
       - number: 0
         interfaces: [ eth0 ]
   roles:
@@ -93,14 +93,14 @@ synchronization:
 ```
 - hosts: targets
   vars:
-    ntp_servers:
+    timesync_ntp_servers:
       - hostname: foo.example.com
         maxpoll: 6
       - hostname: bar.example.com
         maxpoll: 6
       - hostname: baz.example.com
         maxpoll: 6
-    ptp_domains:
+    timesync_ptp_domains:
       - number: 0
         interfaces: [ eth0, eth1 ]
         transport: L2
