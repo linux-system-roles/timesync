@@ -15,10 +15,14 @@
     sync_mode: 3
   when: sync_mode is not defined
 
-- name: Select NTP implementation
+- name: Determine current NTP provider
+  timesync_provider:
+  when: sync_mode != 2 and (ntp_provider is not defined or ntp_provider == '')
+
+- name: Select NTP provider
   set_fact:
-    ntp_provider: "{{ 'ntp' if ansible_distribution in ['RedHat', 'CentOS'] and ansible_distribution_version|version_compare('7.0', '<') else 'chrony' }}"
-  when: sync_mode != 2
+    ntp_provider: "{{ ntp_provider_default if ntp_provider_current == '' else ntp_provider_current }}"
+  when: sync_mode != 2 and (ntp_provider is not defined or ntp_provider == '')
 
 - name: Install chrony
   package: name=chrony state=present

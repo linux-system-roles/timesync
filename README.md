@@ -46,6 +46,12 @@ clock_step_threshold: 1.0
 # Minimum number of selectable time sources required to allow synchronization
 # of the clock (default 1)
 min_time_sources: 1
+
+# Name of the package which should be installed and configured for NTP.
+# Possible values are "chrony" and "ntp". If not defined, the currently active
+# or enabled service will be configured. If no service is active or enabled, a
+# package specific to the system and its version will be selected.
+ntp_provider: chrony
 ```
 
 Example Playbook
