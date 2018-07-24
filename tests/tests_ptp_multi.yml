@@ -2,7 +2,7 @@
 - name: Configure time synchronization with multiple PTP domains
   hosts: all
   vars:
-    ptp_domains:
+    timesync_ptp_domains:
       - number: 0
         interfaces: "{{ [ ansible_default_ipv4['interface'] ] }}"
         transport: L2
@@ -11,8 +11,8 @@
         delay: 0.001
         transport: UDPv4
         udp_ttl: 2
-    clock_step_threshold: 0.0001
-    min_time_sources: 2
+    timesync_step_threshold: 0.0001
+    timesync_min_sources: 2
   roles:
     - timesync
 

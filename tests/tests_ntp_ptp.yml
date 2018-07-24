@@ -2,23 +2,23 @@
 - name: Configure time synchronization with NTP servers and PTP domains
   hosts: all
   vars:
-    ntp_servers:
+    timesync_ntp_servers:
       - hostname: 172.16.123.1
         minpoll: 0
         maxpoll: 2
       - hostname: 172.16.123.2
         minpoll: 0
         maxpoll: 2
-    ptp_domains:
+    timesync_ptp_domains:
       - number: 0
         interfaces: "{{ [ ansible_default_ipv4['interface'] ] }}"
         delay: 0.0001
       - number: 1
         interfaces: "{{ [ ansible_default_ipv4['interface'] ] }}"
         delay: 0.0001
-    clock_step_threshold: 0.001
-    dhcp_ntp_servers: no
-    min_time_sources: 2
+    timesync_step_threshold: 0.001
+    timesync_dhcp_ntp_servers: no
+    timesync_min_sources: 2
   roles:
     - timesync
 

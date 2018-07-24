@@ -1,6 +1,6 @@
 # {{ ansible_managed }}
 
-{% for value in ntp_servers %}
+{% for value in timesync_ntp_servers %}
 {{ 'pool' if 'pool' in value and value['pool'] else 'server' }} {{
 value['hostname'] }}{{
 ' minpoll {0}'.format(value['minpoll']) if 'minpoll' in value else '' }}{{
@@ -13,7 +13,7 @@ driftfile /var/lib/ntp/drift
 # Permit time synchronization with our time source, but do not
 # permit the source to query or modify the service on this system.
 restrict default nomodify notrap nopeer noquery
-{% if ntp_version.stdout|version_compare('4.2.6', '<') %}
+{% if timesync_ntp_version.stdout|version_compare('4.2.6', '<') %}
 restrict -6 default nomodify notrap nopeer noquery
 {% endif %}
 
@@ -23,14 +23,14 @@ restrict -6 default nomodify notrap nopeer noquery
 restrict 127.0.0.1 
 restrict ::1
 
-{% if clock_step_threshold >= 0.0 %}
+{% if timesync_step_threshold >= 0.0 %}
 # Specify the step threshold.
-tinker step {{ clock_step_threshold }}
+tinker step {{ timesync_step_threshold }}
 
 {% endif %}
-{% if min_time_sources > 1 %}
+{% if timesync_min_sources > 1 %}
 # Increase the minimum number of selectable sources required to adjust
 # the system clock.
-tos minsane {{ min_time_sources }}
+tos minsane {{ timesync_min_sources }}
 
 {% endif %}

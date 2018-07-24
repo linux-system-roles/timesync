@@ -41,7 +41,7 @@ case $ntp_provider_count in
 esac
 
 if [ -z "$error_message" ]; then
-	printf '{"ansible_facts": {"ntp_provider_current": "%s"}}' "$ntp_provider_current"
+	printf '{"ansible_facts": {"timesync_ntp_provider_current": "%s"}}' "$ntp_provider_current"
 else
 	printf '{"failed": "True", "msg": "%s"}' "$error_message"
 fi
