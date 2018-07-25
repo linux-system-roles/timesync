@@ -1,0 +1,29 @@
+
+- name: Configure NTP with chrony as specified provider
+  hosts: all
+  vars:
+    timesync_ntp_servers:
+      - hostname: 172.16.123.1
+    timesync_ntp_provider: chrony
+  roles:
+    - timesync
+
+  pre_tasks:
+    - name: Install chrony
+      package: name=chrony state=present
+      register: package_install
+      ignore_errors: yes
+
+    - meta: end_play
+      when: package_install.failed
+
+    - name: Remove chrony
+      package: name=chrony state=absent
+
+  post_tasks:
+    - name: Wait for services to start
+      wait_for:
+        timeout: 2
+
+    - name: Check chronyd service
+      shell: chronyc -n tracking

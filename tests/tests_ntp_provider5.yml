@@ -1,0 +1,29 @@
+
+- name: Configure NTP with ntp as specified provider
+  hosts: all
+  vars:
+    timesync_ntp_servers:
+      - hostname: 172.16.123.1
+    timesync_ntp_provider: ntp
+  roles:
+    - timesync
+
+  pre_tasks:
+    - name: Install ntp
+      package: name=ntp state=present
+      register: package_install
+      ignore_errors: yes
+
+    - meta: end_play
+      when: package_install.failed
+
+    - name: Remove ntp
+      package: name=ntp state=absent
+
+  post_tasks:
+    - name: Wait for services to start
+      wait_for:
+        timeout: 2
+
+    - name: Check ntpd service
+      shell: ntpq -c rv | grep 'associd=0'
