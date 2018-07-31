@@ -1,1 +1,1 @@
-timesync_ntp_provider_default: "{{ 'ntp' if ansible_distribution in ['RedHat', 'CentOS'] and ansible_distribution_version|version_compare('7.0', '<') else 'chrony' }}"
+timesync_ntp_provider_os_default: "{{ 'ntp' if ansible_distribution in ['RedHat', 'CentOS'] and ansible_distribution_version|version_compare('7.0', '<') else 'chrony' }}"

@@ -21,7 +21,7 @@
 
 - name: Select NTP provider
   set_fact:
-    timesync_ntp_provider: "{{ timesync_ntp_provider_default if timesync_ntp_provider_current == '' else timesync_ntp_provider_current }}"
+    timesync_ntp_provider: "{{ timesync_ntp_provider_os_default if timesync_ntp_provider_current == '' else timesync_ntp_provider_current }}"
   when: timesync_mode != 2 and (timesync_ntp_provider is not defined or timesync_ntp_provider == '')
 
 - name: Install chrony
