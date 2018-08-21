@@ -6,6 +6,17 @@ as an NTP client and/or PTP slave in order to synchronize the system clock with
 NTP servers and/or grandmasters in PTP domains. Supported NTP/PTP
 implementations are chrony, ntp (the reference implementation) and linuxptp.
 
+Warning
+-------
+
+The role replaces the configuration of the given or detected provider
+service on the managed host. Previous settings will be lost, even if
+they are not specified in the role variables (no attempt is made to
+preserve or merge the previous settings, the configuration files are
+replaced entirely). The only setting which is preserved is the choice
+of provider if `timesync_ntp_provider` is not defined (see the
+description of this variable below).
+
 Role Variables
 --------------
 
