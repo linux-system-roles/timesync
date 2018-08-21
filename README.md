@@ -22,7 +22,7 @@ Role Variables
 
 The variables that can be passed to this role are as follows:
 
-```
+```yaml
 # List of NTP servers
 timesync_ntp_servers:
   - hostname: foo.example.com   # Hostname or address of the server
@@ -70,7 +70,7 @@ Example Playbook
 
 Install and configure ntp to synchronize the system clock with three NTP servers:
 
-```
+```yaml
 - hosts: targets
   vars:
     timesync_ntp_servers:
@@ -87,7 +87,7 @@ Install and configure ntp to synchronize the system clock with three NTP servers
 Install and configure linuxptp to synchronize the system clock with a
 grandmaster in PTP domain number 0, which is accessible on interface eth0:
 
-```
+```yaml
 - hosts: targets
   vars:
     timesync_ptp_domains:
@@ -101,7 +101,7 @@ Install and configure chrony and linuxptp to synchronize the system clock with
 multiple NTP servers and PTP domains for a highly accurate and resilient
 synchronization:
 
-```
+```yaml
 - hosts: targets
   vars:
     timesync_ntp_servers:
