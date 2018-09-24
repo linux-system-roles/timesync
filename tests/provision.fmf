@@ -1,0 +1,7 @@
+---
+
+standard-inventory-qcow2:
+  qemu:
+    net_nic:
+      # Use qemu-system-x86_64 -net nic,model=help for a list of available devices.
+      model: e1000
