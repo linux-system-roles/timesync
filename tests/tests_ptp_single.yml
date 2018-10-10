@@ -6,7 +6,7 @@
       - number: 3
         interfaces: "{{ [ ansible_default_ipv4['interface'] ] }}"
   roles:
-    - timesync
+    - linux-system-roles.timesync
 
   tasks:
     - meta: flush_handlers

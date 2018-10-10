@@ -20,7 +20,7 @@
     timesync_dhcp_ntp_servers: no
     timesync_min_sources: 2
   roles:
-    - timesync
+    - linux-system-roles.timesync
 
   tasks:
     - meta: flush_handlers

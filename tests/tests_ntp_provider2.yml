@@ -5,7 +5,7 @@
     timesync_ntp_servers:
       - hostname: 172.16.123.1
   roles:
-    - timesync
+    - linux-system-roles.timesync
 
   pre_tasks:
     - name: Remove ntp

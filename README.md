@@ -81,7 +81,7 @@ Install and configure ntp to synchronize the system clock with three NTP servers
       - hostname: baz.example.com
         iburst: yes
   roles:
-    - timesync
+    - linux-system-roles.timesync
 ```
 
 Install and configure linuxptp to synchronize the system clock with a
@@ -94,7 +94,7 @@ grandmaster in PTP domain number 0, which is accessible on interface eth0:
       - number: 0
         interfaces: [ eth0 ]
   roles:
-    - timesync
+    - linux-system-roles.timesync
 ```
 
 Install and configure chrony and linuxptp to synchronize the system clock with
@@ -121,5 +121,5 @@ synchronization:
         transport: UDPv4
         delay: 0.000010
   roles:
-    - timesync
+    - linux-system-roles.timesync
 ```
