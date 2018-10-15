@@ -27,7 +27,7 @@ includefile /etc/ntp.conf
 
 [chronyd]
 path /usr/sbin/chronyd
-{% if timesync_ntp_provider == 'chrony' and timesync_chrony_version.stdout|version_compare('1.30', '<') %}
+{% if timesync_ntp_provider == 'chrony' and timesync_chrony_version.stdout is version('1.30', '<') %}
 options -u chrony
 {% endif %}
 
