@@ -1,0 +1,9 @@
+---
+- hosts: "{{ targets }}"
+  vars:
+    timesync_ntp_servers:
+      - hostname: 2.pool.ntp.org
+        pool: yes
+        iburst: yes
+  roles:
+    - linux-system-roles.timesync
