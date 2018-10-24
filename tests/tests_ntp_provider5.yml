@@ -6,7 +6,7 @@
       - hostname: 172.16.123.1
     timesync_ntp_provider: ntp
   roles:
-    - timesync
+    - linux-system-roles.timesync
 
   pre_tasks:
     - name: Install ntp

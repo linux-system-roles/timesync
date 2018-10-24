@@ -3,4 +3,4 @@
   hosts: all
 
   roles:
-    - timesync
+    - linux-system-roles.timesync
