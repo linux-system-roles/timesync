@@ -1,0 +1,73 @@
+
+- name: Configure NTP with OS release non-default provider and then change it to the default provider
+  hosts: all
+  vars:
+    is_ntp_default: "ansible_distribution in ['RedHat', 'CentOS'] and ansible_distribution_version is version('7.0', '<')"
+    both_avail: true
+
+  tasks:
+  - name: Check for availability of both NTP providers
+    package: name={{ item }} state=present
+    register: package_install
+    ignore_errors: yes
+    with_items:
+      - chrony
+      - ntp
+
+  # meta doesn't pickup with_item in when conditional, following set_fact workarounds that
+  # see https://github.com/ansible/ansible/issues/35890
+  - set_fact:
+      both_avail: false
+    when: item.failed
+    with_items:
+      - "{{ package_install.results }}"
+
+  - meta: end_play
+    when: not both_avail
+
+  - name: Remove NTP providers
+    package: name={{ item }} state=absent
+    with_items:
+      - chrony
+      - ntp
+
+  - include_role:
+      name: linux-system-roles.timesync
+    vars:
+      # ntp is the default choice for RedHat and CentOS version < 7.0 - reverse it
+      timesync_ntp_provider: "{{ 'chrony' if is_ntp_default else 'ntp' }}"
+
+  - meta: flush_handlers
+
+  - name: Wait for services to start
+    wait_for:
+      timeout: 2
+
+  - name: Check chronyd service
+    shell: chronyc -n tracking
+    when:
+      - is_ntp_default
+
+  - name: Check ntpd service
+    shell: ntpq -c rv | grep 'associd=0'
+    when:
+      - not is_ntp_default
+
+  - include_role:
+      name: linux-system-roles.timesync
+    vars:
+      timesync_ntp_provider: "{{ timesync_ntp_provider_os_default }}"
+
+  - name: Wait for services to start
+    wait_for:
+      timeout: 2
+
+  - name: Check ntpd service
+    shell: ntpq -c rv | grep 'associd=0'
+    when:
+      - is_ntp_default
+
+  - name: Check chronyd service
+    shell: chronyc -n tracking
+    when:
+      - not is_ntp_default
