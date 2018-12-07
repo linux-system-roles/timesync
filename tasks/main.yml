@@ -46,6 +46,7 @@
   command: phc_ctl -q {{ timesync_ptp_domains[0].interfaces[0] }}
   register: timesync_phc_ctl_output
   changed_when: false
+  check_mode: false
   when: timesync_mode == 2
   ignore_errors: true
 
@@ -60,6 +61,7 @@
     warn: false
   register: timesync_chrony_version
   changed_when: false
+  check_mode: false
   when: timesync_mode != 2 and timesync_ntp_provider == 'chrony'
 
 - name: Get ntp version
@@ -68,6 +70,7 @@
     warn: false
   register: timesync_ntp_version
   changed_when: false
+  check_mode: false
   when: timesync_mode != 2 and timesync_ntp_provider == 'ntp'
 
 - name: Generate chrony.conf file
