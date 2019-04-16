@@ -1,0 +1,39 @@
+---
+dependency:
+  name: galaxy
+driver:
+  name: docker
+lint:
+  name: yamllint
+  options:
+    config-file: molecule/default/yamllint.yml
+platforms:
+  - name: centos6
+    image: centos:6
+    privileged: true
+  - name: centos7
+    image: vcrhonek/centos7-systemd
+    volumes:
+      - /sys/fs/cgroup:/sys/fs/cgroup:ro
+    privileged: true
+provisioner:
+  name: ansible
+  lint:
+    name: ansible-lint
+  playbooks:
+    converge: ../../tests/tests_default.yml
+scenario:
+  name: default
+  test_sequence:
+    - lint
+    - destroy
+    - syntax
+    - create
+    - converge
+    - idempotence
+    - check
+    - destroy
+verifier:
+  name: testinfra
+  lint:
+    name: flake8
