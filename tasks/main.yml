@@ -8,7 +8,11 @@
 - name: Check if single PTP is needed
   set_fact:
     timesync_mode: 2
-  when: timesync_mode is not defined and (timesync_ntp_servers|length == 0) and timesync_ptp_domains|length == 1 and timesync_ptp_domains[0].interfaces|length == 1
+  when:
+    - timesync_mode is not defined
+    - timesync_ntp_servers|length == 0
+    - timesync_ptp_domains|length == 1
+    - timesync_ptp_domains[0].interfaces|length == 1
 
 - name: Check if both NTP and PTP are needed
   set_fact:
@@ -17,24 +21,32 @@
 
 - name: Determine current NTP provider
   timesync_provider:
-  when: timesync_mode != 2 and timesync_ntp_provider == ''
+  when:
+    - timesync_mode != 2
+    - timesync_ntp_provider == ''
 
 - name: Select NTP provider
   set_fact:
     timesync_ntp_provider: "{{ timesync_ntp_provider_os_default if timesync_ntp_provider_current == '' else timesync_ntp_provider_current }}"
-  when: timesync_mode != 2 and timesync_ntp_provider == ''
+  when:
+    - timesync_mode != 2
+    - timesync_ntp_provider == ''
 
 - name: Install chrony
   package:
     name: chrony
     state: present
-  when: timesync_mode != 2 and timesync_ntp_provider == 'chrony'
+  when:
+    - timesync_mode != 2
+    - timesync_ntp_provider == 'chrony'
 
 - name: Install ntp
   package:
     name: ntp
     state: present
-  when: timesync_mode != 2 and timesync_ntp_provider == 'ntp'
+  when:
+    - timesync_mode != 2
+    - timesync_ntp_provider == 'ntp'
 
 - name: Install linuxptp
   package:
@@ -77,7 +89,9 @@
     backup: true
     mode: 0644
   notify: restart {{ 'chronyd' if timesync_mode == 1 else 'timemaster' }}
-  when: timesync_mode != 2 and timesync_ntp_provider == 'chrony'
+  when:
+    - timesync_mode != 2
+    - timesync_ntp_provider == 'chrony'
 
 - name: Generate chronyd sysconfig file
   template:
@@ -86,7 +100,9 @@
     backup: true
     mode: 0644
   notify: restart chronyd
-  when: timesync_mode == 1 and timesync_ntp_provider == 'chrony'
+  when:
+    - timesync_mode == 1
+    - timesync_ntp_provider == 'chrony'
 
 - name: Generate ntp.conf file
   template:
@@ -95,7 +111,9 @@
     backup: true
     mode: 0644
   notify: restart {{ 'ntpd' if timesync_mode == 1 else 'timemaster' }}
-  when: timesync_mode != 2 and timesync_ntp_provider == 'ntp'
+  when:
+    - timesync_mode != 2
+    - timesync_ntp_provider == 'ntp'
 
 - name: Generate ntpd sysconfig file
   template:
@@ -104,7 +122,9 @@
     backup: true
     mode: 0644
   notify: restart ntpd
-  when: timesync_mode == 1 and timesync_ntp_provider == 'ntp'
+  when:
+    - timesync_mode == 1
+    - timesync_ntp_provider == 'ntp'
 
 - name: Generate ptp4l.conf file
   template:
@@ -131,7 +151,9 @@
     backup: true
     mode: 0644
   notify: restart phc2sys
-  when: timesync_mode == 2 and timesync_mode2_hwts
+  when:
+    - timesync_mode == 2
+    - timesync_mode2_hwts
 
 - name: Generate timemaster.conf file
   template:
@@ -213,14 +235,18 @@
     name: chronyd
     state: started
     enabled: true
-  when: timesync_mode == 1 and timesync_ntp_provider == 'chrony'
+  when:
+    - timesync_mode == 1
+    - timesync_ntp_provider == 'chrony'
 
 - name: Enable ntpd
   service:
     name: ntpd
     state: started
     enabled: true
-  when: timesync_mode == 1 and timesync_ntp_provider == 'ntp'
+  when:
+    - timesync_mode == 1
+    - timesync_ntp_provider == 'ntp'
 
 - name: Enable ptp4l
   service:
@@ -234,7 +260,9 @@
     name: phc2sys
     state: started
     enabled: true
-  when: timesync_mode == 2 and timesync_mode2_hwts
+  when:
+    - timesync_mode == 2
+    - timesync_mode2_hwts
 
 - name: Enable timemaster
   service:
