@@ -25,23 +25,29 @@
   when: timesync_mode != 2 and (timesync_ntp_provider is not defined or timesync_ntp_provider == '')
 
 - name: Install chrony
-  package: name=chrony state=present
+  package:
+    name: chrony
+    state: present
   when: timesync_mode != 2 and timesync_ntp_provider == 'chrony'
 
 - name: Install ntp
-  package: name=ntp state=present
+  package:
+    name: ntp
+    state: present
   when: timesync_mode != 2 and timesync_ntp_provider == 'ntp'
 
 - name: Install linuxptp
-  package: name=linuxptp state=present
+  package:
+    name: linuxptp
+    state: present
   when: timesync_mode != 1
 
 - name: Run phc_ctl on PTP interface
   command: phc_ctl -q {{ timesync_ptp_domains[0].interfaces[0] }}
   register: timesync_phc_ctl_output
-  changed_when: False
+  changed_when: false
   when: timesync_mode == 2
-  ignore_errors: yes
+  ignore_errors: true
 
 - name: Check if PTP interface supports HW timestamping
   set_fact:
@@ -51,64 +57,96 @@
 - name: Get chrony version
   command: rpm -q --qf '%{version}' chrony
   args:
-    warn: no
+    warn: false
   register: timesync_chrony_version
-  changed_when: False
+  changed_when: false
   when: timesync_mode != 2 and timesync_ntp_provider == 'chrony'
 
 - name: Get ntp version
   command: rpm -q --qf '%{version}' ntp
   args:
-    warn: no
+    warn: false
   register: timesync_ntp_version
-  changed_when: False
+  changed_when: false
   when: timesync_mode != 2 and timesync_ntp_provider == 'ntp'
 
 - name: Generate chrony.conf file
-  template: src=chrony.conf.j2 dest=/etc/chrony.conf backup=yes mode=0644
+  template:
+    src: chrony.conf.j2
+    dest: /etc/chrony.conf
+    backup: true
+    mode: 0644
   notify: restart {{ 'chronyd' if timesync_mode == 1 else 'timemaster' }}
   when: timesync_mode != 2 and timesync_ntp_provider == 'chrony'
 
 - name: Generate chronyd sysconfig file
-  template: src=chronyd.sysconfig.j2 dest=/etc/sysconfig/chronyd backup=yes mode=0644
+  template:
+    src: chronyd.sysconfig.j2
+    dest: /etc/sysconfig/chronyd
+    backup: true
+    mode: 0644
   notify: restart chronyd
   when: timesync_mode == 1 and timesync_ntp_provider == 'chrony'
 
 - name: Generate ntp.conf file
-  template: src=ntp.conf.j2 dest=/etc/ntp.conf backup=yes mode=0644
+  template:
+    src: ntp.conf.j2
+    dest: /etc/ntp.conf
+    backup: true
+    mode: 0644
   notify: restart {{ 'ntpd' if timesync_mode == 1 else 'timemaster' }}
   when: timesync_mode != 2 and timesync_ntp_provider == 'ntp'
 
 - name: Generate ntpd sysconfig file
-  template: src=ntpd.sysconfig.j2 dest=/etc/sysconfig/ntpd backup=yes mode=0644
+  template:
+    src: ntpd.sysconfig.j2
+    dest: /etc/sysconfig/ntpd
+    backup: true
+    mode: 0644
   notify: restart ntpd
   when: timesync_mode == 1 and timesync_ntp_provider == 'ntp'
 
 - name: Generate ptp4l.conf file
-  template: src=ptp4l.conf.j2 dest=/etc/ptp4l.conf backup=yes mode=0644
+  template:
+    src: ptp4l.conf.j2
+    dest: /etc/ptp4l.conf
+    backup: true
+    mode: 0644
   notify: restart ptp4l
   when: timesync_mode == 2
 
 - name: Generate ptp4l sysconfig file
-  template: src=ptp4l.sysconfig.j2 dest=/etc/sysconfig/ptp4l backup=yes mode=0644
+  template:
+    src: ptp4l.sysconfig.j2
+    dest: /etc/sysconfig/ptp4l
+    backup: true
+    mode: 0644
   notify: restart ptp4l
   when: timesync_mode == 2
 
 - name: Generate phc2sys sysconfig file
-  template: src=phc2sys.sysconfig.j2 dest=/etc/sysconfig/phc2sys backup=yes mode=0644
+  template:
+    src: phc2sys.sysconfig.j2
+    dest: /etc/sysconfig/phc2sys
+    backup: true
+    mode: 0644
   notify: restart phc2sys
   when: timesync_mode == 2 and timesync_mode2_hwts
 
 - name: Generate timemaster.conf file
-  template: src=timemaster.conf.j2 dest=/etc/timemaster.conf backup=yes mode=0644
+  template:
+    src: timemaster.conf.j2
+    dest: /etc/timemaster.conf
+    backup: true
+    mode: 0644
   notify: restart timemaster
   when: timesync_mode == 3
 
 - name: Update network sysconfig file
   lineinfile:
     dest: /etc/sysconfig/network
-    create: yes
-    backup: yes
+    create: true
+    backup: true
     mode: 0644
     regexp: '^PEERNTP='
     line: 'PEERNTP=no'
@@ -117,54 +155,90 @@
   when: timesync_mode == 1
 
 - name: Disable chronyd
-  service: name=chronyd state=stopped enabled=no
+  service:
+    name: chronyd
+    state: stopped
+    enabled: false
   when: timesync_mode != 1 or timesync_ntp_provider != 'chrony'
-  ignore_errors: yes
+  ignore_errors: true
 
 - name: Disable ntpd
-  service: name=ntpd state=stopped enabled=no
+  service:
+    name: ntpd
+    state: stopped
+    enabled: false
   when: timesync_mode != 1 or timesync_ntp_provider != 'ntp'
-  ignore_errors: yes
+  ignore_errors: true
 
 - name: Disable ntpdate
-  service: name=ntpdate state=stopped enabled=no
-  ignore_errors: yes
+  service:
+    name: ntpdate
+    state: stopped
+    enabled: false
+  ignore_errors: true
 
 - name: Disable sntp
-  service: name=sntp state=stopped enabled=no
-  ignore_errors: yes
+  service:
+    name: sntp
+    state: stopped
+    enabled: false
+  ignore_errors: true
 
 - name: Disable ptp4l
-  service: name=ptp4l state=stopped enabled=no
+  service:
+    name: ptp4l
+    state: stopped
+    enabled: false
   when: timesync_mode != 2
-  ignore_errors: yes
+  ignore_errors: true
 
 - name: Disable phc2sys
-  service: name=phc2sys state=stopped enabled=no
+  service:
+    name: phc2sys
+    state: stopped
+    enabled: false
   when: timesync_mode != 2 or not timesync_mode2_hwts
-  ignore_errors: yes
+  ignore_errors: true
 
 - name: Disable timemaster
-  service: name=timemaster state=stopped enabled=no
+  service:
+    name: timemaster
+    state: stopped
+    enabled: false
   when: timesync_mode != 3
-  ignore_errors: yes
+  ignore_errors: true
 
 - name: Enable chronyd
-  service: name=chronyd state=started enabled=yes
+  service:
+    name: chronyd
+    state: started
+    enabled: true
   when: timesync_mode == 1 and timesync_ntp_provider == 'chrony'
 
 - name: Enable ntpd
-  service: name=ntpd state=started enabled=yes
+  service:
+    name: ntpd
+    state: started
+    enabled: true
   when: timesync_mode == 1 and timesync_ntp_provider == 'ntp'
 
 - name: Enable ptp4l
-  service: name=ptp4l state=started enabled=yes
+  service:
+    name: ptp4l
+    state: started
+    enabled: true
   when: timesync_mode == 2
 
 - name: Enable phc2sys
-  service: name=phc2sys state=started enabled=yes
+  service:
+    name: phc2sys
+    state: started
+    enabled: true
   when: timesync_mode == 2 and timesync_mode2_hwts
 
 - name: Enable timemaster
-  service: name=timemaster state=started enabled=yes
+  service:
+    name: timemaster
+    state: started
+    enabled: true
   when: timesync_mode == 3
