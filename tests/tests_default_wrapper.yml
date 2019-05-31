@@ -1,0 +1,19 @@
+
+- name: Create static inventory from hostvars
+  hosts: all
+  tasks:
+    - name: Create static inventory from hostvars
+      template:
+        src: inventory.yaml.j2
+        dest: inventory.yaml
+      delegate_to: localhost
+
+- name: Run tests_default.yml normally
+  import_playbook: tests_default.yml
+
+- name: Run tests_default.yml in check_mode
+  hosts: all
+  tasks:
+    - name: Run ansible-playbook with tests_default.yml in check mode
+      command: ansible-playbook -vvv -i inventory.yaml --check tests_default.yml
+      delegate_to: localhost
