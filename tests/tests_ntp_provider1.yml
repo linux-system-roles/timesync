@@ -1,5 +1,6 @@
 
 - name: Configure NTP with default provider
+  tags: tests::tier1
   hosts: all
   vars:
     timesync_ntp_servers:
@@ -8,6 +9,10 @@
     - linux-system-roles.timesync
 
   pre_tasks:
+    - name: Import tasks
+      tags: tests::tier1::cleanup
+      import_tasks: get_services_state.yml
+
     - name: Remove NTP providers
       package: name={{ item }} state=absent
       with_items:
@@ -27,3 +32,7 @@
       assert:
         that:
           - "'172.16.123.1' in sources.stdout"
+
+    - name: Import tasks
+      tags: tests::tier1::cleanup
+      import_tasks: restore_services_state.yml

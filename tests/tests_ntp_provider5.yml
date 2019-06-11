@@ -1,5 +1,6 @@
 
 - name: Configure NTP with ntp as specified provider
+  tags: tests::tier1
   hosts: all
   vars:
     timesync_ntp_servers:
@@ -9,6 +10,10 @@
     - linux-system-roles.timesync
 
   pre_tasks:
+    - name: Import tasks
+      tags: tests::tier1::cleanup
+      import_tasks: get_services_state.yml
+
     - name: Install ntp
       package: name=ntp state=present
       register: package_install
@@ -27,3 +32,7 @@
 
     - name: Check ntpd service
       shell: ntpq -c rv | grep 'associd=0'
+
+    - name: Import tasks
+      tags: tests::tier1::cleanup
+      import_tasks: restore_services_state.yml

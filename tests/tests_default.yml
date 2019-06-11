@@ -1,6 +1,17 @@
 
 - name: Ensure that the role runs with default parameters
+  tags: tests::tier1
   hosts: all
 
   roles:
     - linux-system-roles.timesync
+
+  pre_tasks:
+    - name: Import tasks
+      tags: tests::tier1::cleanup
+      import_tasks: get_services_state.yml
+
+  post_tasks:
+    - name: Import tasks
+      tags: tests::tier1::cleanup
+      import_tasks: restore_services_state.yml

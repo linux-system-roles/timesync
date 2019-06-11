@@ -1,5 +1,6 @@
 
 - name: Configure NTP with chrony as current provider
+  tags: tests::tier1
   hosts: all
   vars:
     timesync_ntp_servers:
@@ -8,6 +9,10 @@
     - linux-system-roles.timesync
 
   pre_tasks:
+    - name: Import tasks
+      tags: tests::tier1::cleanup
+      import_tasks: get_services_state.yml
+
     - name: Remove ntp
       package: name=ntp state=absent
 
@@ -29,3 +34,7 @@
 
     - name: Check chronyd service
       shell: chronyc -n tracking
+
+    - name: Import tasks
+      tags: tests::tier1::cleanup
+      import_tasks: restore_services_state.yml

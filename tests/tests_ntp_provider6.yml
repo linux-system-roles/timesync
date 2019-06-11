@@ -1,11 +1,16 @@
 
 - name: Configure NTP with OS release non-default provider and then change it to the default provider
+  tags: tests::tier1
   hosts: all
   vars:
     is_ntp_default: "ansible_distribution in ['RedHat', 'CentOS'] and ansible_distribution_version is version('7.0', '<')"
     both_avail: true
 
   tasks:
+  - name: Import tasks
+    tags: tests::tier1::cleanup
+    import_tasks: get_services_state.yml
+
   - name: Check for availability of both NTP providers
     package: name={{ item }} state=present
     register: package_install
@@ -71,3 +76,7 @@
     shell: chronyc -n tracking
     when:
       - not is_ntp_default
+
+  - name: Import tasks
+    tags: tests::tier1::cleanup
+    import_tasks: restore_services_state.yml

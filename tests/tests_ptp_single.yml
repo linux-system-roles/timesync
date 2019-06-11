@@ -1,5 +1,6 @@
 
 - name: Configure time synchronization with single PTP domain
+  tags: [ 'tests::tier1', 'tests::expfail' ]
   hosts: all
   vars:
     timesync_ptp_domains:
@@ -7,6 +8,11 @@
         interfaces: "{{ [ ansible_default_ipv4['interface'] ] }}"
   roles:
     - linux-system-roles.timesync
+
+  pre_tasks:
+    - name: Import tasks
+      tags: tests::tier1::cleanup
+      import_tasks: get_services_state.yml
 
   tasks:
     - meta: flush_handlers
@@ -31,3 +37,8 @@
               - "'domainNumber 3' in pmc.stdout"
 
       when: "'SOF_TIMESTAMPING_TX_' in ethtool.stdout"
+
+  post_tasks:
+    - name: Import tasks
+      tags: tests::tier1::cleanup
+      import_tasks: restore_services_state.yml

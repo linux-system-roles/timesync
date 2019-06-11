@@ -1,0 +1,19 @@
+- name: Get final state of services
+  tags: tests::cleanup
+  service_facts:
+  register: final_state
+
+- name: Restore state of services
+  tags: tests::cleanup
+  service:
+    name: "{{ item }}"
+    state: "{{ 'started' if initial_state.ansible_facts.services[item + '.service']['state'] == 'running' else 'stopped' }}"
+  when:
+     - item + '.service' in final_state.ansible_facts.services
+     - item + '.service' in initial_state.ansible_facts.services
+  with_items:
+    - chronyd
+    - ntpd
+    - ptp4l
+    - phc2sys
+    - timemaster

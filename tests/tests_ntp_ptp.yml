@@ -1,5 +1,6 @@
 
 - name: Configure time synchronization with NTP servers and PTP domains
+  tags: tests::tier1
   hosts: all
   vars:
     timesync_ntp_servers:
@@ -21,6 +22,11 @@
     timesync_min_sources: 2
   roles:
     - linux-system-roles.timesync
+
+  pre_tasks:
+    - name: Import tasks
+      tags: tests::tier1::cleanup
+      import_tasks: get_services_state.yml
 
   tasks:
     - meta: flush_handlers
@@ -48,3 +54,8 @@
               - "'PTP1' in sources.stdout"
 
       when: "'SOF_TIMESTAMPING_TX_' in ethtool.stdout"
+
+  post_tasks:
+    - name: Import tasks
+      tags: tests::tier1::cleanup
+      import_tasks: restore_services_state.yml
