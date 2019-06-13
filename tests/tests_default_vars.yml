@@ -1,5 +1,6 @@
 ---
 - name: Ensure that the role declares all parameters in defaults
+  tags: tests::tier1
   hosts: all
 
   tasks:
