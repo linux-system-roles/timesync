@@ -1,0 +1,20 @@
+---
+- name: Ensure that the role declares all parameters in defaults
+  hosts: all
+
+  tasks:
+    - block:
+        - import_role:
+            name: linux-system-roles.timesync
+          when: false
+
+        - assert:
+            that: "vars[item] is defined"
+          loop:
+            - timesync_ntp_servers
+            - timesync_ptp_domains
+            - timesync_dhcp_ntp_servers
+            - timesync_step_threshold
+            - timesync_min_sources
+            - timesync_ntp_provider
+      when: "ansible_version.full is version_compare('2.7', '>=')"
