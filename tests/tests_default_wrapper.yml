@@ -1,6 +1,8 @@
 ---
 - name: Create static inventory from hostvars
-  tags: tests::tier1
+  tags:
+    - 'tests::tier1'
+    - 'tests::slow'
   hosts: all
   tasks:
     - name: create temporary file
@@ -18,11 +20,15 @@
 
 
 - name: Run tests_default.yml normally
-  tags: tests::tier1
+  tags:
+    - 'tests::tier1'
+    - 'tests::slow'
   import_playbook: tests_default.yml
 
 - name: Run tests_default.yml in check_mode
-  tags: tests::tier1
+  tags:
+    - 'tests::tier1'
+    - 'tests::slow'
   hosts: all
   tasks:
     - name: Run ansible-playbook with tests_default.yml in check mode
