@@ -1,7 +1,7 @@
 # {{ ansible_managed }}
 
 {% for value in timesync_ntp_servers %}
-{{ 'pool' if 'pool' in value and value['pool'] else 'server' }} {{
+{{ 'pool' if 'pool' in value and value['pool'] else 'peer' if 'peer' in value and value['peer'] else 'server' }} {{
 value['hostname'] }}{{
 ' minpoll {0}'.format(value['minpoll']) if 'minpoll' in value else '' }}{{
 ' maxpoll {0}'.format(value['maxpoll']) if 'maxpoll' in value else '' }}{{
