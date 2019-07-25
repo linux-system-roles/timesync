@@ -27,7 +27,9 @@
 
 - name: Select NTP provider
   set_fact:
-    timesync_ntp_provider: "{{ timesync_ntp_provider_os_default if timesync_ntp_provider_current == '' else timesync_ntp_provider_current }}"
+    timesync_ntp_provider: "{{
+        timesync_ntp_provider_os_default if timesync_ntp_provider_current == ''
+        else timesync_ntp_provider_current }}"
   when:
     - timesync_mode != 2
     - timesync_ntp_provider == ''
