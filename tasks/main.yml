@@ -74,7 +74,9 @@
   register: timesync_chrony_version
   changed_when: false
   check_mode: false
-  when: timesync_mode != 2 and timesync_ntp_provider == 'chrony'
+  when:
+    - timesync_mode != 2
+    - timesync_ntp_provider == 'chrony'
 
 - name: Get ntp version
   command: rpm -q --qf '%{version}' ntp
