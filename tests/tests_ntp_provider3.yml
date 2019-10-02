@@ -23,9 +23,11 @@
       service: name=ntpd state=started enabled=yes
 
   post_tasks:
-    - name: Wait for services to start
-      wait_for:
-        timeout: 2
+    - block:
+      - name: Wait for services to start
+        wait_for:
+          timeout: 2
 
-    - name: Check ntpd service
-      shell: ntpq -c rv | grep 'associd=0'
+      - name: Check ntpd service
+        shell: ntpq -c rv | grep 'associd=0'
+      tags: tests::verify

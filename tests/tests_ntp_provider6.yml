@@ -37,37 +37,41 @@
       # ntp is the default choice for RedHat and CentOS version < 7.0 - reverse it
       timesync_ntp_provider: "{{ 'chrony' if is_ntp_default else 'ntp' }}"
 
-  - meta: flush_handlers
+  - block:
+    - meta: flush_handlers
 
-  - name: Wait for services to start
-    wait_for:
-      timeout: 2
+    - name: Wait for services to start
+      wait_for:
+        timeout: 2
 
-  - name: Check chronyd service
-    shell: chronyc -n tracking
-    when:
-      - is_ntp_default
+    - name: Check chronyd service
+      shell: chronyc -n tracking
+      when:
+        - is_ntp_default
 
-  - name: Check ntpd service
-    shell: ntpq -c rv | grep 'associd=0'
-    when:
-      - not is_ntp_default
+    - name: Check ntpd service
+      shell: ntpq -c rv | grep 'associd=0'
+      when:
+        - not is_ntp_default
+    tags: tests::verify
 
   - include_role:
       name: linux-system-roles.timesync
     vars:
       timesync_ntp_provider: "{{ timesync_ntp_provider_os_default }}"
 
-  - name: Wait for services to start
-    wait_for:
-      timeout: 2
+  - block:
+    - name: Wait for services to start
+      wait_for:
+        timeout: 2
 
-  - name: Check ntpd service
-    shell: ntpq -c rv | grep 'associd=0'
-    when:
-      - is_ntp_default
+    - name: Check ntpd service
+      shell: ntpq -c rv | grep 'associd=0'
+      when:
+        - is_ntp_default
 
-  - name: Check chronyd service
-    shell: chronyc -n tracking
-    when:
-      - not is_ntp_default
+    - name: Check chronyd service
+      shell: chronyc -n tracking
+      when:
+        - not is_ntp_default
+    tags: tests::verify

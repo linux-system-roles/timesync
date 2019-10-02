@@ -15,15 +15,17 @@
         - ntp
 
   post_tasks:
-    - name: Wait for services to start
-      wait_for:
-        timeout: 2
+    - block:
+      - name: Wait for services to start
+        wait_for:
+          timeout: 2
 
-    - name: Get list of currently used time sources
-      shell: chronyc -n sources || ntpq -pn
-      register: sources
+      - name: Get list of currently used time sources
+        shell: chronyc -n sources || ntpq -pn
+        register: sources
 
-    - name: Check time sources
-      assert:
-        that:
-          - "'172.16.123.1' in sources.stdout"
+      - name: Check time sources
+        assert:
+          that:
+            - "'172.16.123.1' in sources.stdout"
+      tags: tests::verify

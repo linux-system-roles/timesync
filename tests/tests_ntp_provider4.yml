@@ -21,9 +21,11 @@
       package: name=chrony state=absent
 
   post_tasks:
-    - name: Wait for services to start
-      wait_for:
-        timeout: 2
+    - block:
+      - name: Wait for services to start
+        wait_for:
+          timeout: 2
 
-    - name: Check chronyd service
-      shell: chronyc -n tracking
+      - name: Check chronyd service
+        shell: chronyc -n tracking
+      tags: tests::verify
