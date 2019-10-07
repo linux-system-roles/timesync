@@ -9,16 +9,19 @@
     - linux-system-roles.timesync
 
   pre_tasks:
-    - name: Install chrony
-      package: name=chrony state=present
-      register: package_install
-      ignore_errors: yes
+    - block:
+      - name: Install chrony
+        package: name=chrony state=present
+        register: package_install
+        ignore_errors: yes
 
-    - meta: end_play
-      when: package_install.failed
+      - meta: end_play
+        when: package_install.failed
 
-    - name: Remove chrony
-      package: name=chrony state=absent
+      - name: Remove chrony
+        package: name=chrony state=absent
+      check_mode: false
+      tags: tests::setup
 
   post_tasks:
     - block:

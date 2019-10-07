@@ -8,11 +8,14 @@
     - linux-system-roles.timesync
 
   pre_tasks:
-    - name: Remove NTP providers
-      package: name={{ item }} state=absent
-      with_items:
-        - chrony
-        - ntp
+    - block:
+      - name: Remove NTP providers
+        package: name={{ item }} state=absent
+        with_items:
+          - chrony
+          - ntp
+      check_mode: false
+      tags: tests::setup
 
   post_tasks:
     - block:
