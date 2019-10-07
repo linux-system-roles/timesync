@@ -42,7 +42,7 @@
 
             - name: Run pmc
               # yamllint disable-line rule:line-length
-              command: pmc -u -b 0 -d 0 -s /var/run/timemaster/ptp4l.0.socket 'GET DOMAIN'
+              command: pmc -u -b 0 -d 0 -s /var/run/timemaster/ptp4l.0.socket 'GET DOMAIN' 'GET PORT_DATA_SET'
               register: pmc
 
             - name: Check PTP domain
@@ -50,15 +50,31 @@
                 that:
                   - "'domainNumber 0' in pmc.stdout"
 
+            - name: Check PTP port state
+              assert:
+                that:
+                  - pmc.stdout is search("portState\s+LISTENING")
+              when:
+                - ansible_distribution not in ['RedHat', 'CentOS'] or
+                  ansible_distribution_version is not version('8.3', '<')
+
             - name: Run pmc
               # yamllint disable-line rule:line-length
-              command: pmc -u -b 0 -d 1 -s /var/run/timemaster/ptp4l.1.socket 'GET DOMAIN'
+              command: pmc -u -b 0 -d 1 -s /var/run/timemaster/ptp4l.1.socket 'GET DOMAIN' 'GET PORT_DATA_SET'
               register: pmc
 
             - name: Check PTP domain
               assert:
                 that:
                   - "'domainNumber 1' in pmc.stdout"
+
+            - name: Check PTP port state
+              assert:
+                that:
+                  - pmc.stdout is search("portState\s+LISTENING")
+              when:
+                - ansible_distribution not in ['RedHat', 'CentOS'] or
+                  ansible_distribution_version is not version('8.3', '<')
 
           when: "'SOF_TIMESTAMPING_TX_' in ethtool.stdout"
       tags: tests::verify
