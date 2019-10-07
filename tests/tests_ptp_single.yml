@@ -22,13 +22,21 @@
                 timeout: 2
 
             - name: Run pmc
-              command: pmc -u -b 0 -d 3 'GET DOMAIN'
+              command: pmc -u -b 0 -d 3 'GET DOMAIN' 'GET PORT_DATA_SET'
               register: pmc
 
             - name: Check PTP domain
               assert:
                 that:
                   - "'domainNumber 3' in pmc.stdout"
+
+            - name: Check PTP port state
+              assert:
+                that:
+                  - pmc.stdout is search("portState\s+LISTENING")
+              when:
+                - ansible_distribution not in ['RedHat', 'CentOS'] or
+                  ansible_distribution_version is not version('8.3', '<')
 
           when: "'SOF_TIMESTAMPING_TX_' in ethtool.stdout"
       tags: tests::verify
