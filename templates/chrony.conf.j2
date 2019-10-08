@@ -25,7 +25,7 @@ minsources {{ timesync_min_sources }}
 # Record the rate at which the system clock gains/losses time.
 driftfile /var/lib/chrony/drift
 
-{% if timesync_chrony_version.stdout is version('2.0', '<') %}
+{% if __timesync_chrony_version is version('2.0', '<') %}
 # Decrease weight of stratum in source selection.
 stratumweight 0.001
 
@@ -34,7 +34,7 @@ bindcmdaddress 127.0.0.1
 bindcmdaddress ::1
 
 {% endif %}
-{% if timesync_chrony_version.stdout is version('2.2', '<') %}
+{% if __timesync_chrony_version is version('2.2', '<') %}
 # Specify file containing keys for NTP and command authentication.
 keyfile /etc/chrony.keys
 

@@ -65,6 +65,10 @@
     state: present
   when: timesync_mode != 1
 
+- name: Gather package facts
+  package_facts:
+    manager: auto
+
 - name: Run phc_ctl on PTP interface
   command: phc_ctl -q {{ timesync_ptp_domains[0].interfaces[0] }}
   register: timesync_phc_ctl_output
@@ -77,26 +81,6 @@
   set_fact:
     timesync_mode2_hwts: "{{ timesync_phc_ctl_output.rc == 0 }}"
   when: timesync_mode == 2
-
-- name: Get chrony version
-  command: rpm -q --qf '%{version}' chrony
-  args:
-    warn: false
-  register: timesync_chrony_version
-  changed_when: false
-  check_mode: false
-  when: timesync_mode != 2 and timesync_ntp_provider == 'chrony'
-
-- name: Get ntp version
-  command: rpm -q --qf '%{version}' ntp
-  args:
-    warn: false
-  register: timesync_ntp_version
-  changed_when: false
-  check_mode: false
-  when:
-    - timesync_mode != 2
-    - timesync_ntp_provider == 'ntp'
 
 - name: Generate chrony.conf file
   template:
