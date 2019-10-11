@@ -11,6 +11,8 @@
         iburst: yes
         minpoll: 4
         maxpoll: 6
+    timesync_ntp_custom_settings:
+      - "tinker panic 0"
     timesync_step_threshold: 0.01
     timesync_dhcp_ntp_servers: yes
     timesync_min_sources: 2
