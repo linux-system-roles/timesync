@@ -92,6 +92,7 @@
   when:
     - timesync_mode != 2
     - timesync_ntp_provider == 'chrony'
+    - "'chrony' in ansible_facts.packages"
 
 - name: Generate chronyd sysconfig file
   template:
@@ -103,6 +104,7 @@
   when:
     - timesync_mode == 1
     - timesync_ntp_provider == 'chrony'
+    - "'chrony' in ansible_facts.packages"
 
 - name: Generate ntp.conf file
   template:
@@ -114,6 +116,7 @@
   when:
     - timesync_mode != 2
     - timesync_ntp_provider == 'ntp'
+    - "'ntp' in ansible_facts.packages"
 
 - name: Generate ntpd sysconfig file
   template:
@@ -125,6 +128,7 @@
   when:
     - timesync_mode == 1
     - timesync_ntp_provider == 'ntp'
+    - "'ntp' in ansible_facts.packages"
 
 - name: Generate ptp4l.conf file
   template:
@@ -133,7 +137,9 @@
     backup: true
     mode: 0644
   notify: restart ptp4l
-  when: timesync_mode == 2
+  when:
+    - timesync_mode == 2
+    - "'linuxptp' in ansible_facts.packages"
 
 - name: Generate ptp4l sysconfig file
   template:
@@ -142,7 +148,9 @@
     backup: true
     mode: 0644
   notify: restart ptp4l
-  when: timesync_mode == 2
+  when:
+    - timesync_mode == 2
+    - "'linuxptp' in ansible_facts.packages"
 
 - name: Generate phc2sys sysconfig file
   template:
@@ -154,6 +162,7 @@
   when:
     - timesync_mode == 2
     - timesync_mode2_hwts
+    - "'linuxptp' in ansible_facts.packages"
 
 - name: Generate timemaster.conf file
   template:
@@ -162,7 +171,9 @@
     backup: true
     mode: 0644
   notify: restart timemaster
-  when: timesync_mode == 3
+  when:
+    - timesync_mode == 3
+    - "'linuxptp' in ansible_facts.packages"
 
 - name: Update network sysconfig file
   lineinfile:
