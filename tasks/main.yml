@@ -1,5 +1,14 @@
 ---
 
+- name: Set version specific variables
+  include_vars: "{{ item }}"
+  with_first_found:
+    - "{{ ansible_distribution }}-{{ ansible_distribution_version }}.yml"
+    - "{{ ansible_distribution }}-{{ ansible_distribution_major_version }}.yml"
+    - "{{ ansible_distribution }}.yml"
+    - "{{ ansible_os_family }}.yml"
+    - "default.yml"
+
 - name: Check if only NTP is needed
   set_fact:
     timesync_mode: 1
@@ -27,7 +36,9 @@
 
 - name: Select NTP provider
   set_fact:
-    timesync_ntp_provider: "{{ timesync_ntp_provider_os_default if timesync_ntp_provider_current == '' else timesync_ntp_provider_current }}"
+    timesync_ntp_provider: "{{
+        timesync_ntp_provider_current|
+        default(timesync_ntp_provider_os_default, true) }}"
   when:
     - timesync_mode != 2
     - timesync_ntp_provider == ''
