@@ -19,19 +19,21 @@
     - linux-system-roles.timesync
 
   tasks:
-    - meta: flush_handlers
+    - block:
+      - meta: flush_handlers
 
-    - name: Wait for services to start
-      wait_for:
-        timeout: 2
+      - name: Wait for services to start
+        wait_for:
+          timeout: 2
 
-    - name: Get list of currently used time sources
-      shell: chronyc -n sources || ntpq -pn
-      register: sources
+      - name: Get list of currently used time sources
+        shell: chronyc -n sources || ntpq -pn
+        register: sources
 
-    - name: Check time sources
-      assert:
-        that:
-          - "'172.16.123.1' in sources.stdout"
-          - "'172.16.123.2' in sources.stdout"
-          - "'172.16.123.3' in sources.stdout"
+      - name: Check time sources
+        assert:
+          that:
+            - "'172.16.123.1' in sources.stdout"
+            - "'172.16.123.2' in sources.stdout"
+            - "'172.16.123.3' in sources.stdout"
+      tags: tests::verify

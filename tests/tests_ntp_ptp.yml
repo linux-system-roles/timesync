@@ -23,28 +23,30 @@
     - linux-system-roles.timesync
 
   tasks:
-    - meta: flush_handlers
-
-    - name: Check if SW/HW timestamping is supported
-      shell: ethtool -T "{{ ansible_default_ipv4['interface'] }}"
-      register: ethtool
-      ignore_errors: yes
-
     - block:
-        - name: Wait for services to start
-          wait_for:
-            timeout: 2
+      - meta: flush_handlers
 
-        - name: Get list of currently used time sources
-          shell: chronyc -n sources || ntpq -pn
-          register: sources
+      - name: Check if SW/HW timestamping is supported
+        shell: ethtool -T "{{ ansible_default_ipv4['interface'] }}"
+        register: ethtool
+        ignore_errors: yes
 
-        - name: Check time sources
-          assert:
-            that:
-              - "'172.16.123.1' in sources.stdout"
-              - "'172.16.123.2' in sources.stdout"
-              - "'PTP0' in sources.stdout"
-              - "'PTP1' in sources.stdout"
+      - block:
+          - name: Wait for services to start
+            wait_for:
+              timeout: 2
 
-      when: "'SOF_TIMESTAMPING_TX_' in ethtool.stdout"
+          - name: Get list of currently used time sources
+            shell: chronyc -n sources || ntpq -pn
+            register: sources
+
+          - name: Check time sources
+            assert:
+              that:
+                - "'172.16.123.1' in sources.stdout"
+                - "'172.16.123.2' in sources.stdout"
+                - "'PTP0' in sources.stdout"
+                - "'PTP1' in sources.stdout"
+
+        when: "'SOF_TIMESTAMPING_TX_' in ethtool.stdout"
+      tags: tests::verify

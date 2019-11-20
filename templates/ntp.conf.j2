@@ -13,7 +13,7 @@ driftfile /var/lib/ntp/drift
 # Permit time synchronization with our time source, but do not
 # permit the source to query or modify the service on this system.
 restrict default nomodify notrap nopeer noquery
-{% if timesync_ntp_version.stdout is version('4.2.6', '<') %}
+{% if __timesync_ntp_version is version('4.2.6', '<') %}
 restrict -6 default nomodify notrap nopeer noquery
 {% endif %}
 
