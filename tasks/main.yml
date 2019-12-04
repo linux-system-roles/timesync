@@ -43,26 +43,23 @@
     - timesync_mode != 2
     - timesync_ntp_provider == ''
 
-- name: Install chrony
-  package:
-    name: chrony
-    state: present
+- import_tasks: tasks/install_pkg.yml
+  vars:
+    __timesync_pkg: "{{ timesync_chrony_pkg }}"
   when:
     - timesync_mode != 2
     - timesync_ntp_provider == 'chrony'
 
-- name: Install ntp
-  package:
-    name: ntp
-    state: present
+- import_tasks: tasks/install_pkg.yml
+  vars:
+    __timesync_pkg: "{{ timesync_ntp_pkg }}"
   when:
     - timesync_mode != 2
     - timesync_ntp_provider == 'ntp'
 
-- name: Install linuxptp
-  package:
-    name: linuxptp
-    state: present
+- import_tasks: tasks/install_pkg.yml
+  vars:
+    __timesync_pkg: "{{ timesync_linuxptp_pkg }}"
   when: timesync_mode != 1
 
 - name: Gather package facts
@@ -82,102 +79,88 @@
     timesync_mode2_hwts: "{{ timesync_phc_ctl_output.rc == 0 }}"
   when: timesync_mode == 2
 
-- name: Generate chrony.conf file
-  template:
-    src: chrony.conf.j2
-    dest: /etc/chrony.conf
-    backup: true
-    mode: 0644
-  notify: restart {{ 'chronyd' if timesync_mode == 1 else 'timemaster' }}
+- import_tasks: tasks/generate_conf_file.yml
+  vars:
+    __timesync_template: "{{ timesync_chrony_conf_template }}"
+    __timesync_path: "{{ timesync_chrony_conf_path }}"
+    __timesync_notify: "restart {{ 'chronyd' if timesync_mode == 1
+      else 'timemaster' }}"
   when:
     - timesync_mode != 2
     - timesync_ntp_provider == 'chrony'
     - "'chrony' in ansible_facts.packages"
 
-- name: Generate chronyd sysconfig file
-  template:
-    src: chronyd.sysconfig.j2
-    dest: /etc/sysconfig/chronyd
-    backup: true
-    mode: 0644
-  notify: restart chronyd
+- import_tasks: tasks/generate_conf_file.yml
+  vars:
+    __timesync_template: "{{ timesync_chrony_sysconfig_template }}"
+    __timesync_path: "{{ timesync_chrony_sysconfig_path }}"
+    __timesync_notify: "restart chronyd"
   when:
     - timesync_mode == 1
     - timesync_ntp_provider == 'chrony'
     - "'chrony' in ansible_facts.packages"
 
-- name: Generate ntp.conf file
-  template:
-    src: ntp.conf.j2
-    dest: /etc/ntp.conf
-    backup: true
-    mode: 0644
-  notify: restart {{ 'ntpd' if timesync_mode == 1 else 'timemaster' }}
+- import_tasks: tasks/generate_conf_file.yml
+  vars:
+    __timesync_template: "{{ timesync_ntp_conf_template }}"
+    __timesync_path: "{{ timesync_ntp_conf_path }}"
+    __timesync_notify: "restart {{ 'ntpd' if timesync_mode == 1
+      else 'timemaster' }}"
   when:
     - timesync_mode != 2
     - timesync_ntp_provider == 'ntp'
     - "'ntp' in ansible_facts.packages"
 
-- name: Generate ntpd sysconfig file
-  template:
-    src: ntpd.sysconfig.j2
-    dest: /etc/sysconfig/ntpd
-    backup: true
-    mode: 0644
-  notify: restart ntpd
+- import_tasks: tasks/generate_conf_file.yml
+  vars:
+    __timesync_template: "{{ timesync_ntp_sysconfig_template }}"
+    __timesync_path: "{{ timesync_ntp_sysconfig_path }}"
+    __timesync_notify: "restart ntpd"
   when:
     - timesync_mode == 1
     - timesync_ntp_provider == 'ntp'
     - "'ntp' in ansible_facts.packages"
 
-- name: Generate ptp4l.conf file
-  template:
-    src: ptp4l.conf.j2
-    dest: /etc/ptp4l.conf
-    backup: true
-    mode: 0644
-  notify: restart ptp4l
+- import_tasks: tasks/generate_conf_file.yml
+  vars:
+    __timesync_template: "{{ timesync_ptp4l_conf_template }}"
+    __timesync_path: "{{ timesync_ptp4l_conf_path }}"
+    __timesync_notify: "restart ptp4l"
   when:
     - timesync_mode == 2
     - "'linuxptp' in ansible_facts.packages"
 
-- name: Generate ptp4l sysconfig file
-  template:
-    src: ptp4l.sysconfig.j2
-    dest: /etc/sysconfig/ptp4l
-    backup: true
-    mode: 0644
-  notify: restart ptp4l
+- import_tasks: tasks/generate_conf_file.yml
+  vars:
+    __timesync_template: "{{ timesync_ptp4l_sysconfig_template }}"
+    __timesync_path: "{{ timesync_ptp4l_sysconfig_path }}"
+    __timesync_notify: "restart ptp4l"
   when:
     - timesync_mode == 2
     - "'linuxptp' in ansible_facts.packages"
 
-- name: Generate phc2sys sysconfig file
-  template:
-    src: phc2sys.sysconfig.j2
-    dest: /etc/sysconfig/phc2sys
-    backup: true
-    mode: 0644
-  notify: restart phc2sys
+- import_tasks: tasks/generate_conf_file.yml
+  vars:
+    __timesync_template: "{{ timesync_phc2sys_sysconfig_template }}"
+    __timesync_path: "{{ timesync_phc2sys_sysconfig_path }}"
+    __timesync_notify: "restart phc2sys"
   when:
     - timesync_mode == 2
     - timesync_mode2_hwts
     - "'linuxptp' in ansible_facts.packages"
 
-- name: Generate timemaster.conf file
-  template:
-    src: timemaster.conf.j2
-    dest: /etc/timemaster.conf
-    backup: true
-    mode: 0644
-  notify: restart timemaster
+- import_tasks: tasks/generate_conf_file.yml
+  vars:
+    __timesync_template: "{{ timesync_timemaster_conf_template }}"
+    __timesync_path: "{{ timesync_timemaster_conf_path }}"
+    __timesync_notify: "restart timemaster"
   when:
     - timesync_mode == 3
     - "'linuxptp' in ansible_facts.packages"
 
 - name: Update network sysconfig file
   lineinfile:
-    dest: /etc/sysconfig/network
+    dest: "{{ timesync_network_sysconfig_path }}"
     create: true
     backup: true
     mode: 0644
@@ -187,97 +170,66 @@
   notify: restart {{ timesync_ntp_provider + 'd' }}
   when: timesync_mode == 1
 
-- name: Disable chronyd
-  service:
-    name: chronyd
-    state: stopped
-    enabled: false
+- import_tasks: tasks/disable_service.yml
+  vars:
+    __timesync_service: "{{ timesync_chrony_service }}"
   when: timesync_mode != 1 or timesync_ntp_provider != 'chrony'
-  ignore_errors: true
 
-- name: Disable ntpd
-  service:
-    name: ntpd
-    state: stopped
-    enabled: false
+- import_tasks: tasks/disable_service.yml
+  vars:
+    __timesync_service: "{{ timesync_ntp_service }}"
   when: timesync_mode != 1 or timesync_ntp_provider != 'ntp'
-  ignore_errors: true
 
-- name: Disable ntpdate
-  service:
-    name: ntpdate
-    state: stopped
-    enabled: false
-  ignore_errors: true
+- import_tasks: tasks/disable_service.yml
+  vars:
+    __timesync_service: "{{ timesync_ntpdate_service }}"
 
-- name: Disable sntp
-  service:
-    name: sntp
-    state: stopped
-    enabled: false
-  ignore_errors: true
+- import_tasks: tasks/disable_service.yml
+  vars:
+    __timesync_service: "{{ timesync_sntp_service }}"
 
-- name: Disable ptp4l
-  service:
-    name: ptp4l
-    state: stopped
-    enabled: false
+- import_tasks: tasks/disable_service.yml
+  vars:
+    __timesync_service: "{{ timesync_ptp4l_service }}"
   when: timesync_mode != 2
-  ignore_errors: true
 
-- name: Disable phc2sys
-  service:
-    name: phc2sys
-    state: stopped
-    enabled: false
+- import_tasks: tasks/disable_service.yml
+  vars:
+    __timesync_service: "{{ timesync_phc2sys_service }}"
   when: timesync_mode != 2 or not timesync_mode2_hwts
-  ignore_errors: true
 
-- name: Disable timemaster
-  service:
-    name: timemaster
-    state: stopped
-    enabled: false
+- import_tasks: tasks/disable_service.yml
+  vars:
+    __timesync_service: "{{ timesync_timemaster_service }}"
   when: timesync_mode != 3
-  ignore_errors: true
 
-- name: Enable chronyd
-  service:
-    name: chronyd
-    state: started
-    enabled: true
+- import_tasks: tasks/enable_service.yml
+  vars:
+    __timesync_service: "{{ timesync_chrony_service }}"
   when:
     - timesync_mode == 1
     - timesync_ntp_provider == 'chrony'
 
-- name: Enable ntpd
-  service:
-    name: ntpd
-    state: started
-    enabled: true
+- import_tasks: tasks/enable_service.yml
+  vars:
+    __timesync_service: "{{ timesync_ntp_service }}"
   when:
     - timesync_mode == 1
     - timesync_ntp_provider == 'ntp'
 
-- name: Enable ptp4l
-  service:
-    name: ptp4l
-    state: started
-    enabled: true
+- import_tasks: tasks/enable_service.yml
+  vars:
+    __timesync_service: "{{ timesync_ptp4l_service }}"
   when: timesync_mode == 2
 
-- name: Enable phc2sys
-  service:
-    name: phc2sys
-    state: started
-    enabled: true
+- import_tasks: tasks/enable_service.yml
+  vars:
+    __timesync_service: "{{ timesync_phc2sys_service }}"
   when:
     - timesync_mode == 2
     - timesync_mode2_hwts
 
-- name: Enable timemaster
-  service:
-    name: timemaster
-    state: started
-    enabled: true
+- import_tasks: tasks/enable_service.yml
+  vars:
+    __timesync_service: "{{ timesync_timemaster_service }}"
   when: timesync_mode == 3

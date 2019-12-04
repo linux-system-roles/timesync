@@ -1,0 +1,9 @@
+---
+
+- name: Generate {{ __timesync_path }} file
+  template:
+    src: "{{ __timesync_template }}"
+    dest: "{{ __timesync_path }}"
+    backup: true
+    mode: 0644
+  notify: "{{ __timesync_notify }}"

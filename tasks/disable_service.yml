@@ -1,0 +1,8 @@
+---
+
+- name: Disable {{ __timesync_service }}
+  service:
+    name: "{{ __timesync_service }}"
+    state: stopped
+    enabled: false
+  ignore_errors: true

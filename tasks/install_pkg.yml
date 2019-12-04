@@ -1,0 +1,6 @@
+---
+
+- name: Install {{ __timesync_pkg }}
+  package:
+    name: "{{ __timesync_pkg }}"
+    state: present

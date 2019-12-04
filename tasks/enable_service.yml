@@ -1,0 +1,7 @@
+---
+
+- name: Enable {{ __timesync_service }}
+  service:
+    name: "{{ __timesync_service }}"
+    state: started
+    enabled: true

@@ -1,25 +1,25 @@
 ---
 - name: restart chronyd
   service:
-    name: chronyd
+    name: "{{ timesync_chrony_service }}"
     state: restarted
 
 - name: restart ntpd
   service:
-    name: ntpd
+    name: "{{ timesync_ntp_service }}"
     state: restarted
 
 - name: restart ptp4l
   service:
-    name: ptp4l
+    name: "{{ timesync_ptp4l_service }}"
     state: restarted
 
 - name: restart phc2sys
   service:
-    name: phc2sys
+    name: "{{ timesync_phc2sys_service }}"
     state: restarted
 
 - name: restart timemaster
   service:
-    name: timemaster
+    name: "{{ timesync_timemaster_service }}"
     state: restarted
