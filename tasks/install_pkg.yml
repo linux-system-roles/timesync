@@ -1,14 +1,24 @@
 ---
 - name: Install {{ __timesync_pkg }}
-  package:
-    name: "{{ __timesync_pkg }}"
-    state: present
+  block:
+    - name: Try to install {{ __timesync_pkg }}
+      package:
+        name: "{{ __timesync_pkg }}"
+        state: present
+  rescue:
+    - name: Activate SLES 15 legacy module
+      command: SUSEConnect -p sle-module-legacy/15.1/x86_64
+      when: ansible_distribution == 'SLES' and ansible_distribution_major_version|int == 15
+    - name: Attempt install again for {{ __timesync_pkg }}
+      package:
+        name: "{{ __timesync_pkg }}"
+        state: present
 
 - name: Install other required packages
   package:
-    name: "{{ required_packages }}"
+    name: "{{ timesync_required_packages }}"
     state: present
-  when: required_packages is defined
+  when: timesync_required_packages is defined
 
 - name: Gather package facts
   package_facts:

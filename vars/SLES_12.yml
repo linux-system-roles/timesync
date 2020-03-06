@@ -32,5 +32,5 @@ timesync_sntp_service: "sntp"
 
 timesync_network_sysconfig_path: "/etc/sysconfig/network/config"
 
-required_packages:
+timesync_required_packages:
   - rpm-python

@@ -32,6 +32,6 @@ timesync_sntp_service: "sntp"
 
 timesync_network_sysconfig_path: "/etc/sysconfig/network"
 
-required_packages:
+timesync_required_packages:
   - rpm-python
   - libselinux-python
