@@ -1,153 +1,46 @@
 ---
-
 - name: Set version specific variables
   include_vars: "{{ item }}"
   with_first_found:
-    - "{{ ansible_distribution }}-{{ ansible_distribution_version }}.yml"
-    - "{{ ansible_distribution }}-{{ ansible_distribution_major_version }}.yml"
+    - "{{ ansible_distribution }}_{{ ansible_distribution_version }}.yml"
+    - "{{ ansible_distribution }}_{{ ansible_distribution_major_version }}.yml"
     - "{{ ansible_distribution }}.yml"
     - "{{ ansible_os_family }}.yml"
     - "default.yml"
 
 - name: Check if only NTP is needed
   set_fact:
-    timesync_mode: 1
+    timesync_mode: ntp
   when: timesync_ptp_domains|length == 0
 
 - name: Check if single PTP is needed
   set_fact:
-    timesync_mode: 2
+    timesync_mode: ptp
   when:
     - timesync_mode is not defined
-    - timesync_ntp_servers|length == 0
-    - timesync_ptp_domains|length == 1
+    - timesync_ntp_servers|length in [0,1]
     - timesync_ptp_domains[0].interfaces|length == 1
 
 - name: Check if both NTP and PTP are needed
   set_fact:
-    timesync_mode: 3
+    timesync_mode: ntpptp
   when: timesync_mode is not defined
 
-- name: Determine current NTP provider
-  timesync_provider:
+- name: Perform NTP mode tasks
+  import_tasks: ntp.yml
   when:
-    - timesync_mode != 2
-    - timesync_ntp_provider == ''
+    - "'ntp' in timesync_mode"
 
-- name: Select NTP provider
-  set_fact:
-    timesync_ntp_provider: "{{
-        timesync_ntp_provider_current|
-        default(timesync_ntp_provider_os_default, true) }}"
-  when:
-    - timesync_mode != 2
-    - timesync_ntp_provider == ''
-
-- import_tasks: tasks/install_pkg.yml
-  vars:
-    __timesync_pkg: "{{ timesync_chrony_pkg }}"
-  when:
-    - timesync_mode != 2
-    - timesync_ntp_provider == 'chrony'
-
-- import_tasks: tasks/install_pkg.yml
-  vars:
-    __timesync_pkg: "{{ timesync_ntp_pkg }}"
-  when:
-    - timesync_mode != 2
-    - timesync_ntp_provider == 'ntp'
-
-- import_tasks: tasks/install_pkg.yml
+- name: Install PTP package
+  import_tasks: install_pkg.yml
   vars:
     __timesync_pkg: "{{ timesync_linuxptp_pkg }}"
-  when: timesync_mode != 1
+  when: "'ptp' in timesync_mode"
 
-- name: Gather package facts
-  package_facts:
-    manager: auto
-
-- name: Run phc_ctl on PTP interface
-  command: phc_ctl -q {{ timesync_ptp_domains[0].interfaces[0] }}
-  register: timesync_phc_ctl_output
-  changed_when: false
-  check_mode: false
-  when: timesync_mode == 2
-  ignore_errors: true
-
-- name: Check if PTP interface supports HW timestamping
-  set_fact:
-    timesync_mode2_hwts: "{{ timesync_phc_ctl_output.rc == 0 }}"
-  when: timesync_mode == 2
-
-- import_tasks: tasks/generate_conf_file.yml
-  vars:
-    __timesync_template: "{{ timesync_chrony_conf_template }}"
-    __timesync_path: "{{ timesync_chrony_conf_path }}"
-    __timesync_notify: "restart {{ 'chronyd' if timesync_mode == 1
-      else 'timemaster' }}"
+- name: Perform PTP mode tasks
+  import_tasks: ptp.yml
   when:
-    - timesync_mode != 2
-    - timesync_ntp_provider == 'chrony'
-    - "'chrony' in ansible_facts.packages"
-
-- import_tasks: tasks/generate_conf_file.yml
-  vars:
-    __timesync_template: "{{ timesync_chrony_sysconfig_template }}"
-    __timesync_path: "{{ timesync_chrony_sysconfig_path }}"
-    __timesync_notify: "restart chronyd"
-  when:
-    - timesync_mode == 1
-    - timesync_ntp_provider == 'chrony'
-    - "'chrony' in ansible_facts.packages"
-
-- import_tasks: tasks/generate_conf_file.yml
-  vars:
-    __timesync_template: "{{ timesync_ntp_conf_template }}"
-    __timesync_path: "{{ timesync_ntp_conf_path }}"
-    __timesync_notify: "restart {{ 'ntpd' if timesync_mode == 1
-      else 'timemaster' }}"
-  when:
-    - timesync_mode != 2
-    - timesync_ntp_provider == 'ntp'
-    - "'ntp' in ansible_facts.packages"
-
-- import_tasks: tasks/generate_conf_file.yml
-  vars:
-    __timesync_template: "{{ timesync_ntp_sysconfig_template }}"
-    __timesync_path: "{{ timesync_ntp_sysconfig_path }}"
-    __timesync_notify: "restart ntpd"
-  when:
-    - timesync_mode == 1
-    - timesync_ntp_provider == 'ntp'
-    - "'ntp' in ansible_facts.packages"
-
-- import_tasks: tasks/generate_conf_file.yml
-  vars:
-    __timesync_template: "{{ timesync_ptp4l_conf_template }}"
-    __timesync_path: "{{ timesync_ptp4l_conf_path }}"
-    __timesync_notify: "restart ptp4l"
-  when:
-    - timesync_mode == 2
-    - "'linuxptp' in ansible_facts.packages"
-
-- import_tasks: tasks/generate_conf_file.yml
-  vars:
-    __timesync_template: "{{ timesync_ptp4l_sysconfig_template }}"
-    __timesync_path: "{{ timesync_ptp4l_sysconfig_path }}"
-    __timesync_notify: "restart ptp4l"
-  when:
-    - timesync_mode == 2
-    - "'linuxptp' in ansible_facts.packages"
-
-- import_tasks: tasks/generate_conf_file.yml
-  vars:
-    __timesync_template: "{{ timesync_phc2sys_sysconfig_template }}"
-    __timesync_path: "{{ timesync_phc2sys_sysconfig_path }}"
-    __timesync_notify: "restart phc2sys"
-  when:
-    - timesync_mode == 2
-    - timesync_mode2_hwts
-    - "'linuxptp' in ansible_facts.packages"
+    - timesync_mode == 'ptp'
 
 - import_tasks: tasks/generate_conf_file.yml
   vars:
@@ -155,81 +48,11 @@
     __timesync_path: "{{ timesync_timemaster_conf_path }}"
     __timesync_notify: "restart timemaster"
   when:
-    - timesync_mode == 3
+    - timesync_mode == 'ntpptp'
     - "'linuxptp' in ansible_facts.packages"
 
-- name: Update network sysconfig file
-  lineinfile:
-    dest: "{{ timesync_network_sysconfig_path }}"
-    create: true
-    backup: true
-    mode: 0644
-    regexp: '^PEERNTP='
-    line: 'PEERNTP=no'
-    state: "{{ 'absent' if timesync_dhcp_ntp_servers else 'present' }}"
-  notify: restart {{ timesync_ntp_provider + 'd' }}
-  when: timesync_mode == 1
+- name: Disable services
+  import_tasks: disable_service.yml
 
-- import_tasks: tasks/disable_service.yml
-  vars:
-    __timesync_service: "{{ timesync_chrony_service }}"
-  when: timesync_mode != 1 or timesync_ntp_provider != 'chrony'
-
-- import_tasks: tasks/disable_service.yml
-  vars:
-    __timesync_service: "{{ timesync_ntp_service }}"
-  when: timesync_mode != 1 or timesync_ntp_provider != 'ntp'
-
-- import_tasks: tasks/disable_service.yml
-  vars:
-    __timesync_service: "{{ timesync_ntpdate_service }}"
-
-- import_tasks: tasks/disable_service.yml
-  vars:
-    __timesync_service: "{{ timesync_sntp_service }}"
-
-- import_tasks: tasks/disable_service.yml
-  vars:
-    __timesync_service: "{{ timesync_ptp4l_service }}"
-  when: timesync_mode != 2
-
-- import_tasks: tasks/disable_service.yml
-  vars:
-    __timesync_service: "{{ timesync_phc2sys_service }}"
-  when: timesync_mode != 2 or not timesync_mode2_hwts
-
-- import_tasks: tasks/disable_service.yml
-  vars:
-    __timesync_service: "{{ timesync_timemaster_service }}"
-  when: timesync_mode != 3
-
-- import_tasks: tasks/enable_service.yml
-  vars:
-    __timesync_service: "{{ timesync_chrony_service }}"
-  when:
-    - timesync_mode == 1
-    - timesync_ntp_provider == 'chrony'
-
-- import_tasks: tasks/enable_service.yml
-  vars:
-    __timesync_service: "{{ timesync_ntp_service }}"
-  when:
-    - timesync_mode == 1
-    - timesync_ntp_provider == 'ntp'
-
-- import_tasks: tasks/enable_service.yml
-  vars:
-    __timesync_service: "{{ timesync_ptp4l_service }}"
-  when: timesync_mode == 2
-
-- import_tasks: tasks/enable_service.yml
-  vars:
-    __timesync_service: "{{ timesync_phc2sys_service }}"
-  when:
-    - timesync_mode == 2
-    - timesync_mode2_hwts
-
-- import_tasks: tasks/enable_service.yml
-  vars:
-    __timesync_service: "{{ timesync_timemaster_service }}"
-  when: timesync_mode == 3
+- name: Enable services
+  import_tasks: enable_service.yml

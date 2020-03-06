@@ -1,0 +1,23 @@
+[tool.poetry]
+name = "timesync"
+description = "Role to run for all Linux servers for hardening per CIS compliance"
+version = "1.0.0"
+authors = ["Omar Ahmad <omar.ahmad@cis.ntt.com>"]
+
+[tool.poetry.dependencies]
+python = "==3.*,>=3.7.0"
+ansible = ">=2.9"
+
+[tool.poetry.dev-dependencies]
+molecule = {version = "==2.*,>=2.22.0", extras = ["docker", "vagrant"]}
+paramiko = "*"
+jmespath = "*"
+colorama = "*"
+pyVmomi = "*"
+
+[tool.dephell.main]
+from = {format = "poetry", path = "pyproject.toml"}
+
+[build-system]
+requires = ["poetry>=0.12"]
+build-backend = "poetry.masonry.api"

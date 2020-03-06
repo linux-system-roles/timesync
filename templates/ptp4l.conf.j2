@@ -3,13 +3,13 @@
 [global]
 slaveOnly		1
 domainNumber		{{ timesync_ptp_domains[0].number }}
-time_stamping		{{ 'hardware' if timesync_mode2_hwts else 'software' }}
+time_stamping		{{ 'hardware' if timesync_ptp_hwts else 'software' }}
 {% if 'transport' in timesync_ptp_domains[0] %}
 network_transport	{{ timesync_ptp_domains[0]['transport'] }}
 {% endif %}
 {% if 'udp_ttl' in timesync_ptp_domains[0] %}
 udp_ttl			{{ timesync_ptp_domains[0]['udp_ttl'] }}
 {% endif %}
-{% if not timesync_mode2_hwts and timesync_step_threshold >= 0.0 %}
+{% if not timesync_ptp_hwts and timesync_step_threshold >= 0.0 %}
 first_step_threshold	{{ timesync_step_threshold }}
 {% endif %}

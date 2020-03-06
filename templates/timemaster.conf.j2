@@ -18,17 +18,17 @@ ptp4l_option udp_ttl {{ value['udp_ttl'] }}
 ntp_program {{ 'ntpd' if timesync_ntp_provider == 'ntp' else 'chronyd' }}
 
 [chrony.conf]
-include /etc/chrony.conf
+include {{ timesync_chrony_conf_path }}
 
 [ntp.conf]
-includefile /etc/ntp.conf
+includefile {{ timesync_ntp_conf_path }}
 
 [ptp4l.conf]
 
 [chronyd]
 path /usr/sbin/chronyd
 {% if timesync_ntp_provider == 'chrony' and __timesync_chrony_version is version('1.30', '<') %}
-options -u chrony
+options -u {{ 'chrony' if anisble_os_family != 'Debian' else '_chrony' }}
 {% endif %}
 
 [ntpd]

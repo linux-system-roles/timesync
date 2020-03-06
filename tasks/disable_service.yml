@@ -1,8 +1,54 @@
 ---
-
-- name: Disable {{ __timesync_service }}
+- name: Disable {{ timesync_chrony_service }}
   service:
-    name: "{{ __timesync_service }}"
+    name: "{{ timesync_chrony_service }}"
     state: stopped
     enabled: false
   ignore_errors: true
+  when: "'ptp' in timesync_mode or timesync_ntp_provider != 'chrony'"
+
+- name: Disable {{ timesync_ntp_service }}
+  service:
+    name: "{{ timesync_ntp_service }}"
+    state: stopped
+    enabled: false
+  ignore_errors: true
+  when: "'ptp' in timesync_mode or timesync_ntp_provider != 'ntp'"
+
+- name: Disable {{ timesync_ntpdate_service }}
+  service:
+    name: "{{ timesync_ntpdate_service }}"
+    state: stopped
+    enabled: false
+  ignore_errors: true
+
+- name: Disable {{ timesync_sntp_service }}
+  service:
+    name: "{{ timesync_sntp_service }}"
+    state: stopped
+    enabled: false
+  ignore_errors: true
+
+- name: Disable {{ timesync_ptp4l_service }}
+  service:
+    name: "{{ timesync_ptp4l_service }}"
+    state: stopped
+    enabled: false
+  ignore_errors: true
+  when: "'ntp' in timesync_mode"
+
+- name: Disable {{ timesync_phc2sys_service }}
+  service:
+    name: "{{ timesync_phc2sys_service }}"
+    state: stopped
+    enabled: false
+  ignore_errors: true
+  when: "'ntp' in timesync_mode or not timesync_ptp_hwts"
+
+- name: Disable {{ timesync_timemaster_service }}
+  service:
+    name: "{{ timesync_timemaster_service }}"
+    state: stopped
+    enabled: false
+  ignore_errors: true
+  when: timesync_mode != 'ntpptp'

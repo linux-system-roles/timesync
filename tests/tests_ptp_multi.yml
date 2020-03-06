@@ -1,4 +1,3 @@
-
 - name: Configure time synchronization with multiple PTP domains
   hosts: all
   vars:
@@ -18,45 +17,45 @@
 
   tasks:
     - block:
-      - meta: flush_handlers
+        - meta: flush_handlers
 
-      - name: Check if SW/HW timestamping is supported
-        shell: ethtool -T "{{ ansible_default_ipv4['interface'] }}"
-        register: ethtool
-        ignore_errors: yes
+        - name: Check if SW/HW timestamping is supported
+          shell: ethtool -T "{{ ansible_default_ipv4['interface'] }}"
+          register: ethtool
+          ignore_errors: yes
 
-      - block:
-          - name: Wait for services to start
-            wait_for:
-              timeout: 2
+        - block:
+            - name: Wait for services to start
+              wait_for:
+                timeout: 2
 
-          - name: Get list of currently used time sources
-            shell: chronyc -n sources || ntpq -pn
-            register: sources
+            - name: Get list of currently used time sources
+              shell: chronyc -n sources || ntpq -pn
+              register: sources
 
-          - name: Check time sources
-            assert:
-              that:
-                - "'PTP0' in sources.stdout"
-                - "'PTP1' in sources.stdout"
+            - name: Check time sources
+              assert:
+                that:
+                  - "'PTP0' in sources.stdout"
+                  - "'PTP1' in sources.stdout"
 
-          - name: Run pmc
-            command: pmc -u -b 0 -d 0 -s /var/run/timemaster/ptp4l.0.socket 'GET DOMAIN'
-            register: pmc
+            - name: Run pmc
+              command: pmc -u -b 0 -d 0 -s /var/run/timemaster/ptp4l.0.socket 'GET DOMAIN'
+              register: pmc
 
-          - name: Check PTP domain
-            assert:
-              that:
-                - "'domainNumber 0' in pmc.stdout"
+            - name: Check PTP domain
+              assert:
+                that:
+                  - "'domainNumber 0' in pmc.stdout"
 
-          - name: Run pmc
-            command: pmc -u -b 0 -d 1 -s /var/run/timemaster/ptp4l.1.socket 'GET DOMAIN'
-            register: pmc
+            - name: Run pmc
+              command: pmc -u -b 0 -d 1 -s /var/run/timemaster/ptp4l.1.socket 'GET DOMAIN'
+              register: pmc
 
-          - name: Check PTP domain
-            assert:
-              that:
-                - "'domainNumber 1' in pmc.stdout"
+            - name: Check PTP domain
+              assert:
+                that:
+                  - "'domainNumber 1' in pmc.stdout"
 
-        when: "'SOF_TIMESTAMPING_TX_' in ethtool.stdout"
+          when: "'SOF_TIMESTAMPING_TX_' in ethtool.stdout"
       tags: tests::verify

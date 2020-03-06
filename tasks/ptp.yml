@@ -1,0 +1,37 @@
+---
+- name: Run phc_ctl on PTP interface
+  command: phc_ctl -q {{ timesync_ptp_domains[0].interfaces[0] }}
+  register: timesync_phc_ctl_output
+  changed_when: false
+  check_mode: false
+  ignore_errors: true
+
+- name: Check if PTP interface supports HW timestamping
+  set_fact:
+    timesync_ptp_hwts: "{{ timesync_phc_ctl_output.rc == 0 }}"
+  when: timesync_mode == 'ptp'
+
+- import_tasks: tasks/generate_conf_file.yml
+  vars:
+    __timesync_template: "{{ timesync_ptp4l_conf_template }}"
+    __timesync_path: "{{ timesync_ptp4l_conf_path }}"
+    __timesync_notify: "restart ptp4l"
+  when:
+    - "'linuxptp' in ansible_facts.packages"
+
+- import_tasks: tasks/generate_conf_file.yml
+  vars:
+    __timesync_template: "{{ timesync_ptp4l_sysconfig_template }}"
+    __timesync_path: "{{ timesync_ptp4l_sysconfig_path }}"
+    __timesync_notify: "restart ptp4l"
+  when:
+    - "'linuxptp' in ansible_facts.packages"
+
+- import_tasks: tasks/generate_conf_file.yml
+  vars:
+    __timesync_template: "{{ timesync_phc2sys_sysconfig_template }}"
+    __timesync_path: "{{ timesync_phc2sys_sysconfig_path }}"
+    __timesync_notify: "restart phc2sys"
+  when:
+    - timesync_ptp_hwts
+    - "'linuxptp' in ansible_facts.packages"

@@ -1,0 +1,51 @@
+---
+dependency:
+  name: galaxy
+  options:
+    role-file: requirements.yml
+driver:
+  name: vagrant
+  provider:
+    name: virtualbox
+lint:
+  name: yamllint
+  options:
+    config-file: .yamllint
+platforms:
+  - box: bento/ubuntu-18.04
+    groups:
+      - ubuntu
+      - current
+    name: ubuntu18
+    provision: false
+provisioner:
+  lint:
+    name: ansible-lint
+  name: ansible
+  options:
+    limit: ${TEST_OS:-""}
+  playbooks:
+    cleanup: ${MOLECULE_CLEANUP_PLAYBOOK:-../resources/playbooks/cleanup.yml}
+    converge: ${MOLECULE_PLAYBOOK:-../resources/playbooks/playbook.yml}
+    create: ${MOLECULE_CREATE_PLAYBOOK:-../resources/playbooks/create.yml}
+scenario:
+  name: ubuntu18
+  test_sequence:
+    - lint
+    - dependency
+    - cleanup
+    - destroy
+    - syntax
+    - create
+    - prepare
+    - converge
+    - idempotence
+    - side_effect
+    - verify
+    - cleanup
+    - destroy
+verifier:
+  directory: ../resources/tests
+  lint:
+    name: flake8
+  name: testinfra

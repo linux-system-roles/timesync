@@ -1,0 +1,3 @@
+- name: sles_registration
+  src: git+ssh://git@bitbucket.mcp-services.net:7999/ar/sles_registration.git
+  version: v1.0.0

@@ -1,0 +1,26 @@
+timesync_ntp_provider_os_default: "chrony"
+
+timesync_chrony_pkg: "chrony"
+timesync_chrony_service: "chrony"
+timesync_chrony_conf_template: "chrony.conf.j2"
+timesync_chrony_conf_path: "/etc/chrony/chrony.conf"
+
+timesync_ntp_pkg: "ntp"
+timesync_ntp_service: "ntp"
+timesync_ntp_conf_template: "ntp.conf.j2"
+timesync_ntp_conf_path: "/etc/ntp.conf"
+
+timesync_linuxptp_pkg: "linuxptp"
+timesync_phc2sys_service: "phc2sys"
+timesync_phc2sys_sysconfig_template: "phc2sys.sysconfig.j2"
+timesync_phc2sys_sysconfig_path: "/etc/sysconfig/phc2sys"
+timesync_ptp4l_service: "ptp4l"
+timesync_ptp4l_conf_template: "ptp4l.conf.j2"
+timesync_ptp4l_conf_path: "/etc/ptp4l.conf"
+
+timesync_timemaster_service: "timemaster"
+timesync_timemaster_conf_template: "timemaster.conf.j2"
+timesync_timemaster_conf_path: "/etc/timemaster.conf"
+
+timesync_ntpdate_service: "ntpdate"
+timesync_sntp_service: "sntp"

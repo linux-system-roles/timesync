@@ -1,6 +1,6 @@
 __timesync_chrony_version: "{{
   (( ansible_facts.packages.chrony | default([]) )[0]
-    | default(dict()) )['version'] | default('0') }}"
+  | default(dict()) )['version'] | default('0') }}"
 __timesync_ntp_version: "{{
   (( ansible_facts.packages.ntp | default([]) )[0]
-    | default(dict()) )['version'] | default('0') }}"
+  | default(dict()) )['version'] | default('0') }}"

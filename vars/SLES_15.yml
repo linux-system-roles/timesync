@@ -1,4 +1,4 @@
-timesync_ntp_provider_os_default: "ntp"
+timesync_ntp_provider_os_default: "chrony"
 
 timesync_chrony_pkg: "chrony"
 timesync_chrony_service: "chronyd"
@@ -30,4 +30,7 @@ timesync_timemaster_conf_path: "/etc/timemaster.conf"
 timesync_ntpdate_service: "ntpdate"
 timesync_sntp_service: "sntp"
 
-timesync_network_sysconfig_path: "/etc/sysconfig/network"
+timesync_network_sysconfig_path: "/etc/sysconfig/network/config"
+
+required_packages:
+  - python3-rpm

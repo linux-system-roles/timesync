@@ -1,7 +1,41 @@
 ---
-
-- name: Enable {{ __timesync_service }}
+- name: Enable {{ timesync_chrony_service }}
   service:
-    name: "{{ __timesync_service }}"
+    name: "{{ timesync_chrony_service }}"
     state: started
     enabled: true
+  when:
+    - timesync_mode == 'ntp'
+    - timesync_ntp_provider == 'chrony'
+
+- name: Enable {{ timesync_ntp_service }}
+  service:
+    name: "{{ timesync_ntp_service }}"
+    state: started
+    enabled: true
+  when:
+    - timesync_mode == 'ntp'
+    - timesync_ntp_provider == 'ntp'
+
+- name: Enable {{ timesync_ptp4l_service }}
+  service:
+    name: "{{ timesync_ptp4l_service }}"
+    state: started
+    enabled: true
+  when: timesync_mode == 'ptp'
+
+- name: Enable {{ timesync_phc2sys_service }}
+  service:
+    name: "{{ timesync_phc2sys_service }}"
+    state: started
+    enabled: true
+  when:
+    - timesync_mode == 'ptp'
+    - timesync_ptp_hwts
+
+- name: Enable {{ timesync_timemaster_service }}
+  service:
+    name: "{{ timesync_timemaster_service }}"
+    state: started
+    enabled: true
+  when: timesync_mode == 'ntpptp'

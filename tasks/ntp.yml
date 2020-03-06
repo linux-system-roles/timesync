@@ -1,0 +1,81 @@
+---
+- name: Determine current NTP provider
+  timesync_provider:
+  when:
+    - timesync_ntp_provider == ''
+
+- name: Select NTP provider
+  set_fact:
+    timesync_ntp_provider: "{{
+      timesync_ntp_provider_current|
+      default(timesync_ntp_provider_os_default, true) }}"
+  when:
+    - timesync_ntp_provider == ''
+
+- import_tasks: tasks/install_pkg.yml
+  vars:
+    __timesync_pkg: "{{ timesync_chrony_pkg }}"
+  when:
+    - timesync_ntp_provider == 'chrony'
+
+- import_tasks: tasks/install_pkg.yml
+  vars:
+    __timesync_pkg: "{{ timesync_ntp_pkg }}"
+  when:
+    - timesync_ntp_provider == 'ntp'
+
+- import_tasks: tasks/generate_conf_file.yml
+  vars:
+    __timesync_template: "{{ timesync_chrony_conf_template }}"
+    __timesync_path: "{{ timesync_chrony_conf_path }}"
+    __timesync_notify: "restart {{ 'chronyd' if timesync_mode == 'ntp'
+      else 'timemaster' }}"
+  when:
+    - timesync_ntp_provider == 'chrony'
+    - "'chrony' in ansible_facts.packages"
+
+- import_tasks: tasks/generate_conf_file.yml
+  vars:
+    __timesync_template: "{{ timesync_chrony_sysconfig_template }}"
+    __timesync_path: "{{ timesync_chrony_sysconfig_path }}"
+    __timesync_notify: "restart chronyd"
+  when:
+    - timesync_mode == 'ntp'
+    - timesync_ntp_provider == 'chrony'
+    - "'chrony' in ansible_facts.packages"
+    - ansible_os_family != 'Debian'
+
+- import_tasks: tasks/generate_conf_file.yml
+  vars:
+    __timesync_template: "{{ timesync_ntp_conf_template }}"
+    __timesync_path: "{{ timesync_ntp_conf_path }}"
+    __timesync_notify: "restart {{ 'ntpd' if timesync_mode == 'ntp'
+      else 'timemaster' }}"
+  when:
+    - timesync_ntp_provider == 'ntp'
+    - "'ntp' in ansible_facts.packages"
+
+- import_tasks: tasks/generate_conf_file.yml
+  vars:
+    __timesync_template: "{{ timesync_ntp_sysconfig_template }}"
+    __timesync_path: "{{ timesync_ntp_sysconfig_path }}"
+    __timesync_notify: "restart ntpd"
+  when:
+    - timesync_mode == 'ntp'
+    - timesync_ntp_provider == 'ntp'
+    - "'ntp' in ansible_facts.packages"
+    - ansible_os_family != 'Debian'
+
+- name: Update network sysconfig file
+  lineinfile:
+    dest: "{{ timesync_network_sysconfig_path }}"
+    create: true
+    backup: true
+    mode: 0644
+    regexp: "^PEERNTP="
+    line: "PEERNTP=no"
+    state: "{{ 'absent' if timesync_dhcp_ntp_servers else 'present' }}"
+  notify: restart {{ timesync_ntp_provider + 'd' }}
+  when:
+    - timesync_mode == 'ntp'
+    - ansible_os_family != 'Debian'

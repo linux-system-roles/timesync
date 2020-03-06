@@ -1,0 +1,47 @@
+---
+- name: De-register from SUSE
+  hosts: all
+  become: true
+  gather_facts: false
+
+  tasks:
+    - name: Check for instance file
+      delegate_to: localhost
+      connection: local
+      become: false
+      stat:
+        path: "{{ molecule_instance_config }}"
+      register: mole_inst
+
+    - name: Populate instance config
+      when: mole_inst.stat.exists
+      set_fact:
+        instance_conf: "{{ lookup('file', molecule_instance_config, errors='warn') | from_yaml or {} }}"
+    - name: Gather facts if instance config
+      setup:
+      when: instance_conf| default(false, true)
+    - name: SUSE deregistration
+      when: instance_conf| default(false, true)
+      block:
+        - name: get registration status
+          command: /usr/bin/SUSEConnect -s
+          register: registration
+          when:
+            - ansible_distribution == 'SLES'
+            - ansible_distribution_major_version|int >= 12
+          changed_when: false
+
+        - name: deregister server
+          command: /usr/bin/SUSEConnect -d
+          register: deregistration
+          when:
+            - ansible_distribution == 'SLES'
+            - ansible_distribution_major_version|int >= 12
+            - (registration.stdout|from_json)[0].status == 'Registered'
+
+        - name: display deregistration results
+          debug:
+            msg: "{{ deregistration.stdout }}"
+          when:
+            - ansible_distribution == 'SLES'
+            - (registration.stdout|from_json)[0].status == 'Registered'

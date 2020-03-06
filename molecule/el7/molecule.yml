@@ -12,54 +12,24 @@ lint:
   options:
     config-file: .yamllint
 platforms:
-  - name: centos7
-    box: bento/centos-7.6
-    provision: false
+  - box: bento/centos-7.6
     groups:
       - redhat
       - current
-  - name: centos6
-    box: bento/centos-6.10
+    name: centos7
     provision: false
-    groups:
-      - redhat
-      - legacy
-  - name: sles15
-    box: bento/sles-15-sp1
-    provision: false
-    groups:
-      - sles
-      - current
-  - name: sles12
-    box: bento/sles-12-sp4
-    provision: false
-    groups:
-      - sles
-      - legacy
-  - name: ubuntu16
-    box: bento/ubuntu-16.04
-    provision: false
-    groups:
-      - ubuntu
-      - legacy
-  - name: ubuntu18
-    box: bento/ubuntu-18.04
-    provision: false
-    groups:
-      - ubuntu
-      - current
 provisioner:
-  name: ansible
   lint:
     name: ansible-lint
-  playbooks:
-    converge: ${MOLECULE_PLAYBOOK:-../resources/playbooks/playbook.yml}
-    cleanup: ${MOLECULE_CLEANUP_PLAYBOOK:-../resources/playbooks/cleanup.yml}
-    create: ${MOLECULE_CREATE_PLAYBOOK:-../resources/playbooks/create.yml}
+  name: ansible
   options:
     limit: ${TEST_OS:-""}
+  playbooks:
+    cleanup: ${MOLECULE_CLEANUP_PLAYBOOK:-../resources/playbooks/cleanup.yml}
+    converge: ${MOLECULE_PLAYBOOK:-../resources/playbooks/playbook.yml}
+    create: ${MOLECULE_CREATE_PLAYBOOK:-../resources/playbooks/create.yml}
 scenario:
-  name: default
+  name: el7
   test_sequence:
     - lint
     - dependency
@@ -74,9 +44,8 @@ scenario:
     - verify
     - cleanup
     - destroy
-
 verifier:
-  name: testinfra
   directory: ../resources/tests
   lint:
     name: flake8
+  name: testinfra

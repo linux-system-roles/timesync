@@ -14,7 +14,7 @@ galaxy_info:
     - ptp
   company: Red Hat, Inc.
   license: MIT
-  min_ansible_version: 2.4
+  min_ansible_version: 2.9
   platforms:
     - name: Fedora
       versions:
@@ -26,3 +26,9 @@ galaxy_info:
         - 6
         - 7
         - 8
+    - name: Suse
+        - 12
+        - 15
+    - name: Ubuntu
+        - 16
+        - 18

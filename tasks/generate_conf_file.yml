@@ -1,5 +1,4 @@
 ---
-
 - name: Generate {{ __timesync_path }} file
   template:
     src: "{{ __timesync_template }}"
