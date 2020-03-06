@@ -9,7 +9,7 @@
         iburst: yes
       - hostname: 198.51.100.2
         iburst: yes
-    timesync_ntp_provider: ntp
+    # timesync_ntp_provider: ntp
   roles:
     - role: sles_registration
       sles_registration_code: "{{ lookup('env', 'SLES_REG_CODE') }}"
