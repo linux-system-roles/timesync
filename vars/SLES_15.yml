@@ -1,0 +1,3 @@
+---
+timesync_required_packages:
+  - python3-rpm

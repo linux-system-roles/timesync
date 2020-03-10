@@ -1,13 +1,19 @@
 ---
 
+- name: Set default variables
+  include_vars: default.yml
+
+- name: Set distro variables
+  include_vars: "{{ item }}"
+  with_items:
+    - "{{ ansible_os_family }}.yml"
+    - "{{ ansible_distribution }}.yml"
+
 - name: Set version specific variables
   include_vars: "{{ item }}"
   with_first_found:
     - "{{ ansible_distribution }}-{{ ansible_distribution_version }}.yml"
     - "{{ ansible_distribution }}-{{ ansible_distribution_major_version }}.yml"
-    - "{{ ansible_distribution }}.yml"
-    - "{{ ansible_os_family }}.yml"
-    - "default.yml"
 
 - name: Check if only NTP is needed
   set_fact:
@@ -105,6 +111,7 @@
     - timesync_mode == 1
     - timesync_ntp_provider == 'chrony'
     - "'chrony' in ansible_facts.packages"
+    - ansible_os_family != 'Debian'
 
 - name: Generate ntp.conf file
   template:
@@ -129,6 +136,7 @@
     - timesync_mode == 1
     - timesync_ntp_provider == 'ntp'
     - "'ntp' in ansible_facts.packages"
+    - ansible_os_family != 'Debian'
 
 - name: Generate ptp4l.conf file
   template:
@@ -151,6 +159,7 @@
   when:
     - timesync_mode == 2
     - "'linuxptp' in ansible_facts.packages"
+    - ansible_os_family != 'Debian'
 
 - name: Generate phc2sys sysconfig file
   template:
@@ -163,6 +172,7 @@
     - timesync_mode == 2
     - timesync_mode2_hwts
     - "'linuxptp' in ansible_facts.packages"
+    - ansible_os_family != 'Debian'
 
 - name: Generate timemaster.conf file
   template:
@@ -185,7 +195,9 @@
     line: 'PEERNTP=no'
     state: "{{ 'absent' if timesync_dhcp_ntp_servers else 'present' }}"
   notify: restart {{ timesync_ntp_provider + 'd' }}
-  when: timesync_mode == 1
+  when:
+    - timesync_mode == 1
+    - ansible_os_family != 'Debian'
 
 - name: Disable chronyd
   service:

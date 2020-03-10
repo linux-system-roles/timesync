@@ -6,38 +6,39 @@ is_service_enabled() {
 
 	read -r prev_runlevel runlevel < <(runlevel)
 
-	systemctl is-enabled $name.service &> /dev/null || \
+	systemctl is-enabled $name.service &>/dev/null ||
 		chkconfig --list $name 2>/dev/null | grep -q "$runlevel:on"
 }
 
 is_service_active() {
 	local name=$1
 
-	systemctl is-active $name.service &> /dev/null || \
+	systemctl is-active $name.service &>/dev/null ||
 		service $name status &>/dev/null
 }
 
 get_current_ntp_providers() {
 	is_service_active chronyd || is_service_enabled chronyd && echo chrony
 	is_service_active ntpd || is_service_enabled ntpd && echo ntp
+	is_service_active chrony || is_service_enabled chrony && echo chrony
+	is_service_active ntp || is_service_enabled ntp && echo ntp
 }
-
 
 current_ntp_providers=$(get_current_ntp_providers)
 
 ntp_provider_count=$(echo -n "$current_ntp_providers" | wc -w)
 
 case $ntp_provider_count in
-	0)
-		ntp_provider_current=""
-		;;
-	1)
-		ntp_provider_current=$current_ntp_providers
-		;;
-	*)
-		ntp_provider_current=""
-		error_message="Multiple NTP providers are currently active/enabled."
-		;;
+0)
+	ntp_provider_current=""
+	;;
+1)
+	ntp_provider_current=$current_ntp_providers
+	;;
+*)
+	ntp_provider_current=""
+	error_message="Multiple NTP providers are currently active/enabled."
+	;;
 esac
 
 if [ -z "$error_message" ]; then

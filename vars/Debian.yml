@@ -1,0 +1,6 @@
+---
+timesync_chrony_user: _chrony
+timesync_chrony_service: chrony
+timesync_chrony_conf_path: /etc/chrony/chrony.conf
+timesync_ntp_user: _ntp
+timesync_ntp_service: ntp

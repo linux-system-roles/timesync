@@ -1,1 +1,36 @@
-timesync_ntp_provider_os_default: "chrony"
+---
+timesync_ntp_provider_os_default: chrony
+
+timesync_chrony_pkg: chrony
+timesync_chrony_user: chrony
+timesync_chrony_service: chronyd
+timesync_chrony_conf_template: chrony.conf
+timesync_chrony_conf_path: /etc/chrony.conf
+timesync_chrony_sysconfig_template: chronyd.sysconfig
+timesync_chrony_sysconfig_path: /etc/sysconfig/chronyd
+
+timesync_ntp_pkg: ntp
+timesync_ntp_user: ntp
+timesync_ntp_service: ntpd
+timesync_ntp_conf_template: ntp.conf
+timesync_ntp_conf_path: /etc/ntp.conf
+timesync_ntp_sysconfig_template: ntpd.sysconfig
+timesync_ntp_sysconfig_path: /etc/sysconfig/ntpd
+
+timesync_linuxptp_pkg: linuxptp
+timesync_phc2sys_service: phc2sys
+timesync_phc2sys_sysconfig_template: phc2sys.sysconfig
+timesync_phc2sys_sysconfig_path: /etc/sysconfig/phc2sys
+timesync_ptp4l_service: ptp4l
+timesync_ptp4l_conf_template: ptp4l.conf
+timesync_ptp4l_conf_path: /etc/ptp4l.conf
+timesync_ptp4l_sysconfig_template: ptp4l.sysconfig
+timesync_ptp4l_sysconfig_path: /etc/sysconfig/ptp4l
+timesync_timemaster_service: timemaster
+timesync_timemaster_conf_template: timemaster.conf
+timesync_timemaster_conf_path: /etc/timemaster.conf
+
+timesync_ntpdate_service: ntpdate
+timesync_sntp_service: sntp
+
+timesync_network_sysconfig_path: /etc/sysconfig/network
