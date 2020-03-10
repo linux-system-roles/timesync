@@ -15,7 +15,7 @@ ptp4l_option udp_ttl {{ value['udp_ttl'] }}
 
 {% endfor %}
 [timemaster]
-ntp_program {{ 'ntpd' if timesync_ntp_provider == 'ntp' else 'chronyd' }}
+ntp_program {{ timesync_ntp_service if timesync_ntp_provider == 'ntp' else timesync_chrony_service }}
 
 [chrony.conf]
 include /etc/chrony.conf
@@ -28,12 +28,12 @@ includefile /etc/ntp.conf
 [chronyd]
 path /usr/sbin/chronyd
 {% if timesync_ntp_provider == 'chrony' and __timesync_chrony_version is version('1.30', '<') %}
-options -u chrony
+options -u {{ timesync_chrony_user }}
 {% endif %}
 
 [ntpd]
 path /usr/sbin/ntpd
-options -u ntp:ntp -g
+options -u {{ timesync_ntp_user }}:{{ timesync_ntp_user }} -g
 
 [phc2sys]
 path /usr/sbin/phc2sys
