@@ -17,10 +17,14 @@ platforms:
       - /sys/fs/cgroup:/sys/fs/cgroup:ro
     privileged: true
   - name: opensuse-15
-    image: opensuse/leap:15
+    image: paulfantom/opensuse-molecule:15.0
+    volumes:
+      - /sys/fs/cgroup:/sys/fs/cgroup:ro
     privileged: true
   - name: opensuse-42
     image: opensuse/leap:42
+    volumes:
+      - /sys/fs/cgroup:/sys/fs/cgroup:ro
     privileged: true
   - name: ubuntu-16
     image: ubuntu:xenial

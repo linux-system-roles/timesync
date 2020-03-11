@@ -1,3 +1,5 @@
 ---
+timesync_network_sysconfig_path: /etc/sysconfig/network/config
+
 timesync_required_packages:
   - rpm-python

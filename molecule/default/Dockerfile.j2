@@ -12,3 +12,16 @@ RUN if [ $(command -v apt-get) ]; then apt-get update && apt-get install -y pyth
     elif [ $(command -v zypper) ]; then zypper refresh && zypper install -y python sudo bash python-xml && zypper clean -a; \
     elif [ $(command -v apk) ]; then apk update && apk add --no-cache python sudo bash ca-certificates; \
     elif [ $(command -v xbps-install) ]; then xbps-install -Syu && xbps-install -y python sudo bash ca-certificates && xbps-remove -O; fi
+
+{%if 'opensuse/leap:42' in item.image %}
+RUN  zypper install -y systemd \
+    && zypper clean \
+    && rm -f /usr/lib/systemd/system/multi-user.target.wants/* \
+    /etc/systemd/system/*.wants/* \
+    /lib/systemd/system/local-fs.target.wants/* \
+    /lib/systemd/system/sockets.target.wants/*udev* \
+    /lib/systemd/system/basic.target.wants/* \
+    && systemctl set-default multi-user.target
+ENV init /lib/systemd/systemd
+ENTRYPOINT ["/usr/lib/systemd/systemd"]
+{% endif %}

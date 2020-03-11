@@ -3,17 +3,13 @@
 - name: Set default variables
   include_vars: default.yml
 
-- name: Set distro variables
-  include_vars: "{{ item }}"
-  with_items:
-    - "{{ ansible_os_family }}.yml"
-    - "{{ ansible_distribution }}.yml"
-
 - name: Set version specific variables
   include_vars: "{{ item }}"
   with_first_found:
-    - "{{ ansible_distribution }}-{{ ansible_distribution_version }}.yml"
-    - "{{ ansible_distribution }}-{{ ansible_distribution_major_version }}.yml"
+    - "{{ ansible_distribution|replace(' ','-') }}-{{ ansible_distribution_version }}.yml"
+    - "{{ ansible_distribution|replace(' ','-') }}-{{ ansible_distribution_major_version }}.yml"
+    - "{{ ansible_distribution }}.yml"
+    - "{{ ansible_os_family }}.yml"
 
 - name: Check if only NTP is needed
   set_fact:
@@ -51,7 +47,7 @@
 
 - name: Install chrony
   package:
-    name: chrony
+    name: "{{ timesync_chrony_pkg }}"
     state: present
   when:
     - timesync_mode != 2
@@ -59,7 +55,7 @@
 
 - name: Install ntp
   package:
-    name: ntp
+    name: "{{ timesync_ntp_pkg }}"
     state: present
   when:
     - timesync_mode != 2
@@ -67,9 +63,15 @@
 
 - name: Install linuxptp
   package:
-    name: linuxptp
+    name: "{{ timesync_linuxptp_pkg }}"
     state: present
   when: timesync_mode != 1
+
+- name: Install other required packages
+  package:
+    name: "{{ timesync_required_packages }}"
+    state: present
+  when: timesync_required_packages is defined
 
 - name: Gather package facts
   package_facts:
@@ -91,7 +93,7 @@
 - name: Generate chrony.conf file
   template:
     src: chrony.conf.j2
-    dest: /etc/chrony.conf
+    dest: "{{ timesync_chrony_conf_path }}"
     backup: true
     mode: 0644
   notify: restart {{ 'chronyd' if timesync_mode == 1 else 'timemaster' }}
@@ -103,7 +105,7 @@
 - name: Generate chronyd sysconfig file
   template:
     src: chronyd.sysconfig.j2
-    dest: /etc/sysconfig/chronyd
+    dest: "{{ timesync_chrony_sysconfig_path }}"
     backup: true
     mode: 0644
   notify: restart chronyd
@@ -116,7 +118,7 @@
 - name: Generate ntp.conf file
   template:
     src: ntp.conf.j2
-    dest: /etc/ntp.conf
+    dest: "{{ timesync_ntp_conf_path }}"
     backup: true
     mode: 0644
   notify: restart {{ 'ntpd' if timesync_mode == 1 else 'timemaster' }}
@@ -128,7 +130,7 @@
 - name: Generate ntpd sysconfig file
   template:
     src: ntpd.sysconfig.j2
-    dest: /etc/sysconfig/ntpd
+    dest: "{{ timesync_ntp_sysconfig_path }}"
     backup: true
     mode: 0644
   notify: restart ntpd
@@ -141,7 +143,7 @@
 - name: Generate ptp4l.conf file
   template:
     src: ptp4l.conf.j2
-    dest: /etc/ptp4l.conf
+    dest: "{{ timesync_ptp4l_conf_path }}"
     backup: true
     mode: 0644
   notify: restart ptp4l
@@ -152,7 +154,7 @@
 - name: Generate ptp4l sysconfig file
   template:
     src: ptp4l.sysconfig.j2
-    dest: /etc/sysconfig/ptp4l
+    dest: "{{ timesync_ptp4l_sysconfig_path }}"
     backup: true
     mode: 0644
   notify: restart ptp4l
@@ -164,7 +166,7 @@
 - name: Generate phc2sys sysconfig file
   template:
     src: phc2sys.sysconfig.j2
-    dest: /etc/sysconfig/phc2sys
+    dest: "{{ timesync_phc2sys_sysconfig_path }}"
     backup: true
     mode: 0644
   notify: restart phc2sys
@@ -177,7 +179,7 @@
 - name: Generate timemaster.conf file
   template:
     src: timemaster.conf.j2
-    dest: /etc/timemaster.conf
+    dest: "{{ timesync_timemaster_conf_path }}"
     backup: true
     mode: 0644
   notify: restart timemaster
@@ -187,7 +189,7 @@
 
 - name: Update network sysconfig file
   lineinfile:
-    dest: /etc/sysconfig/network
+    dest: "{{ timesync_network_sysconfig_path }}"
     create: true
     backup: true
     mode: 0644
@@ -201,7 +203,7 @@
 
 - name: Disable chronyd
   service:
-    name: chronyd
+    name: "{{ timesync_chrony_service }}"
     state: stopped
     enabled: false
   when: timesync_mode != 1 or timesync_ntp_provider != 'chrony'
@@ -209,7 +211,7 @@
 
 - name: Disable ntpd
   service:
-    name: ntpd
+    name: "{{ timesync_ntp_service }}"
     state: stopped
     enabled: false
   when: timesync_mode != 1 or timesync_ntp_provider != 'ntp'
@@ -217,21 +219,21 @@
 
 - name: Disable ntpdate
   service:
-    name: ntpdate
+    name: "{{ timesync_ntpdate_service }}"
     state: stopped
     enabled: false
   ignore_errors: true
 
 - name: Disable sntp
   service:
-    name: sntp
+    name: "{{ timesync_sntp_service }}"
     state: stopped
     enabled: false
   ignore_errors: true
 
 - name: Disable ptp4l
   service:
-    name: ptp4l
+    name: "{{ timesync_ptp4l_service }}"
     state: stopped
     enabled: false
   when: timesync_mode != 2
@@ -239,7 +241,7 @@
 
 - name: Disable phc2sys
   service:
-    name: phc2sys
+    name: "{{ timesync_phc2sys_service }}"
     state: stopped
     enabled: false
   when: timesync_mode != 2 or not timesync_mode2_hwts
@@ -247,7 +249,7 @@
 
 - name: Disable timemaster
   service:
-    name: timemaster
+    name: "{{ timesync_timemaster_service }}"
     state: stopped
     enabled: false
   when: timesync_mode != 3
@@ -255,7 +257,7 @@
 
 - name: Enable chronyd
   service:
-    name: chronyd
+    name: "{{ timesync_chrony_service }}"
     state: started
     enabled: true
   when:
@@ -264,7 +266,7 @@
 
 - name: Enable ntpd
   service:
-    name: ntpd
+    name: "{{ timesync_ntp_service }}"
     state: started
     enabled: true
   when:
@@ -273,14 +275,14 @@
 
 - name: Enable ptp4l
   service:
-    name: ptp4l
+    name: "{{ timesync_ptp4l_service }}"
     state: started
     enabled: true
   when: timesync_mode == 2
 
 - name: Enable phc2sys
   service:
-    name: phc2sys
+    name: "{{ timesync_phc2sys_service }}"
     state: started
     enabled: true
   when:
@@ -289,7 +291,7 @@
 
 - name: Enable timemaster
   service:
-    name: timemaster
+    name: "{{ timesync_timemaster_service }}"
     state: started
     enabled: true
   when: timesync_mode == 3

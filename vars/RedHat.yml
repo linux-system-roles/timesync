@@ -1,6 +1,4 @@
 ---
-timesync_ntp_provider_os_default: "ntp"
-
 timesync_required_packages:
   - rpm-python
   - libselinux-python
