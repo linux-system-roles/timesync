@@ -3,7 +3,7 @@ language: python
 services:
   - docker
 install:
-  - pip install 'molecule<3' docker
+  - pip install 'molecule<3' docker jmespath
 script:
   - molecule --version
   - ansible --version
