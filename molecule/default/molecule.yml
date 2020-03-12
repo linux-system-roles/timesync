@@ -4,7 +4,7 @@ dependency:
 driver:
   name: docker
 lint: |
-  yamllint .
+  yamllint -c molecule/default/yamllint.yml .
   ansible-lint
   flake8
 platforms:

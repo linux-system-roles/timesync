@@ -9,3 +9,6 @@ rules:
     level: error
   truthy: disable
   document-start: disable
+  line-length:
+    level: warning
+    allow-non-breakable-inline-mappings: true
