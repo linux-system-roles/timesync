@@ -3,10 +3,10 @@ dependency:
   name: galaxy
 driver:
   name: docker
-lint:
-  name: yamllint
-  options:
-    config-file: molecule/default/yamllint.yml
+lint: |
+  yamllint .
+  ansible-lint
+  flake8
 platforms:
   - name: centos-6
     image: linuxsystemroles/centos-6
@@ -32,14 +32,6 @@ platforms:
   - name: ubuntu-18
     image: ubuntu:bionic
     privileged: true
-
-provisioner:
-  name: ansible
-  log: true
-  lint:
-    name: ansible-lint
-  playbooks:
-    converge: ../../tests/tests_default.yml
 scenario:
   name: default
   test_sequence:
@@ -49,7 +41,3 @@ scenario:
     - idempotence
     - check
     - destroy
-verifier:
-  name: testinfra
-  lint:
-    name: flake8
