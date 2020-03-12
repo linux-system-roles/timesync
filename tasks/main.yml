@@ -1,5 +1,4 @@
 ---
-
 - name: Set default variables
   include_vars: default.yml
 
@@ -40,8 +39,8 @@
 - name: Select NTP provider
   set_fact:
     timesync_ntp_provider: "{{
-        timesync_ntp_provider_current|
-        default(timesync_ntp_provider_os_default, true) }}"
+      timesync_ntp_provider_current|
+      default(timesync_ntp_provider_os_default, true) }}"
   when:
     - timesync_mode != 2
     - timesync_ntp_provider == ''
@@ -194,8 +193,8 @@
     create: true
     backup: true
     mode: 0644
-    regexp: '^PEERNTP='
-    line: 'PEERNTP=no'
+    regexp: "^PEERNTP="
+    line: "PEERNTP=no"
     state: "{{ 'absent' if timesync_dhcp_ntp_servers else 'present' }}"
   notify: restart {{ timesync_ntp_provider + 'd' }}
   when:

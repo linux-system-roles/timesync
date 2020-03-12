@@ -32,7 +32,7 @@ platforms:
   - name: ubuntu-18
     image: ubuntu:bionic
     privileged: true
-  
+
 provisioner:
   name: ansible
   log: true
