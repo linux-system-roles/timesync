@@ -41,3 +41,10 @@ scenario:
     - idempotence
     - check
     - destroy
+provisioner:
+  name: ansible
+  log: true
+  playbooks:
+    converge: ../../tests/tests_default.yml
+verifier:
+  name: testinfra
