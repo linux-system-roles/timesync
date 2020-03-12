@@ -3,13 +3,13 @@
   include_vars: default.yml
 
 - name: Set version specific variables
-  include_vars: "{{ item }}"
+  include_vars: "{{ item | replace(' ','-') }}.yml"
   with_first_found:
-    - "{{ ansible_distribution|replace(' ','-') }}-{{ ansible_distribution_version }}.yml"
-    - "{{ ansible_distribution|replace(' ','-') }}-{{ ansible_distribution_major_version }}.yml"
-    - "{{ ansible_distribution }}.yml"
-    - "{{ ansible_os_family }}.yml"
-    - default.yml
+    - "{{ ansible_distribution }}-{{ ansible_distribution_version }}"
+    - "{{ ansible_distribution }}-{{ ansible_distribution_major_version }}"
+    - "{{ ansible_distribution }}"
+    - "{{ ansible_os_family }}"
+    - default
 
 - name: Check if only NTP is needed
   set_fact:
