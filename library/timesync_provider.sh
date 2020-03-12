@@ -18,10 +18,8 @@ is_service_active() {
 }
 
 get_current_ntp_providers() {
-	is_service_active chronyd || is_service_enabled chronyd && echo chrony
-	is_service_active ntpd || is_service_enabled ntpd && echo ntp
-	is_service_active chrony || is_service_enabled chrony && echo chrony
-	is_service_active ntp || is_service_enabled ntp && echo ntp
+	is_service_active chronyd || is_service_enabled chronyd || is_service_active chrony || is_service_enabled chrony && echo chrony
+	is_service_active ntpd || is_service_enabled ntpd || is_service_active ntp || is_service_enabled ntp && echo ntp
 }
 
 current_ntp_providers=$(get_current_ntp_providers)
