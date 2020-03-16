@@ -8,12 +8,13 @@
         suffix: .inventory.yaml
       register: tempinventory
       delegate_to: localhost
-
+    
     - name: Create static inventory from hostvars
       template:
         src: inventory.yaml.j2
         dest: "{{ tempinventory.path }}"
       delegate_to: localhost
+
 
 - name: Run tests_default.yml normally
   import_playbook: tests_default.yml

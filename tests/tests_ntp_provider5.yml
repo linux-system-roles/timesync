@@ -1,3 +1,4 @@
+
 - name: Configure NTP with ntp as specified provider
   hosts: all
   vars:
@@ -9,25 +10,25 @@
 
   pre_tasks:
     - block:
-        - name: Install ntp
-          package: name=ntp state=present
-          register: package_install
-          ignore_errors: yes
+      - name: Install ntp
+        package: name=ntp state=present
+        register: package_install
+        ignore_errors: yes
 
-        - meta: end_play
-          when: package_install.failed
+      - meta: end_play
+        when: package_install.failed
 
-        - name: Remove ntp
-          package: name=ntp state=absent
+      - name: Remove ntp
+        package: name=ntp state=absent
       check_mode: false
       tags: tests::setup
 
   post_tasks:
     - block:
-        - name: Wait for services to start
-          wait_for:
-            timeout: 2
+      - name: Wait for services to start
+        wait_for:
+          timeout: 2
 
-        - name: Check ntpd service
-          shell: ntpq -c rv | grep 'associd=0'
+      - name: Check ntpd service
+        shell: ntpq -c rv | grep 'associd=0'
       tags: tests::verify

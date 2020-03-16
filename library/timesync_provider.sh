@@ -27,16 +27,16 @@ current_ntp_providers=$(get_current_ntp_providers)
 ntp_provider_count=$(echo -n "$current_ntp_providers" | wc -w)
 
 case $ntp_provider_count in
-0)
-	ntp_provider_current=""
-	;;
-1)
-	ntp_provider_current=$current_ntp_providers
-	;;
-*)
-	ntp_provider_current=""
-	error_message="Multiple NTP providers are currently active/enabled."
-	;;
+	0)
+		ntp_provider_current=""
+		;;
+	1)
+		ntp_provider_current=$current_ntp_providers
+		;;
+	*)
+		ntp_provider_current=""
+		error_message="Multiple NTP providers are currently active/enabled."
+		;;
 esac
 
 if [ -z "$error_message" ]; then
