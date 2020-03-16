@@ -1,7 +1,4 @@
 ---
-- name: Set default variables
-  include_vars: default.yml
-
 - name: Set version specific variables
   include_vars: "{{ item | replace(' ','-') }}"
   with_first_found:
@@ -9,7 +6,7 @@
     - "{{ ansible_distribution }}-{{ ansible_distribution_major_version }}.yml"
     - "{{ ansible_distribution }}.yml"
     - "{{ ansible_os_family }}.yml"
-    - default.yml
+    - "default.yml"
 
 - name: Check if only NTP is needed
   set_fact:
@@ -39,8 +36,8 @@
 - name: Select NTP provider
   set_fact:
     timesync_ntp_provider: "{{
-      timesync_ntp_provider_current|
-      default(timesync_ntp_provider_os_default, true) }}"
+        timesync_ntp_provider_current|
+        default(timesync_ntp_provider_os_default, true) }}"
   when:
     - timesync_mode != 2
     - timesync_ntp_provider == ''
@@ -193,8 +190,8 @@
     create: true
     backup: true
     mode: 0644
-    regexp: "^PEERNTP="
-    line: "PEERNTP=no"
+    regexp: '^PEERNTP='
+    line: 'PEERNTP=no'
     state: "{{ 'absent' if timesync_dhcp_ntp_servers else 'present' }}"
   notify: restart {{ timesync_ntp_provider + 'd' }}
   when:

@@ -6,14 +6,14 @@ is_service_enabled() {
 
 	read -r prev_runlevel runlevel < <(runlevel)
 
-	systemctl is-enabled $name.service &>/dev/null ||
+	systemctl is-enabled $name.service &> /dev/null || \
 		chkconfig --list $name 2>/dev/null | grep -q "$runlevel:on"
 }
 
 is_service_active() {
 	local name=$1
 
-	systemctl is-active $name.service &>/dev/null ||
+	systemctl is-active $name.service &> /dev/null || \
 		service $name status &>/dev/null
 }
 
