@@ -33,7 +33,7 @@ options -u {{ timesync_chrony_user }}
 
 [ntpd]
 path /usr/sbin/ntpd
-options -u {{ timesync_ntp_user }}:{{ timesync_ntp_user }} -g
+options -u {{ timesync_ntp_user }}:{{ timesync_ntp_group|default(timesync_ntp_user, true) }} -g
 
 [phc2sys]
 path /usr/sbin/phc2sys
