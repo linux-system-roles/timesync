@@ -1,0 +1,7 @@
+passes.yml
+vault.yml
+*.pyc
+*.retry
+/tests/.coverage
+/tests/htmlcov*
+/.tox
