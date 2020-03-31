@@ -1,4 +1,3 @@
-
 - name: Configure NTP with chrony as specified provider
   hosts: all
   vars:
@@ -10,25 +9,25 @@
 
   pre_tasks:
     - block:
-      - name: Install chrony
-        package: name=chrony state=present
-        register: package_install
-        ignore_errors: yes
+        - name: Install chrony
+          package: name=chrony state=present
+          register: package_install
+          ignore_errors: yes
 
-      - meta: end_play
-        when: package_install.failed
+        - meta: end_play
+          when: package_install.failed
 
-      - name: Remove chrony
-        package: name=chrony state=absent
+        - name: Remove chrony
+          package: name=chrony state=absent
       check_mode: false
       tags: tests::setup
 
   post_tasks:
     - block:
-      - name: Wait for services to start
-        wait_for:
-          timeout: 2
+        - name: Wait for services to start
+          wait_for:
+            timeout: 2
 
-      - name: Check chronyd service
-        shell: chronyc -n tracking
+        - name: Check chronyd service
+          shell: chronyc -n tracking
       tags: tests::verify

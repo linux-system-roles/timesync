@@ -1,4 +1,3 @@
----
 - name: Create static inventory from hostvars
   hosts: all
   tasks:
@@ -8,13 +7,12 @@
         suffix: .inventory.yaml
       register: tempinventory
       delegate_to: localhost
-    
+
     - name: Create static inventory from hostvars
       template:
         src: inventory.yaml.j2
         dest: "{{ tempinventory.path }}"
       delegate_to: localhost
-
 
 - name: Run tests_default.yml normally
   import_playbook: tests_default.yml
@@ -23,6 +21,7 @@
   hosts: all
   tasks:
     - name: Run ansible-playbook with tests_default.yml in check mode
+      # yamllint disable-line rule:line-length
       command: ansible-playbook -vvv -i {{ tempinventory.path }} --check tests_default.yml
       delegate_to: localhost
 
