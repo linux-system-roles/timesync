@@ -1,9 +1,11 @@
+
 - name: Configure NTP with default provider
   hosts: all
   vars:
     timesync_ntp_servers:
       - hostname: 172.16.123.1
     tests_role_path: "../../timesync"
+    tests_test_checkmode: yes
 
   tasks:
     - block:

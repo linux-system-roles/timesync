@@ -1,0 +1,65 @@
+
+- name: Create a temporary file for a static inventory
+  tempfile:
+    state: file
+    suffix: .inventory.yaml
+  register: tempinventory
+  delegate_to: localhost
+
+- name: Create a static inventory from hostvars
+  template:
+    src: inventory.yaml.j2
+    dest: "{{ tempinventory.path }}"
+  delegate_to: localhost
+
+- name: Import role {{ tests_role_path }}
+  import_role:
+    name: "{{ tests_role_path }}"
+
+- name: >
+    Import role {{ tests_role_path }} via fresh Ansible instance with check
+    mode enabled
+  command: >
+    ansible all -vv -i {{ tempinventory.path }} --check -m import_role
+      -a "name={{ tests_role_path }}"
+  delegate_to: localhost
+  when:
+    - tests_test_checkmode is defined
+    - tests_test_checkmode
+
+- name: Update static inventory with recent hostvars
+  template:
+    src: inventory.yaml.j2
+    dest: "{{ tempinventory.path }}"
+  delegate_to: localhost
+  when:
+    - tests_test_idempotency is defined
+    - tests_test_idempotency
+
+- name: Import role {{ tests_role_path }} via fresh Ansible instance
+  command: >
+    ansible all -vv -i {{ tempinventory.path }} -m import_role 
+      -a "name={{ tests_role_path }}"
+  delegate_to: localhost
+  register: ansible_output
+  when:
+    - tests_test_idempotency is defined
+    - tests_test_idempotency
+
+- name: Check the idempotency
+  assert:
+    that:
+      - ansible_output.stdout.find('| CHANGED => {\n') == -1
+    fail_msg: >
+      Idempotency test failed. Output: {{ ansible_output.stdout_lines }}
+  delegate_to: localhost
+  when:
+    - tests_test_idempotency is defined
+    - tests_test_idempotency
+
+- name: Remove the temporary file
+  file:
+    path: "{{ tempinventory.path }}"
+    state: absent
+  when: tempinventory.path is defined
+  delegate_to: localhost

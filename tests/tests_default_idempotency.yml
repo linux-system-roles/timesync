@@ -1,7 +1,9 @@
+
 - name: Ensure that the role runs with default parameters
   hosts: all
   vars:
     tests_role_path: "../../timesync"
+    tests_test_idempotency: yes
 
   tasks:
     - name: Import role from wrapper
