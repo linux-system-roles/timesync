@@ -1,5 +1,3 @@
----
-
 - name: Set version specific variables
   include_vars: "{{ item }}"
   with_first_found:
