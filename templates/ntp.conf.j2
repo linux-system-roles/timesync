@@ -5,7 +5,7 @@
 value['hostname'] }}{{
 ' minpoll {0}'.format(value['minpoll']) if 'minpoll' in value else '' }}{{
 ' maxpoll {0}'.format(value['maxpoll']) if 'maxpoll' in value else '' }}{{
-' iburst' if 'iburst' in value and value else '' }}
+' iburst' if 'iburst' in value and value['iburst'] else '' }}
 {% endfor %}
 
 driftfile /var/lib/ntp/drift
