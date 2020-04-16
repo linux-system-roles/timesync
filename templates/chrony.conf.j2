@@ -6,6 +6,8 @@ value['hostname'] }}{{
 ' minpoll {0}'.format(value['minpoll']) if 'minpoll' in value else '' }}{{
 ' maxpoll {0}'.format(value['maxpoll']) if 'maxpoll' in value else '' }}{{
 ' iburst' if 'iburst' in value and value['iburst'] else '' }}{{
+' prefer' if 'prefer' in value and value['prefer'] else '' }}{{
+' trust' if 'trust' in value and value['trust'] else '' }}{{
 ' xleave' if __timesync_chrony_version is version('3.0', '>=') and
         'xleave' in value and value['xleave'] else '' }}{{
 ' filter {0}'.format(value['filter'])
