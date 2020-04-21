@@ -4,7 +4,6 @@
   vars:
     timesync_ntp_servers:
       - hostname: 172.16.123.1
-    tests_role_path: "../../timesync"
     tests_test_idempotency: yes
 
   tasks:
@@ -18,7 +17,7 @@
       tags: tests::setup
 
     - name: Import role from wrapper
-      import_tasks: role_wrapper.yml
+      include_tasks: role_wrapper.yml
 
     - block:
         - name: Wait for services to start

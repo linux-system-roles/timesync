@@ -12,20 +12,19 @@
     dest: "{{ tempinventory.path }}"
   delegate_to: localhost
 
-- name: Import role {{ tests_role_path }}
+- name: Import role {{ '..' | realpath }}
   import_role:
-    name: "{{ tests_role_path }}"
+    name: "{{ '..' | realpath }}"
 
 - name: >
-    Import role {{ tests_role_path }} via fresh Ansible instance with check
+    Import role {{ '..' | realpath }} via fresh Ansible instance with check
     mode enabled
   command: >
     ansible all -vv -i {{ tempinventory.path }} --check -m import_role
-      -a "name={{ tests_role_path }}"
+      -a "name={{ '..' | realpath }}"
   delegate_to: localhost
   when:
-    - tests_test_checkmode is defined
-    - tests_test_checkmode
+    - tests_test_checkmode | default(false)
 
 - name: Update static inventory with recent hostvars
   template:
@@ -33,18 +32,16 @@
     dest: "{{ tempinventory.path }}"
   delegate_to: localhost
   when:
-    - tests_test_idempotency is defined
-    - tests_test_idempotency
+    - tests_test_idempotency | default(false)
 
-- name: Import role {{ tests_role_path }} via fresh Ansible instance
+- name: Import role {{ '..' | realpath }} via fresh Ansible instance
   command: >
-    ansible all -vv -i {{ tempinventory.path }} -m import_role 
-      -a "name={{ tests_role_path }}"
-  delegate_to: localhost
+    ansible all -vv -i {{ tempinventory.path }} -m import_role
+      -a "name={{ '..' | realpath }}"
   register: ansible_output
+  delegate_to: localhost
   when:
-    - tests_test_idempotency is defined
-    - tests_test_idempotency
+    - tests_test_idempotency | default(false)
 
 - name: Check the idempotency
   assert:
@@ -54,12 +51,12 @@
       Idempotency test failed. Output: {{ ansible_output.stdout_lines }}
   delegate_to: localhost
   when:
-    - tests_test_idempotency is defined
-    - tests_test_idempotency
+    - tests_test_idempotency | default(false)
 
 - name: Remove the temporary file
   file:
     path: "{{ tempinventory.path }}"
     state: absent
-  when: tempinventory.path is defined
   delegate_to: localhost
+  when:
+    - tempinventory.path is defined
