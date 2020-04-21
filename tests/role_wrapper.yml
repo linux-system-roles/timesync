@@ -12,51 +12,53 @@
     dest: "{{ tempinventory.path }}"
   delegate_to: localhost
 
-- name: Import role {{ '..' | realpath }}
-  import_role:
-    name: "{{ '..' | realpath }}"
+- block:
+    - name: Import role {{ '..' | realpath }}
+      import_role:
+        name: "{{ '..' | realpath }}"
 
-- name: >
-    Import role {{ '..' | realpath }} via fresh Ansible instance with check
-    mode enabled
-  command: >
-    ansible all -vv -i {{ tempinventory.path }} --check -m import_role
-      -a "name={{ '..' | realpath }}"
-  delegate_to: localhost
-  when:
-    - tests_test_checkmode | default(false)
+    - name: >
+        Import role {{ '..' | realpath }} via fresh Ansible instance with check
+        mode enabled
+      command: >
+        ansible all -vv -i {{ tempinventory.path }} --check -m import_role
+          -a "name={{ '..' | realpath }}"
+      delegate_to: localhost
+      when:
+        - tests_test_checkmode | default(false)
 
-- name: Update static inventory with recent hostvars
-  template:
-    src: inventory.yaml.j2
-    dest: "{{ tempinventory.path }}"
-  delegate_to: localhost
-  when:
-    - tests_test_idempotency | default(false)
+    - name: Update static inventory with recent hostvars
+      template:
+        src: inventory.yaml.j2
+        dest: "{{ tempinventory.path }}"
+      delegate_to: localhost
+      when:
+        - tests_test_idempotency | default(false)
 
-- name: Import role {{ '..' | realpath }} via fresh Ansible instance
-  command: >
-    ansible all -vv -i {{ tempinventory.path }} -m import_role
-      -a "name={{ '..' | realpath }}"
-  register: ansible_output
-  delegate_to: localhost
-  when:
-    - tests_test_idempotency | default(false)
+    - name: Import role {{ '..' | realpath }} via fresh Ansible instance
+      command: >
+        ansible all -vv -i {{ tempinventory.path }} -m import_role
+          -a "name={{ '..' | realpath }}"
+      register: ansible_output
+      delegate_to: localhost
+      when:
+        - tests_test_idempotency | default(false)
 
-- name: Check the idempotency
-  assert:
-    that:
-      - ansible_output.stdout.find('| CHANGED => {\n') == -1
-    fail_msg: >
-      Idempotency test failed. Output: {{ ansible_output.stdout_lines }}
-  delegate_to: localhost
-  when:
-    - tests_test_idempotency | default(false)
+    - name: Check the idempotency
+      assert:
+        that:
+          - ansible_output.stdout.find('| CHANGED => {\n') == -1
+        fail_msg: >
+          Idempotency test failed. Output: {{ ansible_output.stdout_lines }}
+      delegate_to: localhost
+      when:
+        - tests_test_idempotency | default(false)
 
-- name: Remove the temporary file
-  file:
-    path: "{{ tempinventory.path }}"
-    state: absent
-  delegate_to: localhost
-  when:
-    - tempinventory.path is defined
+  always:
+    - name: Remove the temporary file
+      file:
+        path: "{{ tempinventory.path }}"
+        state: absent
+      delegate_to: localhost
+      when:
+        - tempinventory.path is defined
