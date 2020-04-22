@@ -12,6 +12,9 @@
     dest: "{{ tempinventory.path }}"
   changed_when: false
   delegate_to: localhost
+  when:
+    - tempinventory is defined
+    - tempinventory.path is defined
 
 - block:
     - name: Import role {{ '..' | realpath }}
@@ -27,6 +30,8 @@
       changed_when: false
       delegate_to: localhost
       when:
+        - tempinventory is defined
+        - tempinventory.path is defined
         - tests_test_checkmode | default(false)
 
     - name: Update static inventory with recent hostvars
@@ -36,6 +41,8 @@
       changed_when: false
       delegate_to: localhost
       when:
+        - tempinventory is defined
+        - tempinventory.path is defined
         - tests_test_idempotency | default(false)
 
     - name: Import role {{ '..' | realpath }} via fresh Ansible instance
@@ -46,6 +53,8 @@
       changed_when: false
       delegate_to: localhost
       when:
+        - tempinventory is defined
+        - tempinventory.path is defined
         - tests_test_idempotency | default(false)
 
     - name: Check the idempotency
@@ -57,6 +66,8 @@
       changed_when: false
       delegate_to: localhost
       when:
+        - ansible_output is defined
+        - ansible_output.stdout is defined
         - tests_test_idempotency | default(false)
 
   always:
@@ -67,4 +78,5 @@
       changed_when: false
       delegate_to: localhost
       when:
+        - tempinventory is defined
         - tempinventory.path is defined
