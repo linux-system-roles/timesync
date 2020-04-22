@@ -1,1 +1,13 @@
-{{ { 'all': { 'hosts': hostvars } } | to_yaml }}
+{% set role_vars = vars.keys() | intersect((
+     lookup('file', '../defaults/main.yml', errors='ignore') | from_yaml
+   ).keys())
+-%}
+{{ {
+  'all': {
+    'hosts': hostvars | to_json | from_json | combine(dict(
+      hostvars.keys() | product([dict(
+        role_vars | zip(role_vars | map('extract', vars))
+      )])
+    ), recursive=True) if role_vars else hostvars
+  }
+} | to_yaml }}
