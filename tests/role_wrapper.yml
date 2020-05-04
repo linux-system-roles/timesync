@@ -1,14 +1,14 @@
 - name: Create a temporary file for a static inventory
   tempfile:
     state: file
-    suffix: .inventory.yaml
+    suffix: .inventory.yml
   register: tempinventory
   changed_when: false
   delegate_to: localhost
 
 - name: Create a static inventory from hostvars
   template:
-    src: inventory.yaml.j2
+    src: inventory.yml.j2
     dest: "{{ tempinventory.path }}"
   changed_when: false
   delegate_to: localhost
@@ -36,7 +36,7 @@
 
     - name: Update static inventory with recent hostvars
       template:
-        src: inventory.yaml.j2
+        src: inventory.yml.j2
         dest: "{{ tempinventory.path }}"
       changed_when: false
       delegate_to: localhost

@@ -4,13 +4,13 @@
     - name: create temporary file
       tempfile:
         state: file
-        suffix: .inventory.yaml
+        suffix: .inventory.yml
       register: tempinventory
       delegate_to: localhost
 
     - name: Create static inventory from hostvars
       template:
-        src: inventory.yaml.j2
+        src: inventory.yml.j2
         dest: "{{ tempinventory.path }}"
       delegate_to: localhost
 
