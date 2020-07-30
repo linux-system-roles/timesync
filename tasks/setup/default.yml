@@ -1,0 +1,16 @@
+---
+- name: Set variable with services List for RedHat 7 and above systems
+  command: systemctl list-unit-files --no-legend *.service  # noqa 303
+  register: __timesync_register_services
+  check_mode: no
+  changed_when: false
+
+- name: Set variable `timesync_services` with filtered uniq service names
+  set_fact:
+    timesync_services: |
+      {{ __timesync_register_services.stdout_lines |
+          map('regex_replace', '[.]service.*$', '') |
+          map('regex_replace', '@$', '') |
+          unique |
+          list }}
+  when: __timesync_register_services is defined

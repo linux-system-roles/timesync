@@ -1,0 +1,15 @@
+---
+- name: Set variable with services List for CentOS 6
+  command: chkconfig --list  # noqa 303
+  register: __timesync_register_services
+  check_mode: no
+  changed_when: false
+
+- name: Set variable `timesync_services` with filtered uniq service names
+  set_fact:
+    timesync_services: |
+      {{ __timesync_register_services.stdout_lines |
+          map('regex_replace', '[ \t].*$', '') |
+          unique |
+          list }}
+  when: __timesync_register_services is defined
