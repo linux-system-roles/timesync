@@ -13,6 +13,18 @@
       paths:
         - "{{ role_path }}/vars"
 
+- name: Set variable with services List for RedHat 6 based systems
+  command: initctl list
+  register: services
+  changed_when: false
+  when: ansible_lsb.major_release|int == 6
+
+- name: Set variable with services List for RedHat 7 based systems and above
+  command: systemctl --all --type service
+  register: services
+  changed_when: false
+  when: ansible_lsb.major_release|int >= 7
+
 - name: Check if only NTP is needed
   set_fact:
     timesync_mode: 1
@@ -196,54 +208,59 @@
     name: chronyd
     state: stopped
     enabled: false
-  when: timesync_mode != 1 or timesync_ntp_provider != 'chrony'
-  ignore_errors: true
+  when:
+    - timesync_mode != 1 or timesync_ntp_provider != 'chrony'
+    - "'chronyd' in services"
 
 - name: Disable ntpd
   service:
     name: ntpd
     state: stopped
     enabled: false
-  when: timesync_mode != 1 or timesync_ntp_provider != 'ntp'
-  ignore_errors: true
+  when:
+    - timesync_mode != 1 or timesync_ntp_provider != 'ntp'
+    - "'ntpd' in services"
 
 - name: Disable ntpdate
   service:
     name: ntpdate
     state: stopped
     enabled: false
-  ignore_errors: true
+  when: "'ntpdate' in services"
 
 - name: Disable sntp
   service:
     name: sntp
     state: stopped
     enabled: false
-  ignore_errors: true
+  when: "'sntp' in services"
 
 - name: Disable ptp4l
   service:
     name: ptp4l
     state: stopped
     enabled: false
-  when: timesync_mode != 2
-  ignore_errors: true
+  when:
+    - timesync_mode != 2
+    - "'ptp4l' in services"
 
 - name: Disable phc2sys
   service:
     name: phc2sys
     state: stopped
     enabled: false
-  when: timesync_mode != 2 or not timesync_mode2_hwts
-  ignore_errors: true
+  when:
+    - timesync_mode != 2 or not timesync_mode2_hwts
+    - "'phc2sys' in services"
 
 - name: Disable timemaster
   service:
     name: timemaster
     state: stopped
     enabled: false
-  when: timesync_mode != 3
-  ignore_errors: true
+  when:
+    - timesync_mode != 3
+    - "'timemaster' in services"
 
 - name: Enable chronyd
   service:
