@@ -1,5 +1,7 @@
 - name: Ensure that the role runs with default parameters
   hosts: all
+  vars:
+    tests_role_name: linux-system-roles.timesync
 
   tasks:
     - name: Import role from wrapper

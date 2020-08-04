@@ -1,3 +1,26 @@
+- name: Check that tests_role_name variable is set
+  assert:
+    that:
+      - tests_role_name is defined
+      - tests_role_name | length > 0
+    fail_msg: >
+      tests_role_name variable must be set and not empty.
+  changed_when: false
+  delegate_to: localhost
+
+- name: >
+    Check that tests_test_checkmode and tests_test_idempotency are not both set
+  assert:
+    that: not (
+        ( tests_test_checkmode | default(false) ) and
+        ( tests_test_idempotency | default(false) )
+      )
+    fail_msg: >
+      Either tests_test_checkmode or tests_test_idempotency can be enabled, but
+      not both.
+  changed_when: false
+  delegate_to: localhost
+
 - name: Create a temporary file for a static inventory
   tempfile:
     state: file
@@ -17,16 +40,16 @@
     - tempinventory.path is defined
 
 - block:
-    - name: Import role {{ '..' | realpath }}
+    - name: Import role {{ tests_role_name }}
       import_role:
-        name: "{{ '..' | realpath }}"
+        name: "{{ tests_role_name }}"
 
     - name: >
-        Import role {{ '..' | realpath }} via fresh Ansible instance with check
+        Import role {{ tests_role_name }} via fresh Ansible instance with check
         mode enabled
       command: >
         ansible all -vv -i {{ tempinventory.path }} --check -m import_role
-          -a "name={{ '..' | realpath }}"
+          -a "name={{ tests_role_name }}"
       changed_when: false
       delegate_to: localhost
       when:
@@ -45,10 +68,10 @@
         - tempinventory.path is defined
         - tests_test_idempotency | default(false)
 
-    - name: Import role {{ '..' | realpath }} via fresh Ansible instance
+    - name: Import role {{ tests_role_name }} via fresh Ansible instance
       command: >
         ansible all -vv -i {{ tempinventory.path }} -m import_role
-          -a "name={{ '..' | realpath }}"
+          -a "name={{ tests_role_name }}"
       register: ansible_output
       changed_when: false
       delegate_to: localhost

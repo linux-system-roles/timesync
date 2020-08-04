@@ -1,6 +1,7 @@
 - name: Configure NTP with default provider
   hosts: all
   vars:
+    tests_role_name: linux-system-roles.timesync
     timesync_ntp_servers:
       - hostname: 172.16.123.1
 
