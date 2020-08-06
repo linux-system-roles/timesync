@@ -21,15 +21,17 @@
 
 set -e
 
-ME=$(basename $0)
-SCRIPTDIR=$(readlink -f $(dirname $0))
+SCRIPTDIR=$(readlink -f "$(dirname "$0")")
 
-. ${SCRIPTDIR}/config.sh
+. "${SCRIPTDIR}/config.sh"
 
 if [[ "${RUN_PYLINT_SETUP_MODULE_UTILS}" ]]; then
-  . ${SCRIPTDIR}/utils.sh
+  . "${SCRIPTDIR}/utils.sh"
   lsr_setup_module_utils
 fi
 
+export RUN_PYLINT_DISABLED
+export RUN_PYLINT_EXCLUDE
+export RUN_PYLINT_INCLUDE
 set -x
-python ${SCRIPTDIR}/custom_pylint.py "$@"
+python "${SCRIPTDIR}/custom_pylint.py" "$@"

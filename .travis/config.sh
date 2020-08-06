@@ -1,3 +1,4 @@
+#!/bin/bash
 # SPDX-License-Identifier: MIT
 #
 # Use this file to specify custom configuration for a project. Generally, this
@@ -47,3 +48,8 @@
 #   * .travis/runpytest.sh:
 #
 #       - RUN_PYTEST_SETUP_MODULE_UTILS
+#
+#   * .travis/runshellcheck.sh:
+#
+#       - RUN_SHELLCHECK_DISABLED
+#       - RUN_SHELLCHECK_EXTRA_ARGS
