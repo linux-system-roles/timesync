@@ -5,6 +5,7 @@
 {{     custom_setting }}
 {%   endfor %}
 {% endif %}
+
 {% for value in timesync_ntp_servers %}
 {{ 'pool' if 'pool' in value and value['pool'] else 'server' }} {{
 value['hostname'] }}{{
