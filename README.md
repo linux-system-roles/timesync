@@ -64,6 +64,11 @@ timesync_min_sources: 1
 # or enabled service will be configured. If no service is active or enabled, a
 # package specific to the system and its version will be selected.
 timesync_ntp_provider: chrony
+
+# List of custom settings passed through to ntp.conf.  If not defined,
+# setting is ignored.  Settings should be one per line (list item).
+timesync_ntp_custom_settings:
+  - "tinker panic 0"
 ```
 
 Example Playbook
