@@ -1,6 +1,8 @@
 - name: Configure time synchronization with NTP servers
   hosts: all
   vars:
+    timesync_chrony_custom_settings:
+      - "initstepslew 60 172.16.123.1 172.16.123.2 172.16.123.3"
     timesync_ntp_servers:
       - hostname: 172.16.123.1
       - hostname: 172.16.123.2
