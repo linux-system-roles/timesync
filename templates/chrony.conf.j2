@@ -4,8 +4,8 @@
 {%   for custom_setting in timesync_chrony_custom_settings %}
 {{     custom_setting }}
 {%   endfor %}
-{% endif %}
 
+{% endif %}
 {% for value in timesync_ntp_servers %}
 {{ 'pool' if 'pool' in value and value['pool'] else 'server' }} {{
 value['hostname'] }}{{
