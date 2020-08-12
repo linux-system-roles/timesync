@@ -1,11 +1,5 @@
 # {{ ansible_managed }}
 
-{% if timesync_chrony_custom_settings | default([]) | length > 0 %}
-{%   for custom_setting in timesync_chrony_custom_settings %}
-{{     custom_setting }}
-{%   endfor %}
-
-{% endif %}
 {% for value in timesync_ntp_servers %}
 {{ 'pool' if 'pool' in value and value['pool'] else 'server' }} {{
 value['hostname'] }}{{
@@ -50,4 +44,10 @@ commandkey 1
 # Generate command key if missing.
 generatecommandkey
 
+{% endif %}
+{% if timesync_chrony_custom_settings | default([]) | length > 0 %}
+# Custom settings
+{%   for custom_setting in timesync_chrony_custom_settings %}
+{{     custom_setting }}
+{%   endfor %}
 {% endif %}
