@@ -5,6 +5,7 @@
 value['hostname'] }}{{
 ' minpoll {0}'.format(value['minpoll']) if 'minpoll' in value else '' }}{{
 ' maxpoll {0}'.format(value['maxpoll']) if 'maxpoll' in value else '' }}{{
+' nts' if 'nts' in value and value['nts'] else '' }}{{
 ' iburst' if 'iburst' in value and value['iburst'] else '' }}{{
 ' prefer' if 'prefer' in value and value['prefer'] else '' }}{{
 ' trust' if 'trust' in value and value['trust'] else '' }}{{
@@ -66,6 +67,11 @@ commandkey 1
 
 # Generate command key if missing.
 generatecommandkey
+
+{% endif %}
+{% if __timesync_chrony_version is version('4.0', '>=') %}
+# Save NTS keys and cookies.
+ntsdumpdir /var/lib/chrony
 
 {% endif %}
 {% if timesync_max_distance != 0 %}

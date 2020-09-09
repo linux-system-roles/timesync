@@ -34,6 +34,9 @@ timesync_ntp_servers:
     pool: no                    # Flag indicating that each resolved address
                                 # of the hostname is a separate NTP server
                                 # (default no)
+    nts: no                     # Flag enabling Network Time Security (NTS)
+                                # authentication mechanism (default no,
+                                # supported only with chrony >= 4.0)
     prefer: no                  # Flag marking the source to be preferred for
                                 # synchronization over other sources
                                 # (default no)

@@ -8,6 +8,10 @@ value['hostname'] }}{{
 ' iburst' if 'iburst' in value and value['iburst'] else '' }}{{
 ' prefer' if 'prefer' in value and value['prefer'] else '' }}{{
 ' true' if 'trust' in value and value['trust'] else '' }}
+{% if 'nts' in value and value['nts'] %}
+# Disable clock control due to missing NTS support.
+disable ntp
+{% endif %}
 {% endfor %}
 
 driftfile /var/lib/ntp/drift
