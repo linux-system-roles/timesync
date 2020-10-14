@@ -26,6 +26,17 @@ makestep {{ timesync_step_threshold if timesync_step_threshold > 0.0 else '1.0' 
 # Enable kernel synchronization of the real-time clock (RTC).
 rtcsync
 
+{% if __timesync_chrony_version is version('3.0', '>=') and
+        timesync_ntp_hwts_interfaces|length > 0 %}
+# Enable hardware timestamping.
+{% for interface in timesync_ntp_hwts_interfaces %}
+hwtimestamp {{ interface }}{% if __timesync_chrony_version is version('3.1', '>=') %}
+ minpoll {{ (timesync_ntp_servers | rejectattr('minpoll', 'undefined') |
+             map(attribute='minpoll') | list + [0]) | min }}{% endif %}
+
+{% endfor %}
+
+{% endif %}
 {% if timesync_min_sources > 1 %}
 # Increase the minimum number of selectable sources required to adjust
 # the system clock.

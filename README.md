@@ -66,6 +66,11 @@ timesync_max_distance: 0
 # of the clock (default 1)
 timesync_min_sources: 1
 
+# List of interfaces which should have hardware timestamping enabled for NTP
+# (default empty list). As a special value, '*' enables the timestamping on all
+# interfaces that support it.
+timesync_ntp_hwts_interfaces: [ '*' ]
+
 # Name of the package which should be installed and configured for NTP.
 # Possible values are "chrony" and "ntp". If not defined, the currently active
 # or enabled service will be configured. If no service is active or enabled, a
