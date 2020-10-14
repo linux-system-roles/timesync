@@ -34,6 +34,7 @@ timesync_ntp_servers:
     pool: no                    # Flag indicating that each resolved address
                                 # of the hostname is a separate NTP server
                                 # (default no)
+    xleave: no                  # Flag enabling interleaved mode (default no)
 
 # List of PTP domains
 timesync_ptp_domains:
