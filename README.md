@@ -35,6 +35,8 @@ timesync_ntp_servers:
                                 # of the hostname is a separate NTP server
                                 # (default no)
     xleave: no                  # Flag enabling interleaved mode (default no)
+    filter: 1                   # Number of NTP measurements per clock update
+                                # (default 1)
 
 # List of PTP domains
 timesync_ptp_domains:

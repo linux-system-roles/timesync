@@ -12,6 +12,7 @@
         minpoll: 4
         maxpoll: 6
         xleave: yes
+        filter: 3
     timesync_step_threshold: 0.01
     timesync_dhcp_ntp_servers: yes
     timesync_min_sources: 2
@@ -55,5 +56,9 @@
               - chrony_conf is not search('172\.16\.123\.2.*xleave')
               - chrony_conf is search('172\.16\.123\.3.*xleave') ==
                 __timesync_chrony_version is version('3.0', '>=')
+              - chrony_conf is not search('172\.16\.123\.1.*filter')
+              - chrony_conf is not search('172\.16\.123\.2.*filter')
+              - chrony_conf is search('172\.16\.123\.3.*filter 3') ==
+                __timesync_chrony_version is version('3.4', '>=')
           when: chrony_conf is defined
       tags: tests::verify
