@@ -278,6 +278,9 @@
         - timesync_mode == 1
         - timesync_ntp_provider == 'chrony'
   rescue:
+    - name: check systemctl show
+      command: systemctl show chronyd
+      ignore_errors: true
     - name: check systemctl
       command: systemctl status chronyd
       ignore_errors: true
