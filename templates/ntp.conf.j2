@@ -34,3 +34,8 @@ tinker step {{ timesync_step_threshold }}
 tos minsane {{ timesync_min_sources }}
 
 {% endif %}
+{% if timesync_max_distance != 0 %}
+# Limit maximum root distance.
+tos maxdist {{ timesync_max_distance }}
+
+{% endif %}

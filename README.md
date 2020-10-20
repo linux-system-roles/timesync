@@ -55,6 +55,10 @@ timesync_dhcp_ntp_servers: no
 # Zero threshold disables all steps.
 timesync_step_threshold: 1.0
 
+# Maximum root distance to accept measurements from NTP servers
+# Set to 0 to use provider default
+timesync_max_distance: 0
+
 # Minimum number of selectable time sources required to allow synchronization
 # of the clock (default 1)
 timesync_min_sources: 1
