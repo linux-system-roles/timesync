@@ -267,14 +267,25 @@
     - timesync_mode != 3
     - "'timemaster' in timesync_services"
 
-- name: Enable chronyd
-  service:
-    name: chronyd
-    state: started
-    enabled: true
-  when:
-    - timesync_mode == 1
-    - timesync_ntp_provider == 'chrony'
+- name: debug
+  block:
+    - name: Enable chronyd
+      service:
+        name: chronyd
+        state: started
+        enabled: true
+      when:
+        - timesync_mode == 1
+        - timesync_ntp_provider == 'chrony'
+  rescue:
+    - name: check systemctl
+      command: systemctl status chronyd
+      ignore_errors: true
+    - name: check journal
+      command: journalctl -u chronyd
+      ignore_errors: true
+    - fail:
+        msg: problem with chronyd
 
 - name: Enable ntpd
   service:
