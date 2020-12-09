@@ -8,6 +8,11 @@ value['hostname'] }}{{
 ' iburst' if 'iburst' in value and value else '' }}
 {% endfor %}
 
+{% if timesync_dhcp_ntp_servers and timesync_chrony_dhcp_sourcedir %}
+# Use NTP servers from DHCP.
+sourcedir {{ timesync_chrony_dhcp_sourcedir }}
+
+{% endif %}
 {% if timesync_step_threshold != 0.0 %}
 # Allow the system clock to be stepped in the first three updates.
 makestep {{ timesync_step_threshold if timesync_step_threshold > 0.0 else '1.0' }} 3
