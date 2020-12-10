@@ -1,6 +1,6 @@
 timesync
 ========
-[![Travis Build Status](https://travis-ci.org/linux-system-roles/timesync.svg?branch=master)](https://travis-ci.org/linux-system-roles/timesync)
+![CI Testing](https://github.com/linux-system-roles/timesync/workflows/tox/badge.svg)
 
 This role installs and configures an NTP and/or PTP implementation to operate
 as an NTP client and/or PTP slave in order to synchronize the system clock with
