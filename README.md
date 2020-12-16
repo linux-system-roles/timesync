@@ -34,6 +34,9 @@ timesync_ntp_servers:
     pool: no                    # Flag indicating that each resolved address
                                 # of the hostname is a separate NTP server
                                 # (default no)
+    xleave: no                  # Flag enabling interleaved mode (default no)
+    filter: 1                   # Number of NTP measurements per clock update
+                                # (default 1)
 
 # List of PTP domains
 timesync_ptp_domains:
@@ -62,6 +65,11 @@ timesync_max_distance: 0
 # Minimum number of selectable time sources required to allow synchronization
 # of the clock (default 1)
 timesync_min_sources: 1
+
+# List of interfaces which should have hardware timestamping enabled for NTP
+# (default empty list). As a special value, '*' enables the timestamping on all
+# interfaces that support it.
+timesync_ntp_hwts_interfaces: [ '*' ]
 
 # Name of the package which should be installed and configured for NTP.
 # Possible values are "chrony" and "ntp". If not defined, the currently active
