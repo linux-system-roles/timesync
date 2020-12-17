@@ -1,5 +1,10 @@
 ---
 skip_list:
-- '602'
 - '106'
 - '208'
+- '301'  # Commands should not change things if nothing needs doing
+- '305'  # Use shell only when shell functionality is required
+- '306'
+- '403'
+- '502'
+- '602'
