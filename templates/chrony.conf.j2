@@ -71,3 +71,9 @@ generatecommandkey
 maxdistance {{ timesync_max_distance }}
 
 {% endif %}
+{% if timesync_chrony_custom_settings | default([]) | length > 0 %}
+# Custom settings
+{%   for custom_setting in timesync_chrony_custom_settings %}
+{{     custom_setting }}
+{%   endfor %}
+{% endif %}

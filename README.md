@@ -76,6 +76,18 @@ timesync_ntp_hwts_interfaces: [ '*' ]
 # or enabled service will be configured. If no service is active or enabled, a
 # package specific to the system and its version will be selected.
 timesync_ntp_provider: chrony
+
+# Sometimes administrators might need extended configurations for chrony which 
+# are not covered by the predefined settings provided by this role. 
+# 'timesync_chrony_custom_settings' allows to define a list of custom settings 
+# for the chrony.conf file, by providing a list of settings. As an example, 
+# for debugging, one might need to log mesurements, statistics and tracking.
+# This information is usually stored in the /var/log/chrony directory. For 
+# that, one needs to define two different settings (logdir and log), as 
+# follows:
+timesync_chrony_custom_settings:
+  - "logdir /var/log/chrony"
+  - "log measurements statistics tracking"
 ```
 
 Example Playbook
@@ -133,6 +145,25 @@ synchronization:
         interfaces: [ eth2 ]
         transport: UDPv4
         delay: 0.000010
+  roles:
+    - linux-system-roles.timesync
+```
+
+Install and configure chrony with multiple NTP servers and custom advanced 
+settings: log `measurements`,`statistics` and `tracking`
+into `/var/log/chrony`:
+
+
+```yaml
+- hosts: targets
+  vars:
+    timesync_ntp_servers:
+      - hostname: foo.example.com
+      - hostname: bar.example.com
+      - hostname: baz.example.com
+    timesync_chrony_custom_settings:
+      - "logdir /var/log/chrony"
+      - "log measurements statistics tracking"
   roles:
     - linux-system-roles.timesync
 ```
