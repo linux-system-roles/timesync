@@ -7,4 +7,5 @@ skip_list:
 - '306'
 - '403'
 - '502'
+- '503'  # [E303] systemctl used in place of systemd module
 - '602'
