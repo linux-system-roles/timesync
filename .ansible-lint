@@ -3,6 +3,7 @@ skip_list:
 - '106'
 - '208'
 - '301'  # Commands should not change things if nothing needs doing
+- '303'  # Using command rather than module
 - '305'  # Use shell only when shell functionality is required
 - '306'
 - '403'
