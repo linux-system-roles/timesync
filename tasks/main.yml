@@ -280,38 +280,74 @@
 - name: dump0
   command: tail /var/log/messages
   ignore_errors: yes
+  register: output
+
+- debug:
+    msg: output {{ output | to_nice_json }}
 
 - name: dump01
   command: ls -alrtF /var/log/chrony
   ignore_errors: yes
+  register: output
+
+- debug:
+    msg: output {{ output | to_nice_json }}
 
 - name: dump02
   shell: cat /var/log/chrony/*
   ignore_errors: yes
+  register: output
+
+- debug:
+    msg: output {{ output | to_nice_json }}
 
 - name: dump
   command: systemctl status chronyd
   ignore_errors: yes
+  register: output
+
+- debug:
+    msg: output {{ output | to_nice_json }}
 
 - name: dump2
   command: journalctl -u chronyd
   ignore_errors: yes
+  register: output
+
+- debug:
+    msg: output {{ output | to_nice_json }}
 
 - name: dump3
   command: audit2why -a -e
   ignore_errors: yes
+  register: output
+
+- debug:
+    msg: output {{ output | to_nice_json }}
 
 - name: dump4
   command: ls -alrtF /var/run /var/run/chrony
   ignore_errors: yes
+  register: output
+
+- debug:
+    msg: output {{ output | to_nice_json }}
 
 - name: dump5
   command: cat /usr/lib/systemd/system/chronyd.service
   ignore_errors: yes
+  register: output
+
+- debug:
+    msg: output {{ output | to_nice_json }}
 
 - name: dump6
   command: ls -alrtF /usr/lib/systemd/system
   ignore_errors: yes
+  register: output
+
+- debug:
+    msg: output {{ output | to_nice_json }}
 
 - name: Enable ntpd
   service:
