@@ -17,7 +17,7 @@ provisioner:
   name: ansible
   log: true
   options:
-    vv: true
+    vvv: true
   playbooks:
     converge: ../../tests/tests_default.yml
   env:
