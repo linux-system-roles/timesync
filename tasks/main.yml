@@ -286,8 +286,17 @@
   ignore_errors: yes
 
 - name: dump3
-  command: grep type=AVC /var/log/audit/audit.log
+  command: audit2why -a -e
   ignore_errors: yes
+
+- name: dump4
+  command: ls -alrtF /var/run/chrony
+  ignore_errors: yes
+
+- name: dump5
+  command: cat /usr/lib/systemd/system/chronyd.service
+  ignore_errors: yes
+
 
 - name: Enable ntpd
   service:
