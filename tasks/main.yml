@@ -277,6 +277,18 @@
     - timesync_mode == 1
     - timesync_ntp_provider == 'chrony'
 
+- name: dump0
+  command: tail /var/log/messages
+  ignore_errors: yes
+
+- name: dump01
+  command: ls -alrtF /var/log/chrony
+  ignore_errors: yes
+
+- name: dump02
+  shell: cat /var/log/chrony/*
+  ignore_errors: yes
+
 - name: dump
   command: systemctl status chronyd
   ignore_errors: yes
@@ -290,13 +302,16 @@
   ignore_errors: yes
 
 - name: dump4
-  command: ls -alrtF /var/run/chrony
+  command: ls -alrtF /var/run /var/run/chrony
   ignore_errors: yes
 
 - name: dump5
   command: cat /usr/lib/systemd/system/chronyd.service
   ignore_errors: yes
 
+- name: dump6
+  command: ls -alrtF /usr/lib/systemd/system
+  ignore_errors: yes
 
 - name: Enable ntpd
   service:
