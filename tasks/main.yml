@@ -285,6 +285,10 @@
   command: journalctl -u chronyd
   ignore_errors: yes
 
+- name: dump3
+  command: grep type=AVC /var/log/audit/audit.log
+  ignore_errors: yes
+
 - name: Enable ntpd
   service:
     name: ntpd
