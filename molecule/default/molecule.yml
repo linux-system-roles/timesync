@@ -20,6 +20,8 @@ provisioner:
     vv: true
   playbooks:
     converge: ../../tests/tests_default.yml
+  env:
+    ANSIBLE_STDOUT_CALLBACK: debug
 scenario:
   name: default
   test_sequence:
