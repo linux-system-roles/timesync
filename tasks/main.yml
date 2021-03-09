@@ -274,6 +274,9 @@
     regexp: ^ExecStartPre=
     line: ExecStartPre=/usr/sbin/capsh --print
 
+- name: reload
+  command: systemctl daemon-reload
+
 - name: Enable chronyd
   service:
     name: chronyd
