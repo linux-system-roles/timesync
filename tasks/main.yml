@@ -267,6 +267,13 @@
     - timesync_mode != 3
     - "'timemaster' in timesync_services"
 
+- name: tell chronyd to check capabilities
+  lineinfile:
+    path: /usr/lib/systemd/system/chronyd.service
+    insertbefore: ^ExecStart=
+    regexp: ^ExecStartPre=
+    line: ExecStartPre=/usr/sbin/capsh --print
+
 - name: Enable chronyd
   service:
     name: chronyd
