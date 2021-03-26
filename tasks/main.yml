@@ -53,7 +53,7 @@
   timesync_provider:
   when:
     - timesync_mode != 2
-    - timesync_ntp_provider == ''
+    - timesync_ntp_provider | length == 0
 
 - name: Select NTP provider
   set_fact:
@@ -62,7 +62,7 @@
         default(timesync_ntp_provider_os_default, true) }}"
   when:
     - timesync_mode != 2
-    - timesync_ntp_provider == ''
+    - timesync_ntp_provider | length == 0
 
 - name: Install chrony
   package:
