@@ -49,6 +49,8 @@ timesync_ptp_domains:
                                 # (default UDPv4)
     udp_ttl: 1                  # TTL for UDPv4 and UDPv6 transports
                                 # (default 1)
+    hybrid_e2e: no              # Flag enabling unicast end-to-end delay
+                                # requests (default no)
 
 # Flag enabling use of NTP servers provided by DHCP (default no)
 timesync_dhcp_ntp_servers: no
