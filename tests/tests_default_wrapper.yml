@@ -1,4 +1,6 @@
 - name: Create static inventory from hostvars
+  tags:
+    - 'tests::slow'
   hosts: all
   tasks:
     - name: create temporary file
@@ -16,9 +18,13 @@
       delegate_to: localhost
 
 - name: Run tests_default.yml normally
+  tags:
+    - 'tests::slow'
   import_playbook: tests_default.yml
 
 - name: Run tests_default.yml in check_mode
+  tags:
+    - 'tests::slow'
   hosts: all
   tasks:
     - name: Run ansible-playbook with tests_default.yml in check mode
