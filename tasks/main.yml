@@ -14,16 +14,16 @@
       paths:
         - "{{ role_path }}/vars"
 
-- name: Get services list using platform specific services manager
-  include_tasks: "{{ lookup('first_found', __timesync_ff_params) }}"
-  vars:
-    __timesync_ff_params:
-      files:
-        - "{{ ansible_facts['distribution'] ~ '_' ~
-              ansible_facts['distribution_major_version'] }}.yml"
-        - "default.yml"
-      paths:
-        - "{{ role_path }}/tasks/setup"
+- name: Populate service facts
+  service_facts:
+
+- name: Set variable `timesync_services` with filtered uniq service names
+  set_fact:
+    timesync_services: "{{ ansible_facts.services | json_query('*.name') |
+          map('regex_replace', '[.]service.*$', '') |
+          map('regex_replace', '@$', '') |
+          unique |
+          list }}"
 
 - name: Check that variable 'timesync_services' is defined
   assert:
@@ -53,7 +53,7 @@
   timesync_provider:
   when:
     - timesync_mode != 2
-    - timesync_ntp_provider == ''
+    - timesync_ntp_provider | length == 0
 
 - name: Select NTP provider
   set_fact:
@@ -62,7 +62,7 @@
         default(timesync_ntp_provider_os_default, true) }}"
   when:
     - timesync_mode != 2
-    - timesync_ntp_provider == ''
+    - timesync_ntp_provider | length == 0
 
 - name: Install chrony
   package:

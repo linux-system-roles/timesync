@@ -3,4 +3,6 @@ timesync_ptp_domains: []
 timesync_dhcp_ntp_servers: false
 timesync_step_threshold: -1.0
 timesync_min_sources: 1
+timesync_ntp_hwts_interfaces: []
 timesync_ntp_provider: ''
+timesync_max_distance: 0

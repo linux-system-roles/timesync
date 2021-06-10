@@ -19,7 +19,8 @@
         # meta doesn't pickup with_item in when conditional,
         # following set_fact workarounds that
         # see https://github.com/ansible/ansible/issues/35890
-        - set_fact:
+        - name: Set the availability of both NTP providers
+          set_fact:
             both_avail: false
           when: item.failed
           with_items:

@@ -1,4 +1,6 @@
 - name: Create static inventory from hostvars
+  tags:
+    - 'tests::slow'
   hosts: all
   tasks:
     - name: create temporary file
@@ -12,17 +14,23 @@
       template:
         src: inventory.yaml.j2
         dest: "{{ tempinventory.path }}"
+        mode: '0644'
       delegate_to: localhost
 
 - name: Run tests_default.yml normally
+  tags:
+    - 'tests::slow'
   import_playbook: tests_default.yml
 
 - name: Run tests_default.yml in check_mode
+  tags:
+    - 'tests::slow'
   hosts: all
   tasks:
     - name: Run ansible-playbook with tests_default.yml in check mode
       # yamllint disable-line rule:line-length
       command: ansible-playbook -vvv -i {{ tempinventory.path }} --check tests_default.yml
+      changed_when: false
       delegate_to: localhost
 
     - name: remove the temporary file

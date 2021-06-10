@@ -10,7 +10,13 @@
 value['hostname'] }}{{
 ' minpoll {0}'.format(value['minpoll']) if 'minpoll' in value else '' }}{{
 ' maxpoll {0}'.format(value['maxpoll']) if 'maxpoll' in value else '' }}{{
-' iburst' if 'iburst' in value and value else '' }}
+' iburst' if 'iburst' in value and value['iburst'] else '' }}{{
+' prefer' if 'prefer' in value and value['prefer'] else '' }}{{
+' true' if 'trust' in value and value['trust'] else '' }}
+{% if 'nts' in value and value['nts'] %}
+# Disable clock control due to missing NTS support.
+disable ntp
+{% endif %}
 {% endfor %}
 
 driftfile /var/lib/ntp/drift
@@ -37,5 +43,10 @@ tinker step {{ timesync_step_threshold }}
 # Increase the minimum number of selectable sources required to adjust
 # the system clock.
 tos minsane {{ timesync_min_sources }}
+
+{% endif %}
+{% if timesync_max_distance != 0 %}
+# Limit maximum root distance.
+tos maxdist {{ timesync_max_distance }}
 
 {% endif %}

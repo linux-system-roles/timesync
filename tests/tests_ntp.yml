@@ -4,18 +4,25 @@
     timesync_ntp_servers:
       - hostname: 172.16.123.1
       - hostname: 172.16.123.2
-        iburst: yes
+        iburst: no
+        prefer: no
+        trust: no
         minpoll: 4
       - hostname: 172.16.123.3
         pool: yes
         iburst: yes
         minpoll: 4
         maxpoll: 6
-    timesync_ntp_custom_settings:
-      - "tinker panic 0"
+        prefer: yes
+        trust: yes
+        xleave: yes
+        filter: 3
     timesync_step_threshold: 0.01
     timesync_dhcp_ntp_servers: yes
     timesync_min_sources: 2
+    timesync_ntp_hwts_interfaces: [ '*' ]
+    timesync_ntp_custom_settings:
+      - "tinker panic 0"
   roles:
     - linux-system-roles.timesync
 
@@ -37,4 +44,66 @@
               - "'172.16.123.1' in sources.stdout"
               - "'172.16.123.2' in sources.stdout"
               - "'172.16.123.3' in sources.stdout"
+
+        - name: Fetch chrony.conf file
+          slurp:
+            src: /etc/chrony.conf
+          when: "'LastRx' in sources.stdout"
+          register: chrony_conf_encoded
+
+        - name: Fetch ntp.conf file
+          slurp:
+            src: /etc/ntp.conf
+          when: "'LastRx' not in sources.stdout"
+          register: ntp_conf_encoded
+
+        - name: Decode chrony.conf file
+          set_fact:
+            chrony_conf: "{{ chrony_conf_encoded.content | b64decode }}"
+          when: chrony_conf_encoded is not skipped
+
+        - name: Decode ntp.conf file
+          set_fact:
+            ntp_conf: "{{ ntp_conf_encoded.content | b64decode }}"
+          when: ntp_conf_encoded is not skipped
+
+        - name: Check chrony.conf file
+          assert:
+            that:
+              - chrony_conf is not search('172\.16\.123\.1.*iburst')
+              - chrony_conf is not search('172\.16\.123\.2.*iburst')
+              - chrony_conf is search('172\.16\.123\.3.*iburst')
+              - chrony_conf is not search('172\.16\.123\.1.*prefer')
+              - chrony_conf is not search('172\.16\.123\.2.*prefer')
+              - chrony_conf is search('172\.16\.123\.3.*prefer')
+              - chrony_conf is not search('172\.16\.123\.1.*trust')
+              - chrony_conf is not search('172\.16\.123\.2.*trust')
+              - chrony_conf is search('172\.16\.123\.3.*trust')
+              - chrony_conf is not search('172\.16\.123\.1.*xleave')
+              - chrony_conf is not search('172\.16\.123\.2.*xleave')
+              - chrony_conf is search('172\.16\.123\.3.*xleave') ==
+                __timesync_chrony_version is version('3.0', '>=')
+              - chrony_conf is not search('172\.16\.123\.1.*filter')
+              - chrony_conf is not search('172\.16\.123\.2.*filter')
+              - chrony_conf is search('172\.16\.123\.3.*filter 3') ==
+                __timesync_chrony_version is version('3.4', '>=')
+              - chrony_conf is search('hwtimestamp \*') ==
+                __timesync_chrony_version is version('3.0', '>=')
+              - chrony_conf is search('hwtimestamp .* minpoll 0') ==
+                __timesync_chrony_version is version('3.1', '>=')
+          when: chrony_conf is defined
+
+        - name: Check ntp.conf file
+          assert:
+            that:
+              - ntp_conf is not search('172\.16\.123\.1.*iburst')
+              - ntp_conf is not search('172\.16\.123\.2.*iburst')
+              - ntp_conf is search('172\.16\.123\.3.*iburst')
+              - ntp_conf is not search('172\.16\.123\.1.*prefer')
+              - ntp_conf is not search('172\.16\.123\.2.*prefer')
+              - ntp_conf is search('172\.16\.123\.3.*prefer')
+              - ntp_conf is not search('172\.16\.123\.1.*true')
+              - ntp_conf is not search('172\.16\.123\.2.*true')
+              - ntp_conf is search('172\.16\.123\.3.*true')
+          when: ntp_conf is defined
       tags: tests::verify

@@ -9,6 +9,7 @@
         interfaces: "{{ [ ansible_default_ipv4['interface'] ] }}"
         delay: 0.001
         transport: UDPv4
+        hybrid_e2e: yes
         udp_ttl: 2
     timesync_step_threshold: 0.0001
     timesync_min_sources: 2
