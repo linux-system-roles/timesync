@@ -5,9 +5,22 @@
 value['hostname'] }}{{
 ' minpoll {0}'.format(value['minpoll']) if 'minpoll' in value else '' }}{{
 ' maxpoll {0}'.format(value['maxpoll']) if 'maxpoll' in value else '' }}{{
-' iburst' if 'iburst' in value and value else '' }}
+' nts' if 'nts' in value and value['nts'] else '' }}{{
+' iburst' if 'iburst' in value and value['iburst'] else '' }}{{
+' prefer' if 'prefer' in value and value['prefer'] else '' }}{{
+' trust' if 'trust' in value and value['trust'] else '' }}{{
+' xleave' if __timesync_chrony_version is version('3.0', '>=') and
+        'xleave' in value and value['xleave'] else '' }}{{
+' filter {0}'.format(value['filter'])
+        if __timesync_chrony_version is version('3.4', '>=') and
+                'filter' in value and value['filter'] > 1 else '' }}
 {% endfor %}
 
+{% if timesync_dhcp_ntp_servers and timesync_chrony_dhcp_sourcedir %}
+# Use NTP servers from DHCP.
+sourcedir {{ timesync_chrony_dhcp_sourcedir }}
+
+{% endif %}
 {% if timesync_step_threshold != 0.0 %}
 # Allow the system clock to be stepped in the first three updates.
 makestep {{ timesync_step_threshold if timesync_step_threshold > 0.0 else '1.0' }} 3
@@ -16,6 +29,17 @@ makestep {{ timesync_step_threshold if timesync_step_threshold > 0.0 else '1.0' 
 # Enable kernel synchronization of the real-time clock (RTC).
 rtcsync
 
+{% if __timesync_chrony_version is version('3.0', '>=') and
+        timesync_ntp_hwts_interfaces|length > 0 %}
+# Enable hardware timestamping.
+{% for interface in timesync_ntp_hwts_interfaces %}
+hwtimestamp {{ interface }}{% if __timesync_chrony_version is version('3.1', '>=') %}
+ minpoll {{ (timesync_ntp_servers | rejectattr('minpoll', 'undefined') |
+             map(attribute='minpoll') | list + [0]) | min }}{% endif %}
+
+{% endfor %}
+
+{% endif %}
 {% if timesync_min_sources > 1 %}
 # Increase the minimum number of selectable sources required to adjust
 # the system clock.
@@ -25,7 +49,7 @@ minsources {{ timesync_min_sources }}
 # Record the rate at which the system clock gains/losses time.
 driftfile /var/lib/chrony/drift
 
-{% if timesync_chrony_version.stdout is version('2.0', '<') %}
+{% if __timesync_chrony_version is version('2.0', '<') %}
 # Decrease weight of stratum in source selection.
 stratumweight 0.001
 
@@ -34,7 +58,7 @@ bindcmdaddress 127.0.0.1
 bindcmdaddress ::1
 
 {% endif %}
-{% if timesync_chrony_version.stdout is version('2.2', '<') %}
+{% if __timesync_chrony_version is version('2.2', '<') %}
 # Specify file containing keys for NTP and command authentication.
 keyfile /etc/chrony.keys
 
@@ -44,4 +68,20 @@ commandkey 1
 # Generate command key if missing.
 generatecommandkey
 
+{% endif %}
+{% if __timesync_chrony_version is version('4.0', '>=') %}
+# Save NTS keys and cookies.
+ntsdumpdir /var/lib/chrony
+
+{% endif %}
+{% if timesync_max_distance != 0 %}
+# Limit maximum root distance.
+maxdistance {{ timesync_max_distance }}
+
+{% endif %}
+{% if timesync_chrony_custom_settings | default([]) | length > 0 %}
+# Custom settings
+{%   for custom_setting in timesync_chrony_custom_settings %}
+{{     custom_setting }}
+{%   endfor %}
 {% endif %}

@@ -1,3 +1,3 @@
 ---
 skip_list:
-- '602'
+- '305'  # Use shell only when shell functionality is required

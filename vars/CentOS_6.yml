@@ -1,0 +1,2 @@
+timesync_ntp_provider_os_default: "ntp"
+timesync_chrony_dhcp_sourcedir: ""

@@ -1,4 +1,3 @@
----
 - hosts: "{{ targets }}"
   vars:
     timesync_ntp_servers:

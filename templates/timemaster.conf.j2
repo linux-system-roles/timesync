@@ -12,6 +12,9 @@ ptp4l_option network_transport {{ value['transport'] }}
 {% if 'udp_ttl' in value %}
 ptp4l_option udp_ttl {{ value['udp_ttl'] }}
 {% endif %}
+{% if 'hybrid_e2e' in value and value['hybrid_e2e'] %}
+ptp4l_option hybrid_e2e 1
+{% endif %}
 
 {% endfor %}
 [timemaster]
@@ -27,7 +30,7 @@ includefile /etc/ntp.conf
 
 [chronyd]
 path /usr/sbin/chronyd
-{% if timesync_ntp_provider == 'chrony' and timesync_chrony_version.stdout is version('1.30', '<') %}
+{% if timesync_ntp_provider == 'chrony' and __timesync_chrony_version is version('1.30', '<') %}
 options -u chrony
 {% endif %}
 
