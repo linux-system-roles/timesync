@@ -48,5 +48,5 @@
                   - "'PTP0' in sources.stdout"
                   - "'PTP1' in sources.stdout"
 
-          when: "'SOF_TIMESTAMPING_TX_' in ethtool.stdout"
+          when: "'ware-transmit' in ethtool.stdout"
       tags: tests::verify
