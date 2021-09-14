@@ -19,7 +19,8 @@
 
 - name: Set variable `timesync_services` with filtered uniq service names
   set_fact:
-    timesync_services: "{{ ansible_facts.services | json_query('*.name') |
+    timesync_services: "{{ ansible_facts.services.values() |
+          selectattr('name', 'defined') | map(attribute='name') |
           map('regex_replace', '[.]service.*$', '') |
           map('regex_replace', '@$', '') |
           unique |
