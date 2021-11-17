@@ -3,7 +3,7 @@
   hosts: all
   vars:
     # yamllint disable-line rule:line-length
-    is_ntp_default: "ansible_distribution in ['RedHat', 'CentOS'] and ansible_distribution_version is version('7.0', '<')"
+    is_ntp_default: "{{ ansible_distribution in ['RedHat', 'CentOS'] and ansible_distribution_version is version('7.0', '<') }}"
     both_avail: true
 
   tasks:
