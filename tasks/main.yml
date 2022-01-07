@@ -124,7 +124,7 @@
 - name: Generate chronyd sysconfig file
   template:
     src: chronyd.sysconfig.j2
-    dest: /etc/sysconfig/chronyd
+    dest: "{{ timesync_chrony_sysconfig_path }}"
     backup: true
     mode: 0644
   notify: restart chronyd
@@ -148,7 +148,7 @@
 - name: Generate ntpd sysconfig file
   template:
     src: ntpd.sysconfig.j2
-    dest: /etc/sysconfig/ntpd
+    dest: "{{ timesync_ntp_sysconfig_path }}"
     backup: true
     mode: 0644
   notify: restart ntpd
@@ -171,13 +171,14 @@
 - name: Generate ptp4l sysconfig file
   template:
     src: ptp4l.sysconfig.j2
-    dest: /etc/sysconfig/ptp4l
+    dest: "{{ timesync_ntp_sysconfig_path }}"
     backup: true
     mode: 0644
   notify: restart ptp4l
   when:
     - timesync_mode == 2
     - "'linuxptp' in ansible_facts.packages"
+    - timesync_ntp_sysconfig_path | lenght > 0
 
 - name: Generate phc2sys sysconfig file
   template:
@@ -190,11 +191,12 @@
     - timesync_mode == 2
     - timesync_mode2_hwts
     - "'linuxptp' in ansible_facts.packages"
+    - timesync_phc2sys_sysconfig_path | lenght > 0
 
 - name: Generate timemaster.conf file
   template:
     src: timemaster.conf.j2
-    dest: /etc/timemaster.conf
+    dest: "{{ timesync_timemaster_config_path }}"
     backup: true
     mode: 0644
   notify: restart timemaster
@@ -212,7 +214,9 @@
     line: 'PEERNTP=no'
     state: "{{ 'absent' if timesync_dhcp_ntp_servers else 'present' }}"
   notify: restart {{ timesync_ntp_provider + 'd' }}
-  when: timesync_mode == 1
+  when:
+    - timesync_mode == 1
+    - ansible_facts['os_family'] == 'RedHat'
 
 - name: Disable chronyd
   service:
