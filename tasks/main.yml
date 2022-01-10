@@ -171,14 +171,14 @@
 - name: Generate ptp4l sysconfig file
   template:
     src: ptp4l.sysconfig.j2
-    dest: "{{ timesync_ntp_sysconfig_path }}"
+    dest: "{{ timesync_ptp4l_sysconfig_path }}"
     backup: true
     mode: 0644
   notify: restart ptp4l
   when:
     - timesync_mode == 2
     - "'linuxptp' in ansible_facts.packages"
-    - timesync_ntp_sysconfig_path | lenght > 0
+    - timesync_ptp4l_sysconfig_path | lenght > 0
 
 - name: Generate phc2sys sysconfig file
   template:
@@ -191,7 +191,7 @@
     - timesync_mode == 2
     - timesync_mode2_hwts
     - "'linuxptp' in ansible_facts.packages"
-    - timesync_phc2sys_sysconfig_path | lenght > 0
+    - timesync_phc2sys_sysconfig_path | length > 0
 
 - name: Generate timemaster.conf file
   template:
