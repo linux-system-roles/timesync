@@ -178,7 +178,7 @@
   when:
     - timesync_mode == 2
     - "'linuxptp' in ansible_facts.packages"
-    - timesync_ptp4l_sysconfig_path | lenght > 0
+    - timesync_ptp4l_sysconfig_path | length > 0
 
 - name: Generate phc2sys sysconfig file
   template:
