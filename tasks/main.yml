@@ -226,6 +226,11 @@
   when:
     - timesync_mode != 1 or timesync_ntp_provider != 'chrony'
     - "'chronyd' in timesync_services"
+  register: __disable_result
+  failed_when:
+    - __disable_result is failed
+    - not __disable_result.msg is match(
+      'Could not find the requested service chronyd:')
 
 - name: Disable ntpd
   service:
@@ -235,6 +240,11 @@
   when:
     - timesync_mode != 1 or timesync_ntp_provider != 'ntp'
     - "'ntpd' in timesync_services"
+  register: __disable_result
+  failed_when:
+    - __disable_result is failed
+    - not __disable_result.msg is match(
+      'Could not find the requested service ntpd:')
 
 - name: Disable ntpdate
   service:
@@ -242,6 +252,11 @@
     state: stopped
     enabled: false
   when: "'ntpdate' in timesync_services"
+  register: __disable_result
+  failed_when:
+    - __disable_result is failed
+    - not __disable_result.msg is match(
+      'Could not find the requested service ntpdate:')
 
 - name: Disable sntp
   service:
@@ -249,6 +264,11 @@
     state: stopped
     enabled: false
   when: "'sntp' in timesync_services"
+  register: __disable_result
+  failed_when:
+    - __disable_result is failed
+    - not __disable_result.msg is match(
+      'Could not find the requested service sntp:')
 
 - name: Disable ptp4l
   service:
@@ -258,6 +278,11 @@
   when:
     - timesync_mode != 2
     - "'ptp4l' in timesync_services"
+  register: __disable_result
+  failed_when:
+    - __disable_result is failed
+    - not __disable_result.msg is match(
+      'Could not find the requested service ptp4l:')
 
 - name: Disable phc2sys
   service:
@@ -267,6 +292,11 @@
   when:
     - timesync_mode != 2 or not timesync_mode2_hwts
     - "'phc2sys' in timesync_services"
+  register: __disable_result
+  failed_when:
+    - __disable_result is failed
+    - not __disable_result.msg is match(
+      'Could not find the requested service phc2sys:')
 
 - name: Disable timemaster
   service:
@@ -276,6 +306,11 @@
   when:
     - timesync_mode != 3
     - "'timemaster' in timesync_services"
+  register: __disable_result
+  failed_when:
+    - __disable_result is failed
+    - not __disable_result.msg is match(
+      'Could not find the requested service timemaster:')
 
 - name: Enable chronyd
   service:
