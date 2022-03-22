@@ -12,6 +12,9 @@ ptp4l_option network_transport {{ value['transport'] }}
 {% if 'udp_ttl' in value %}
 ptp4l_option udp_ttl {{ value['udp_ttl'] }}
 {% endif %}
+{% if 'delay_mechanism' in value and value['delay_mechanism'] %}
+ptp4l_option delay_mechanism {{ value['delay_mechanism'] }}
+{% endif %}
 {% if 'hybrid_e2e' in value and value['hybrid_e2e'] %}
 ptp4l_option hybrid_e2e 1
 {% endif %}

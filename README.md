@@ -58,6 +58,8 @@ timesync_ptp_domains:
                                 # (default UDPv4)
     udp_ttl: 1                  # TTL for UDPv4 and UDPv6 transports
                                 # (default 1)
+    delay_mechanism: E2E        # Delay mechanism: E2E, P2P, Auto
+                                # (default E2E)
     hybrid_e2e: no              # Flag enabling unicast end-to-end delay
                                 # requests (default no)
 
