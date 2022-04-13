@@ -1,0 +1,21 @@
+---
+- name: Ensure ansible_facts used by role
+  setup:
+    gather_subset: min
+  when: not ansible_facts.keys() | list |
+    intersect(__timesync_required_facts) == __timesync_required_facts
+
+- name: Set platform/version specific variables
+  include_vars: "{{ lookup('first_found', ffparams) }}"
+  vars:
+    ffparams:
+      files:
+        - "{{ ansible_facts['distribution'] }}_\
+          {{ ansible_facts['distribution_version'] }}.yml"
+        - "{{ ansible_facts['distribution'] }}_\
+          {{ ansible_facts['distribution_major_version'] }}.yml"
+        - "{{ ansible_facts['distribution'] }}.yml"
+        - "{{ ansible_facts['os_family'] }}.yml"
+        - "default.yml"
+      paths:
+        - "{{ role_path }}/vars"
