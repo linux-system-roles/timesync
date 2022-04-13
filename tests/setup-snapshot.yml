@@ -1,0 +1,26 @@
+- hosts: all
+  tasks:
+    - name: Set platform/version specific variables
+      include_role:
+        name: linux-system-roles.timesync
+        tasks_from: set_vars.yml
+        public: true
+
+    - name: Install test packages to put them in the local cache
+      package:
+        name:
+          - chrony
+          - ntp
+          - linuxptp
+        state: present
+      no_log: true
+      ignore_errors: true
+
+    - name: Uninstall test packages
+      package:
+        name:
+          - chrony
+          - ntp
+          - linuxptp
+        state: absent
+      no_log: true

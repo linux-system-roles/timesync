@@ -3,3 +3,4 @@
 
   roles:
     - linux-system-roles.timesync
+  gather_facts: false

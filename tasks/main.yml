@@ -1,18 +1,6 @@
 ---
 - name: Set version specific variables
-  include_vars: "{{ lookup('first_found', ffparams) }}"
-  vars:
-    ffparams:
-      files:
-        - "{{ ansible_facts['distribution'] }}_\
-          {{ ansible_facts['distribution_version'] }}.yml"
-        - "{{ ansible_facts['distribution'] }}_\
-          {{ ansible_facts['distribution_major_version'] }}.yml"
-        - "{{ ansible_facts['distribution'] }}.yml"
-        - "{{ ansible_facts['os_family'] }}.yml"
-        - "default.yml"
-      paths:
-        - "{{ role_path }}/vars"
+  include_tasks: tasks/set_vars.yml
 
 - name: Populate service facts
   service_facts:
