@@ -1,0 +1,6 @@
+# SPDX-License-Identifier: MIT
+---
+
+- src: https://github.com/i386x/meta_test
+  version: ic-role
+  name: linux-system-roles.meta_test

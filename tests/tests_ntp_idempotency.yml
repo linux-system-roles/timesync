@@ -1,0 +1,3 @@
+- import_playbook: tests_ntp.yml
+  vars:
+    test_idempotency: yes
