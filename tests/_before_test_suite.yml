@@ -1,0 +1,30 @@
+- hosts: all
+  gather_facts: false
+  tasks:
+    - name: Include test vars
+      include_vars: vars/main.yml
+
+    - name: Save files modified by role tests
+      command: tar cfP {{ __timesync_tar }} {{ __timesync_save_files | join(" ") }}
+      ignore_errors: true  # ignore missing files
+
+    - name: Get initial state of services
+      service_facts:
+
+    - name: Get timesync services states
+      set_fact:
+        __timesync_system_states: |
+          {% for ts_srv in __timesync_services %}
+          {% endfor %}
+
+    - name: Save service state
+      copy:
+        dest: "{{ __timesync_services_json }}"
+        content: "{{ __system_services | to_nice_json }}"
+        force: true
+      vars:
+        __system_services_suffix: "{{ ansible_facts.services.keys() | intersect(__timesync_services_suffix) |
+            map('extract', ansible_facts.services) | selectattr('status', 'match', '^(enabled|disabled)$') }}"
+        __system_services_nosuffix: "{{ ansible_facts.services.keys() | intersect(__timesync_services) |
+            map('extract', ansible_facts.services) | selectattr('status', 'match', '^(enabled|disabled)$') }}"
+        __system_services: "{{ __system_services_suffix + __system_services_nosuffix }}"

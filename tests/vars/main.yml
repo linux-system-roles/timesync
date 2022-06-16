@@ -1,0 +1,22 @@
+__timesync_save_files:
+  - /etc/chrony.conf
+  - /etc/sysconfig/chronyd
+  - /etc/ntp.conf
+  - /etc/sysconfig/ntpd
+  - /etc/ptp4l.conf
+  - /etc/sysconfig/ptp4l
+  - /etc/sysconfig/phc2sys
+  - /etc/timemaster.conf
+  - /etc/sysconfig/network
+__timesync_services:
+  - chronyd
+  - ntpd
+  - ntpdate
+  - phc2sys
+  - ptp4l
+  - sntp
+  - timemaster
+__timesync_services_suffix: "{{ __timesync_services | map('replace', '$', '.service') }}"
+__timesync_tar: /tmp/timesync_save.tar
+__timesync_services_json: /tmp/timesync_services.json
+__timesync_packages: [chrony, ntp, linuxptp]

@@ -1,0 +1,13 @@
+- hosts: all
+  gather_facts: false
+  tasks:
+    - name: Include test vars
+      include_vars: vars/main.yml
+
+    - name: Remove test files
+      file:
+        path: "{{ item }}"
+        state: absent
+      loop:
+        - "{{ __timesync_tar }}"
+        - "{{ __timesync_services_json }}"
