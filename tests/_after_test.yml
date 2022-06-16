@@ -20,11 +20,15 @@
     - name: Restore services to correct state
       service:
         name: "{{ __item['name'] }}"
-        state: "{{ (__item['state'] == 'running') | ternary('restarted', 'stopped') }}"
+        state: "{{ (__item['state'] == 'running') |
+          ternary('restarted', 'stopped') }}"
         enabled: "{{ __item['status'] == 'enabled' }}"
       loop: "{{ __timesync_services }}"
       ignore_errors: true
       vars:
-        __system_services: "{{ __timesync_services_raw['content'] | b64decode | from_json }}"
-        __sys_item: "{{ __system_services | selectattr('name', 'match', '^' ~ item ~ '$') }}"
-        __item: "{{ __sys_item[0] if __sys_item else {'name': item, 'state': 'stopped', 'status': 'disabled'} }}"
+        __system_services: "{{ __timesync_services_raw['content'] |
+          b64decode | from_json }}"
+        __sys_item: "{{ __system_services |
+          selectattr('name', 'match', '^' ~ item ~ '$') }}"
+        __item: "{{ __sys_item[0] if __sys_item else
+          {'name': item, 'state': 'stopped', 'status': 'disabled'} }}"

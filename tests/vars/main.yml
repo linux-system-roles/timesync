@@ -16,7 +16,8 @@ __timesync_services:
   - ptp4l
   - sntp
   - timemaster
-__timesync_services_suffix: "{{ __timesync_services | map('replace', '$', '.service') }}"
+__timesync_services_suffix: "{{ __timesync_services |
+  map('replace', '$', '.service') }}"
 __timesync_tar: /tmp/timesync_save.tar
 __timesync_services_json: /tmp/timesync_services.json
 __timesync_packages: [chrony, ntp, linuxptp]

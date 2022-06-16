@@ -5,7 +5,8 @@
       include_vars: vars/main.yml
 
     - name: Save files modified by role tests
-      command: tar cfP {{ __timesync_tar }} {{ __timesync_save_files | join(" ") }}
+      command: >
+        tar cfP {{ __timesync_tar }} {{ __timesync_save_files | join(" ") }}
       ignore_errors: true  # ignore missing files
 
     - name: Get initial state of services
@@ -23,8 +24,13 @@
         content: "{{ __system_services | to_nice_json }}"
         force: true
       vars:
-        __system_services_suffix: "{{ ansible_facts.services.keys() | intersect(__timesync_services_suffix) |
-            map('extract', ansible_facts.services) | selectattr('status', 'match', '^(enabled|disabled)$') }}"
-        __system_services_nosuffix: "{{ ansible_facts.services.keys() | intersect(__timesync_services) |
-            map('extract', ansible_facts.services) | selectattr('status', 'match', '^(enabled|disabled)$') }}"
-        __system_services: "{{ __system_services_suffix + __system_services_nosuffix }}"
+        __system_services_suffix: "{{ ansible_facts.services.keys() |
+          intersect(__timesync_services_suffix) |
+          map('extract', ansible_facts.services) |
+          selectattr('status', 'match', '^(enabled|disabled)$') }}"
+        __system_services_nosuffix: "{{ ansible_facts.services.keys() |
+          intersect(__timesync_services) |
+          map('extract', ansible_facts.services) |
+          selectattr('status', 'match', '^(enabled|disabled)$') }}"
+        __system_services: "{{ __system_services_suffix +
+          __system_services_nosuffix }}"
