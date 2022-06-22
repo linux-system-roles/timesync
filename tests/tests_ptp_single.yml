@@ -1,5 +1,6 @@
 - name: Configure time synchronization with single PTP domain
   hosts: all
+  gather_facts: true
   vars:
     timesync_ptp_domains:
       - number: 3
