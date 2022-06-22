@@ -1,6 +1,7 @@
 # yamllint disable-line rule:line-length
 - name: Configure NTP with OS release non-default provider and then change it to the default provider
   hosts: all
+  gather_facts: true
   vars:
     # yamllint disable-line rule:line-length
     is_ntp_default: "{{ ansible_distribution in ['RedHat', 'CentOS'] and ansible_distribution_version is version('7.0', '<') }}"

@@ -1,5 +1,6 @@
 - name: Configure time synchronization with NTP servers and PTP domains
   hosts: all
+  gather_facts: true
   vars:
     timesync_ntp_servers:
       - hostname: 172.16.123.1
