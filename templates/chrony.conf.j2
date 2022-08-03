@@ -21,9 +21,9 @@ value['hostname'] }}{{
 sourcedir {{ timesync_chrony_dhcp_sourcedir }}
 
 {% endif %}
-{% if timesync_step_threshold != 0.0 %}
+{% if timesync_step_threshold|float != 0.0 %}
 # Allow the system clock to be stepped in the first three updates.
-makestep {{ timesync_step_threshold if timesync_step_threshold > 0.0 else '1.0' }} 3
+makestep {{ timesync_step_threshold if timesync_step_threshold|float > 0.0 else '1.0' }} 3
 
 {% endif %}
 # Enable kernel synchronization of the real-time clock (RTC).
@@ -40,7 +40,7 @@ hwtimestamp {{ interface }}{% if __timesync_chrony_version is version('3.1', '>=
 {% endfor %}
 
 {% endif %}
-{% if timesync_min_sources > 1 %}
+{% if timesync_min_sources|int > 1 %}
 # Increase the minimum number of selectable sources required to adjust
 # the system clock.
 minsources {{ timesync_min_sources }}
