@@ -28,10 +28,13 @@
   hosts: all
   tasks:
     - name: Run ansible-playbook with tests_default.yml in check mode
-      # yamllint disable-line rule:line-length
-      command: ansible-playbook -vvv -i {{ tempinventory.path }} --check tests_default.yml
+      command: >-
+        {{ __ap_cmd | quote }} -vvv -i {{ tempinventory.path }}
+        --check tests_default.yml
       changed_when: false
       delegate_to: localhost
+      vars:
+        __ap_cmd: "{{ ansible_playbook_filepath | d('ansible-playbook') }}"
 
     - name: remove the temporary file
       file:
