@@ -29,18 +29,18 @@ restrict -6 default nomodify notrap nopeer noquery
 restrict 127.0.0.1 
 restrict ::1
 
-{% if timesync_step_threshold >= 0.0 %}
+{% if timesync_step_threshold | float >= 0.0 %}
 # Specify the step threshold.
 tinker step {{ timesync_step_threshold }}
 
 {% endif %}
-{% if timesync_min_sources > 1 %}
+{% if timesync_min_sources | int > 1 %}
 # Increase the minimum number of selectable sources required to adjust
 # the system clock.
 tos minsane {{ timesync_min_sources }}
 
 {% endif %}
-{% if timesync_max_distance != 0 %}
+{% if timesync_max_distance | float != 0 %}
 # Limit maximum root distance.
 tos maxdist {{ timesync_max_distance }}
 

@@ -13,6 +13,6 @@ udp_ttl			{{ timesync_ptp_domains[0]['udp_ttl'] }}
 {% if 'hybrid_e2e' in timesync_ptp_domains[0] and timesync_ptp_domains[0]['hybrid_e2e'] %}
 hybrid_e2e		1
 {% endif %}
-{% if not timesync_mode2_hwts and timesync_step_threshold >= 0.0 %}
+{% if not timesync_mode2_hwts and timesync_step_threshold | float >= 0.0 %}
 first_step_threshold	{{ timesync_step_threshold }}
 {% endif %}
