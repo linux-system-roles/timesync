@@ -21,6 +21,8 @@
     timesync_dhcp_ntp_servers: yes
     timesync_min_sources: 2
     timesync_ntp_hwts_interfaces: [ '*' ]
+    timesync_ntp_custom_settings:
+      - "tinker panic 0"
   roles:
     - linux-system-roles.timesync
 

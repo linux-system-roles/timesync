@@ -99,6 +99,11 @@ timesync_ntp_provider: chrony
 timesync_chrony_custom_settings:
   - "logdir /var/log/chrony"
   - "log measurements statistics tracking"
+
+# List of custom settings passed through to ntp.conf.  If not defined,
+# setting is ignored.  Settings should be one per line (list item).
+timesync_ntp_custom_settings:
+  - "tinker panic 0"
 ```
 
 Example Playbook
