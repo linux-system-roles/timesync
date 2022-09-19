@@ -1,6 +1,30 @@
 Changelog
 =========
 
+[1.7.0] - 2022-09-19
+--------------------
+
+### New Features
+
+- adding support fpr Oracle Linux 6,7,8 and 9
+
+### Bug Fixes
+
+- Update chrony.conf.j2
+
+Variables are defined as string in Jinja2 template and the operators 
+on line 26 gives '<'  not supported between instances of 'str' and 'float
+on line 43 gives '>' not supported between instances of 'str' and 'float
+
+- Updated: type casting in overall timesync templates for testing
+
+- Updated: type casting adjusted (timesync_max_distance <= int)
+
+
+### Other Changes
+
+- use ansible_playbook_filepath for ansible-playbook command
+
 [1.6.9] - 2022-07-19
 --------------------
 
