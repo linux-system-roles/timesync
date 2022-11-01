@@ -1,6 +1,24 @@
 Changelog
 =========
 
+[1.7.1] - 2022-11-01
+--------------------
+
+### New Features
+
+- none
+
+### Bug Fixes
+
+- none
+
+### Other Changes
+
+- Update timestamping checks using ethtool
+
+New ethtool versions don't print the upper-case timestamping constants
+anymore. Match the lower-case strings instead.
+
 [1.7.0] - 2022-09-19
 --------------------
 
