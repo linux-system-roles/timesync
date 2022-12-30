@@ -44,7 +44,7 @@
   when: timesync_mode is not defined
 
 - name: Determine current NTP provider
-  timesync_provider:
+  timesync_provider:  # noqa fqcn[action]
   when:
     - timesync_mode != 2
     - timesync_ntp_provider | length == 0
@@ -52,7 +52,7 @@
 - name: Select NTP provider
   set_fact:
     timesync_ntp_provider: "{{
-        timesync_ntp_provider_current|
+        timesync_ntp_provider_current |
         default(timesync_ntp_provider_os_default, true) }}"
   when:
     - timesync_mode != 2
@@ -103,7 +103,7 @@
     dest: /etc/chrony.conf
     backup: true
     mode: 0644
-  notify: restart {{ 'chronyd' if timesync_mode == 1 else 'timemaster' }}
+  notify: Restart {{ 'chronyd' if timesync_mode == 1 else 'timemaster' }}
   when:
     - timesync_mode != 2
     - timesync_ntp_provider == 'chrony'
@@ -115,7 +115,7 @@
     dest: "{{ timesync_chrony_sysconfig_path }}"
     backup: true
     mode: 0644
-  notify: restart chronyd
+  notify: Restart chronyd
   when:
     - timesync_mode == 1
     - timesync_ntp_provider == 'chrony'
@@ -127,7 +127,7 @@
     dest: /etc/ntp.conf
     backup: true
     mode: 0644
-  notify: restart {{ 'ntpd' if timesync_mode == 1 else 'timemaster' }}
+  notify: Restart {{ 'ntpd' if timesync_mode == 1 else 'timemaster' }}
   when:
     - timesync_mode != 2
     - timesync_ntp_provider == 'ntp'
@@ -139,7 +139,7 @@
     dest: "{{ timesync_ntp_sysconfig_path }}"
     backup: true
     mode: 0644
-  notify: restart ntpd
+  notify: Restart ntpd
   when:
     - timesync_mode == 1
     - timesync_ntp_provider == 'ntp'
@@ -151,7 +151,7 @@
     dest: /etc/ptp4l.conf
     backup: true
     mode: 0644
-  notify: restart ptp4l
+  notify: Restart ptp4l
   when:
     - timesync_mode == 2
     - "'linuxptp' in ansible_facts.packages"
@@ -162,7 +162,7 @@
     dest: "{{ timesync_ptp4l_sysconfig_path }}"
     backup: true
     mode: 0644
-  notify: restart ptp4l
+  notify: Restart ptp4l
   when:
     - timesync_mode == 2
     - "'linuxptp' in ansible_facts.packages"
@@ -174,7 +174,7 @@
     dest: /etc/sysconfig/phc2sys
     backup: true
     mode: 0644
-  notify: restart phc2sys
+  notify: Restart phc2sys
   when:
     - timesync_mode == 2
     - timesync_mode2_hwts
@@ -187,7 +187,7 @@
     dest: "{{ timesync_timemaster_config_path }}"
     backup: true
     mode: 0644
-  notify: restart timemaster
+  notify: Restart timemaster
   when:
     - timesync_mode == 3
     - "'linuxptp' in ansible_facts.packages"
@@ -201,7 +201,7 @@
     regexp: '^PEERNTP='
     line: 'PEERNTP=no'
     state: "{{ 'absent' if timesync_dhcp_ntp_servers else 'present' }}"
-  notify: restart {{ timesync_ntp_provider + 'd' }}
+  notify: Restart {{ timesync_ntp_provider + 'd' }}
   when:
     - timesync_mode == 1
     - ansible_facts['os_family'] == 'RedHat'
