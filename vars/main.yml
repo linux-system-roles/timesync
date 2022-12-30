@@ -1,8 +1,8 @@
 __timesync_chrony_version: "{{
-  ansible_facts.packages['chrony'][0].version|default('0')
+  ansible_facts.packages['chrony'][0].version | default('0')
   if 'chrony' in ansible_facts.packages else '0' }}"
 __timesync_ntp_version: "{{
-  ansible_facts.packages['ntp'][0].version|default('0')
+  ansible_facts.packages['ntp'][0].version | default('0')
   if 'ntp' in ansible_facts.packages else '0' }}"
 
 # ansible_facts required by the role
