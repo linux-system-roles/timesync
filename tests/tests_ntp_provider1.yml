@@ -1,3 +1,4 @@
+---
 - name: Configure NTP with default provider
   hosts: all
   vars:

@@ -200,7 +200,8 @@
     mode: 0644
     regexp: '^PEERNTP='
     line: 'PEERNTP=no'
-    state: "{{ 'absent' if timesync_dhcp_ntp_servers else 'present' }}"
+    # yamllint disable-line rule:line-length
+    state: "{{ 'absent' if timesync_dhcp_ntp_servers else 'present' }}"  # noqa args[module]
   notify: Restart {{ timesync_ntp_provider + 'd' }}
   when:
     - timesync_mode == 1

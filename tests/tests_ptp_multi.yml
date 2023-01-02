@@ -1,3 +1,4 @@
+---
 - name: Configure time synchronization with multiple PTP domains
   hosts: all
   gather_facts: true
@@ -10,7 +11,7 @@
         interfaces: "{{ [ ansible_default_ipv4['interface'] ] }}"
         delay: 0.001
         transport: UDPv4
-        hybrid_e2e: yes
+        hybrid_e2e: true
         udp_ttl: 2
     timesync_step_threshold: 0.0001
     timesync_min_sources: 2
@@ -24,7 +25,7 @@
         - name: Check if SW/HW timestamping is supported
           shell: ethtool -T "{{ ansible_default_ipv4['interface'] }}"
           register: ethtool
-          ignore_errors: yes
+          ignore_errors: true
 
         - block:
             - name: Wait for services to start
