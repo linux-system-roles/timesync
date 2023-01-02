@@ -1,3 +1,4 @@
+---
 - name: Create static inventory from hostvars
   tags:
     - 'tests::slow'

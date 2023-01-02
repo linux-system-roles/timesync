@@ -1,3 +1,4 @@
+---
 # yamllint disable-line rule:line-length
 - name: Configure NTP with OS release non-default provider and then change it to the default provider
   hosts: all
@@ -12,7 +13,7 @@
         - name: Check for availability of both NTP providers
           package: name={{ item }} state=present
           register: package_install
-          ignore_errors: yes
+          ignore_errors: true
           with_items:
             - chrony
             - ntp

@@ -1,3 +1,4 @@
+---
 - name: Configure NTP with chrony as specified provider
   hosts: all
   vars:
@@ -12,7 +13,7 @@
         - name: Install chrony
           package: name=chrony state=present
           register: package_install
-          ignore_errors: yes
+          ignore_errors: true
 
         - meta: end_play
           when: package_install.failed

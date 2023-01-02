@@ -1,3 +1,4 @@
+---
 galaxy_info:
   author: Miroslav Lichvar <mlichvar@redhat.com>
   description: Configure NTP and/or PTP

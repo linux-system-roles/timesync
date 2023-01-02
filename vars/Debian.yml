@@ -1,3 +1,4 @@
+---
 timesync_ntp_provider_os_default: "chrony"
 timesync_chrony_dhcp_sourcedir: "/run/chrony-dhcp"
 timesync_chrony_sysconfig_path: "/etc/default/chrony"

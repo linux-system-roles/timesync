@@ -1,3 +1,4 @@
+---
 timesync_ntp_servers: []
 timesync_ptp_domains: []
 timesync_dhcp_ntp_servers: false

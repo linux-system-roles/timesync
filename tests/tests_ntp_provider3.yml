@@ -1,3 +1,4 @@
+---
 - name: Configure NTP with ntp as current provider
   hosts: all
   vars:
@@ -14,7 +15,7 @@
         - name: Install ntp
           package: name=ntp state=present
           register: package_install
-          ignore_errors: yes
+          ignore_errors: true
 
         - meta: end_play
           when: package_install.failed

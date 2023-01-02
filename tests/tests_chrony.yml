@@ -1,3 +1,4 @@
+---
 - name: Configure time synchronization with NTP servers
   hosts: all
   vars:
@@ -7,22 +8,24 @@
     timesync_ntp_servers:
       - hostname: 172.16.123.1
       - hostname: 172.16.123.2
-        iburst: yes
+        iburst: true
         minpoll: 4
       - hostname: 172.16.123.3
-        pool: yes
-        iburst: yes
+        pool: true
+        iburst: true
         minpoll: 4
         maxpoll: 6
     timesync_ntp_provider: chrony
     timesync_step_threshold: 0.01
-    timesync_dhcp_ntp_servers: yes
+    timesync_dhcp_ntp_servers: true
     timesync_min_sources: 2
   roles:
     - linux-system-roles.timesync
 
   tasks:
-    - block:
+    - name: Run chrony tests
+      tags: tests::verify
+      block:
         - meta: flush_handlers
 
         - name: Wait for services to start
@@ -48,5 +51,3 @@
           assert:
             that:
               - "'tracking.log' in logfiles.stdout"
-
-      tags: tests::verify

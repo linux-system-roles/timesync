@@ -1,3 +1,4 @@
+---
 __timesync_chrony_version: "{{
   ansible_facts.packages['chrony'][0].version | default('0')
   if 'chrony' in ansible_facts.packages else '0' }}"
