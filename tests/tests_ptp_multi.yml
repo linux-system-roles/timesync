@@ -25,6 +25,11 @@
         - name: Flush handlers
           meta: flush_handlers
 
+        - name: Ensure ethtool is installed
+          package:
+            name: ethtool
+            state: present
+
         - name: Check if SW/HW timestamping is supported
           command: ethtool -T "{{ ansible_default_ipv4['interface'] }}"
           register: ethtool
