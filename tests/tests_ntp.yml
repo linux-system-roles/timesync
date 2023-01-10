@@ -21,13 +21,16 @@
     timesync_step_threshold: 0.01
     timesync_dhcp_ntp_servers: true
     timesync_min_sources: 2
-    timesync_ntp_hwts_interfaces: ['*']
+    timesync_ntp_hwts_interfaces: ["*"]
   roles:
     - linux-system-roles.timesync
 
   tasks:
-    - block:
-        - meta: flush_handlers
+    - name: Run test
+      tags: tests::verify
+      block:
+        - name: Flush handlers
+          meta: flush_handlers
 
         - name: Wait for services to start
           wait_for:
@@ -36,6 +39,7 @@
         - name: Get list of currently used time sources
           shell: chronyc -n sources || ntpq -pn
           register: sources
+          changed_when: false
 
         - name: Check time sources
           assert:
@@ -105,4 +109,3 @@
               - ntp_conf is not search('172\.16\.123\.2.*true')
               - ntp_conf is search('172\.16\.123\.3.*true')
           when: ntp_conf is defined
-      tags: tests::verify

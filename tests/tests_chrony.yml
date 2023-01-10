@@ -26,7 +26,8 @@
     - name: Run chrony tests
       tags: tests::verify
       block:
-        - meta: flush_handlers
+        - name: Flush handlers
+          meta: flush_handlers
 
         - name: Wait for services to start
           wait_for:
@@ -35,6 +36,7 @@
         - name: Get list of currently used time sources
           shell: chronyc -n sources || ntpq -pn
           register: sources
+          changed_when: false
 
         - name: Check time sources
           assert:
@@ -44,8 +46,9 @@
               - "'172.16.123.3' in sources.stdout"
 
         - name: Get list of log files
-          shell: ls /var/log/chrony/
+          command: ls /var/log/chrony/
           register: logfiles
+          changed_when: false
 
         - name: Check log generated files
           assert:

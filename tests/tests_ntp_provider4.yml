@@ -9,26 +9,34 @@
     - linux-system-roles.timesync
 
   pre_tasks:
-    - block:
+    - name: Install then remove chrony
+      check_mode: false
+      tags: tests::setup
+      block:
         - name: Install chrony
-          package: name=chrony state=present
+          package:
+            name: chrony
+            state: present
           register: package_install
-          ignore_errors: true
+          ignore_errors: true  # noqa ignore-errors
 
-        - meta: end_play
+        - name: Skip test if no package
+          meta: end_play
           when: package_install.failed
 
         - name: Remove chrony
-          package: name=chrony state=absent
-      check_mode: false
-      tags: tests::setup
+          package:
+            name: chrony
+            state: absent
 
   post_tasks:
-    - block:
+    - name: Verify chronyd is running
+      tags: tests::verify
+      block:
         - name: Wait for services to start
           wait_for:
             timeout: 2
 
         - name: Check chronyd service
-          shell: chronyc -n tracking
-      tags: tests::verify
+          command: chronyc -n tracking
+          changed_when: false

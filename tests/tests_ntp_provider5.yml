@@ -9,26 +9,34 @@
     - linux-system-roles.timesync
 
   pre_tasks:
-    - block:
+    - name: Install then remove ntp
+      check_mode: false
+      tags: tests::setup
+      block:
         - name: Install ntp
-          package: name=ntp state=present
+          package:
+            name: ntp
+            state: present
           register: package_install
-          ignore_errors: true
+          ignore_errors: true  # noqa ignore-errors
 
-        - meta: end_play
+        - name: Skip test if no ntp package
+          meta: end_play
           when: package_install.failed
 
         - name: Remove ntp
-          package: name=ntp state=absent
-      check_mode: false
-      tags: tests::setup
+          package:
+            name: ntp
+            state: absent
 
   post_tasks:
-    - block:
+    - name: Verify ntpd service
+      tags: tests::verify
+      block:
         - name: Wait for services to start
           wait_for:
             timeout: 2
 
         - name: Check ntpd service
           shell: ntpq -c rv | grep 'associd=0'
-      tags: tests::verify
+          changed_when: false
