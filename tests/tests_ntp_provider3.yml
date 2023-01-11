@@ -8,29 +8,40 @@
     - linux-system-roles.timesync
 
   pre_tasks:
-    - block:
+    - name: Remove then install chrony
+      check_mode: false
+      tags: tests::setup
+      block:
         - name: Remove chrony
-          package: name=chrony state=absent
+          package:
+            name: chrony
+            state: absent
 
         - name: Install ntp
-          package: name=ntp state=present
+          package:
+            name: ntp
+            state: present
           register: package_install
-          ignore_errors: true
+          ignore_errors: true  # noqa ignore-errors
 
-        - meta: end_play
+        - name: Skip test if no package
+          meta: end_play
           when: package_install.failed
 
         - name: Enable ntpd
-          service: name=ntpd state=started enabled=yes
-      check_mode: false
-      tags: tests::setup
+          service:
+            name: ntpd
+            state: started
+            enabled: true
 
   post_tasks:
-    - block:
+    - name: Verify ntpd is running
+      tags: tests::verify
+      block:
         - name: Wait for services to start
           wait_for:
             timeout: 2
 
         - name: Check ntpd service
           shell: ntpq -c rv | grep 'associd=0'
-      tags: tests::verify
+          changed_when: false

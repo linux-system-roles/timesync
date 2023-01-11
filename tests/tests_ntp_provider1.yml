@@ -8,17 +8,22 @@
     - linux-system-roles.timesync
 
   pre_tasks:
-    - block:
+    - name: Remove provider packages
+      check_mode: false
+      tags: tests::setup
+      block:
         - name: Remove NTP providers
-          package: name={{ item }} state=absent
+          package:
+            name: "{{ item }}"
+            state: absent
           with_items:
             - chrony
             - ntp
-      check_mode: false
-      tags: tests::setup
 
   post_tasks:
-    - block:
+    - name: Verify provider is working
+      tags: tests::verify
+      block:
         - name: Wait for services to start
           wait_for:
             timeout: 2
@@ -26,9 +31,9 @@
         - name: Get list of currently used time sources
           shell: chronyc -n sources || ntpq -pn
           register: sources
+          changed_when: false
 
         - name: Check time sources
           assert:
             that:
               - "'172.16.123.1' in sources.stdout"
-      tags: tests::verify

@@ -29,28 +29,28 @@ timesync_ntp_servers:
   - hostname: foo.example.com   # Hostname or address of the server
     minpoll: 4                  # Minimum polling interval (default 6)
     maxpoll: 8                  # Maximum polling interval (default 10)
-    iburst: yes                 # Flag enabling fast initial synchronization
-                                # (default no)
-    pool: no                    # Flag indicating that each resolved address
+    iburst: true                # Flag enabling fast initial synchronization
+                                # (default false)
+    pool: false                 # Flag indicating that each resolved address
                                 # of the hostname is a separate NTP server
-                                # (default no)
-    nts: no                     # Flag enabling Network Time Security (NTS)
-                                # authentication mechanism (default no,
+                                # (default false)
+    nts: false                  # Flag enabling Network Time Security (NTS)
+                                # authentication mechanism (default false,
                                 # supported only with chrony >= 4.0)
-    prefer: no                  # Flag marking the source to be preferred for
+    prefer: false               # Flag marking the source to be preferred for
                                 # synchronization over other sources
-                                # (default no)
-    trust: no                   # Flag marking the source to be trusted over
+                                # (default false)
+    trust: false                # Flag marking the source to be trusted over
                                 # sources that don't have this flag
-                                # (default no)
-    xleave: no                  # Flag enabling interleaved mode (default no)
+                                # (default false)
+    xleave: false               # Flag enabling interleaved mode (default false)
     filter: 1                   # Number of NTP measurements per clock update
                                 # (default 1)
 
 # List of PTP domains
 timesync_ptp_domains:
   - number: 0                   # PTP domain number
-    interfaces: [ eth0 ]        # List of interfaces in the domain
+    interfaces: [eth0]          # List of interfaces in the domain
     delay: 0.000010             # Assumed maximum network delay to the
                                 # grandmaster in seconds
                                 # (default 100 microsecond)
@@ -58,11 +58,11 @@ timesync_ptp_domains:
                                 # (default UDPv4)
     udp_ttl: 1                  # TTL for UDPv4 and UDPv6 transports
                                 # (default 1)
-    hybrid_e2e: no              # Flag enabling unicast end-to-end delay
-                                # requests (default no)
+    hybrid_e2e: false           # Flag enabling unicast end-to-end delay
+                                # requests (default false)
 
-# Flag enabling use of NTP servers provided by DHCP (default no)
-timesync_dhcp_ntp_servers: no
+# Flag enabling use of NTP servers provided by DHCP (default false)
+timesync_dhcp_ntp_servers: false
 
 # Minimum offset of the clock which can be corrected by stepping (default is
 # specific to NTP/PTP implementation: chrony 1.0, ntp 0.128, linuxptp 0.00002).
@@ -80,7 +80,7 @@ timesync_min_sources: 1
 # List of interfaces which should have hardware timestamping enabled for NTP
 # (default empty list). As a special value, '*' enables the timestamping on all
 # interfaces that support it.
-timesync_ntp_hwts_interfaces: [ '*' ]
+timesync_ntp_hwts_interfaces: ["*"]
 
 # Name of the package which should be installed and configured for NTP.
 # Possible values are "chrony" and "ntp". If not defined, the currently active
@@ -88,13 +88,13 @@ timesync_ntp_hwts_interfaces: [ '*' ]
 # package specific to the system and its version will be selected.
 timesync_ntp_provider: chrony
 
-# Sometimes administrators might need extended configurations for chrony which 
-# are not covered by the predefined settings provided by this role. 
-# 'timesync_chrony_custom_settings' allows to define a list of custom settings 
-# for the chrony.conf file, by providing a list of settings. As an example, 
+# Sometimes administrators might need extended configurations for chrony which
+# are not covered by the predefined settings provided by this role.
+# 'timesync_chrony_custom_settings' allows to define a list of custom settings
+# for the chrony.conf file, by providing a list of settings. As an example,
 # for debugging, one might need to log mesurements, statistics and tracking.
-# This information is usually stored in the /var/log/chrony directory. For 
-# that, one needs to define two different settings (logdir and log), as 
+# This information is usually stored in the /var/log/chrony directory. For
+# that, one needs to define two different settings (logdir and log), as
 # follows:
 timesync_chrony_custom_settings:
   - "logdir /var/log/chrony"
@@ -111,11 +111,11 @@ Install and configure ntp to synchronize the system clock with three NTP servers
   vars:
     timesync_ntp_servers:
       - hostname: foo.example.com
-        iburst: yes
+        iburst: true
       - hostname: bar.example.com
-        iburst: yes
+        iburst: true
       - hostname: baz.example.com
-        iburst: yes
+        iburst: true
   roles:
     - linux-system-roles.timesync
 ```
@@ -128,7 +128,7 @@ grandmaster in PTP domain number 0, which is accessible on interface eth0:
   vars:
     timesync_ptp_domains:
       - number: 0
-        interfaces: [ eth0 ]
+        interfaces: [eth0]
   roles:
     - linux-system-roles.timesync
 ```
@@ -149,19 +149,19 @@ synchronization:
         maxpoll: 6
     timesync_ptp_domains:
       - number: 0
-        interfaces: [ eth0, eth1 ]
+        interfaces: [eth0, eth1]
         transport: L2
         delay: 0.000010
       - number: 1
-        interfaces: [ eth2 ]
+        interfaces: [eth2]
         transport: UDPv4
         delay: 0.000010
   roles:
     - linux-system-roles.timesync
 ```
 
-Install and configure chrony with multiple NTP servers and custom advanced 
-settings: log `measurements`,`statistics` and `tracking`
+Install and configure chrony with multiple NTP servers and custom advanced
+settings: log `measurements`, `statistics` and `tracking`
 into `/var/log/chrony`:
 
 

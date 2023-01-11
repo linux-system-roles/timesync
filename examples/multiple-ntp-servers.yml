@@ -1,5 +1,6 @@
 ---
-- hosts: "{{ target }}"
+- name: Example with multiple servers
+  hosts: "{{ targets }}"
   vars:
     timesync_ntp_servers:
       - hostname: 0.pool.ntp.org

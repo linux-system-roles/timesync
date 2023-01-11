@@ -1,5 +1,6 @@
 ---
-- hosts: all
+- name: Setup snapshot
+  hosts: all
   tasks:
     - name: Set platform/version specific variables
       include_role:
@@ -15,7 +16,7 @@
           - linuxptp
         state: present
       no_log: true
-      ignore_errors: true
+      ignore_errors: true  # noqa ignore-errors
 
     - name: Uninstall test packages
       package:

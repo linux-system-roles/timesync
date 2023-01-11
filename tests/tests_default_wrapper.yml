@@ -4,7 +4,7 @@
     - 'tests::slow'
   hosts: all
   tasks:
-    - name: create temporary file
+    - name: Create temporary file
       tempfile:
         state: file
         suffix: .inventory.yaml
@@ -37,7 +37,7 @@
       vars:
         __ap_cmd: "{{ ansible_playbook_filepath | d('ansible-playbook') }}"
 
-    - name: remove the temporary file
+    - name: Remove the temporary file
       file:
         path: "{{ tempinventory.path }}"
         state: absent

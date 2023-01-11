@@ -19,15 +19,26 @@
     - linux-system-roles.timesync
 
   tasks:
-    - block:
-        - meta: flush_handlers
+    - name: Run test
+      tags: tests::verify
+      block:
+        - name: Flush handlers
+          meta: flush_handlers
+
+        - name: Ensure ethtool is installed
+          package:
+            name: ethtool
+            state: present
 
         - name: Check if SW/HW timestamping is supported
-          shell: ethtool -T "{{ ansible_default_ipv4['interface'] }}"
+          command: ethtool -T "{{ ansible_default_ipv4['interface'] }}"
           register: ethtool
-          ignore_errors: true
+          ignore_errors: true  # noqa ignore-errors
+          changed_when: false
 
-        - block:
+        - name: Run test
+          when: "'ware-transmit' in ethtool.stdout"
+          block:
             - name: Wait for services to start
               wait_for:
                 timeout: 2
@@ -35,6 +46,7 @@
             - name: Get list of currently used time sources
               shell: chronyc -n sources || ntpq -pn
               register: sources
+              changed_when: false
 
             - name: Check time sources
               assert:
@@ -46,6 +58,7 @@
               # yamllint disable-line rule:line-length
               command: pmc -u -b 0 -d 0 -s /var/run/timemaster/ptp4l.0.socket 'GET DOMAIN' 'GET PORT_DATA_SET'
               register: pmc
+              changed_when: false
 
             - name: Check PTP domain
               assert:
@@ -64,6 +77,7 @@
               # yamllint disable-line rule:line-length
               command: pmc -u -b 0 -d 1 -s /var/run/timemaster/ptp4l.1.socket 'GET DOMAIN' 'GET PORT_DATA_SET'
               register: pmc
+              changed_when: false
 
             - name: Check PTP domain
               assert:
@@ -77,6 +91,3 @@
               when:
                 - ansible_distribution not in ['RedHat', 'CentOS'] or
                   ansible_distribution_version is not version('8.3', '<')
-
-          when: "'ware-transmit' in ethtool.stdout"
-      tags: tests::verify
