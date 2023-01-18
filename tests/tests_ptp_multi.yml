@@ -55,8 +55,12 @@
                   - "'PTP1' in sources.stdout"
 
             - name: Run pmc
-              # yamllint disable-line rule:line-length
-              command: pmc -u -b 0 -d 0 -s /var/run/timemaster/ptp4l.0.socket 'GET DOMAIN' 'GET PORT_DATA_SET'
+              vars:
+                # wokeignore:rule=master
+                __sock: /var/run/timemaster/ptp4l.0.socket
+              command: >-
+                pmc -u -b 0 -d 0 -s "{{ __sock }}" 'GET DOMAIN'
+                'GET PORT_DATA_SET'
               register: pmc
               changed_when: false
 
@@ -74,8 +78,12 @@
                   ansible_distribution_version is not version('8.3', '<')
 
             - name: Run pmc
-              # yamllint disable-line rule:line-length
-              command: pmc -u -b 0 -d 1 -s /var/run/timemaster/ptp4l.1.socket 'GET DOMAIN' 'GET PORT_DATA_SET'
+              vars:
+                # wokeignore:rule=master
+                __sock: /var/run/timemaster/ptp4l.1.socket
+              command: >-
+                pmc -u -b 0 -d 1 -s "{{ __sock }}" 'GET DOMAIN'
+                'GET PORT_DATA_SET'
               register: pmc
               changed_when: false
 
