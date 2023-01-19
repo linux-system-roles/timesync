@@ -255,7 +255,7 @@ must be a `string` value like `"2.9"`, not a `float` value like `2.9`.
 
 - tag tests with slow
 - Remove python-26 environment from tox testing
-- update to tox-lsr 2.4.0 - add support for ansible-test sanity with docker
+- update to tox-lsr 2.4.0 - add support for ansible-test with docker
 
 [1.3.0] - 2021-02-11
 --------------------

@@ -1,6 +1,7 @@
 {{ ansible_managed | comment }}
 
 [global]
+{# wokeignore:rule=slave #}
 slaveOnly		1
 domainNumber		{{ timesync_ptp_domains[0].number }}
 time_stamping		{{ 'hardware' if timesync_mode2_hwts else 'software' }}

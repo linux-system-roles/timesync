@@ -103,6 +103,7 @@
     dest: /etc/chrony.conf
     backup: true
     mode: 0644
+  # wokeignore:rule=master
   notify: Restart {{ 'chronyd' if timesync_mode == 1 else 'timemaster' }}
   when:
     - timesync_mode != 2
@@ -127,6 +128,7 @@
     dest: /etc/ntp.conf
     backup: true
     mode: 0644
+  # wokeignore:rule=master
   notify: Restart {{ 'ntpd' if timesync_mode == 1 else 'timemaster' }}
   when:
     - timesync_mode != 2
@@ -181,12 +183,16 @@
     - "'linuxptp' in ansible_facts.packages"
     - timesync_phc2sys_sysconfig_path | length > 0
 
+# wokeignore:rule=master
 - name: Generate timemaster.conf file
   template:
+    # wokeignore:rule=master
     src: timemaster.conf.j2
+    # wokeignore:rule=master
     dest: "{{ timesync_timemaster_config_path }}"
     backup: true
     mode: 0644
+  # wokeignore:rule=master
   notify: Restart timemaster
   when:
     - timesync_mode == 3
@@ -287,19 +293,23 @@
     - not __disable_result.msg is match(
       'Could not find the requested service phc2sys:')
 
+# wokeignore:rule=master
 - name: Disable timemaster
+  vars:
+    # wokeignore:rule=master
+    __timemstr: timemaster
   service:
-    name: timemaster
+    name: "{{ __timemstr }}"
     state: stopped
     enabled: false
   when:
     - timesync_mode != 3
-    - "'timemaster' in timesync_services"
+    - "'{{ __timemstr }}' in timesync_services"
   register: __disable_result
   failed_when:
     - __disable_result is failed
     - not __disable_result.msg is match(
-      'Could not find the requested service timemaster:')
+      'Could not find the requested service {{ __timemstr }}:')
 
 - name: Enable chronyd
   service:
@@ -335,8 +345,10 @@
     - timesync_mode == 2
     - timesync_mode2_hwts
 
+# wokeignore:rule=master
 - name: Enable timemaster
   service:
+    # wokeignore:rule=master
     name: timemaster
     state: started
     enabled: true

@@ -5,4 +5,5 @@ timesync_chrony_sysconfig_path: /etc/sysconfig/chronyd
 timesync_ntp_sysconfig_path: /etc/sysconfig/ntpd
 timesync_ptp4l_sysconfig_path: /etc/sysconfig/ptp4l
 timesync_phc2sys_sysconfig_path: /etc/sysconfig/phc2sys
+# wokeignore:rule=master
 timesync_timemaster_config_path: /etc/timemaster.conf

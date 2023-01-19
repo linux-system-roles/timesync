@@ -17,6 +17,7 @@ ptp4l_option hybrid_e2e 1
 {% endif %}
 
 {% endfor %}
+{# wokeignore:rule=master #}
 [timemaster]
 ntp_program {{ 'ntpd' if timesync_ntp_provider == 'ntp' else 'chronyd' }}
 

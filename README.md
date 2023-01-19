@@ -3,7 +3,9 @@ timesync
 ![CI Testing](https://github.com/linux-system-roles/timesync/workflows/tox/badge.svg)
 
 This role installs and configures an NTP and/or PTP implementation to operate
+<!--- wokeignore:rule=slave -->
 as an NTP client and/or PTP slave in order to synchronize the system clock with
+<!--- wokeignore:rule=master -->
 NTP servers and/or grandmasters in PTP domains. Supported NTP/PTP
 implementations are chrony, ntp (the reference implementation) and linuxptp.
 
@@ -52,7 +54,7 @@ timesync_ptp_domains:
   - number: 0                   # PTP domain number
     interfaces: [eth0]          # List of interfaces in the domain
     delay: 0.000010             # Assumed maximum network delay to the
-                                # grandmaster in seconds
+                                # grandmaster in seconds # wokeignore:rule=master
                                 # (default 100 microsecond)
     transport: UDPv4            # Network transport: UDPv4, UDPv6, L2
                                 # (default UDPv4)
@@ -121,6 +123,7 @@ Install and configure ntp to synchronize the system clock with three NTP servers
 ```
 
 Install and configure linuxptp to synchronize the system clock with a
+<!--- wokeignore:rule=master -->
 grandmaster in PTP domain number 0, which is accessible on interface eth0:
 
 ```yaml

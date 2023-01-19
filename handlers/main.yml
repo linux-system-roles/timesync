@@ -19,7 +19,9 @@
     name: phc2sys
     state: restarted
 
+# wokeignore:rule=master
 - name: Restart timemaster
   service:
+    # wokeignore:rule=master
     name: timemaster
     state: restarted
