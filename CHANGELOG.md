@@ -1,6 +1,24 @@
 Changelog
 =========
 
+[1.7.2] - 2023-01-20
+--------------------
+
+### New Features
+
+- none
+
+### Bug Fixes
+
+- fixes for ansible-lint 6.x
+
+### Other Changes
+
+- ensure ethtool is installed where needed
+- Add check for non-inclusive language;  (#170)
+- Clean up / Workaround non-inclusive words
+- update ignore files for ansible-test 2.14 (#172)
+
 [1.7.1] - 2022-11-01
 --------------------
 
