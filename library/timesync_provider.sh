@@ -5,8 +5,8 @@ is_service_enabled() {
 	local name runlevel prev_runlevel
 	name="$1"
 
+	# shellcheck disable=SC2034
 	read -r prev_runlevel runlevel < <(runlevel)
-	prev_runlevel="${prev_runlevel}"  # shell check complains unused var
 
 	systemctl is-enabled "$name.service" &> /dev/null || \
 		chkconfig --list "$name" 2>/dev/null | grep -q "$runlevel:on"
