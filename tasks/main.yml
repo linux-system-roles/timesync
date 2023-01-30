@@ -304,12 +304,12 @@
     enabled: false
   when:
     - timesync_mode != 3
-    - "'{{ __timemstr }}' in timesync_services"
+    - __timemstr in timesync_services
   register: __disable_result
   failed_when:
     - __disable_result is failed
     - not __disable_result.msg is match(
-      'Could not find the requested service {{ __timemstr }}:')
+      'Could not find the requested service ' ~ __timemstr ~ ':')
 
 - name: Enable chronyd
   service:
