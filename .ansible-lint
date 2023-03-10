@@ -1,7 +1,10 @@
 ---
 profile: production
+extra_vars:
+  targets: target_hosts
 kinds:
   - yaml: "**/meta/collection-requirements.yml"
+  - playbook: "**/tests/get_coverage.yml"
   - yaml: "**/tests/collection-requirements.yml"
   - playbook: "**/tests/tests_*.yml"
   - playbook: "**/tests/setup-snapshot.yml"
@@ -19,5 +22,3 @@ exclude_paths:
   - examples/roles/
 mock_roles:
   - linux-system-roles.timesync
-extra_vars:
-  targets: target_hosts
