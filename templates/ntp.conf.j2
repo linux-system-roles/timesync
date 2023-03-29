@@ -1,4 +1,5 @@
 {{ ansible_managed | comment }}
+{{ "system_role:timesync" | comment(prefix="", postfix="") }}
 
 {% for value in timesync_ntp_servers %}
 {{ 'pool' if 'pool' in value and value['pool'] else 'server' }} {{

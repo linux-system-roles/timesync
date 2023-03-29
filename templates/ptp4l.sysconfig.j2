@@ -1,3 +1,4 @@
 {{ ansible_managed | comment }}
+{{ "system_role:timesync" | comment(prefix="", postfix="") }}
 
 OPTIONS="-f /etc/ptp4l.conf -i {{ timesync_ptp_domains[0].interfaces[0] }}"
