@@ -100,7 +100,7 @@
 - name: Generate chrony.conf file
   template:
     src: chrony.conf.j2
-    dest: /etc/chrony.conf
+    dest: "{{ timesync_chrony_conf_path }}"
     backup: true
     mode: 0644
   # wokeignore:rule=master
