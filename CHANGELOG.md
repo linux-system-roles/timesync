@@ -1,6 +1,20 @@
 Changelog
 =========
 
+[1.7.3] - 2023-04-06
+--------------------
+
+### Bug Fixes
+
+- Update chrony.conf location for Debian (#187)
+
+### Other Changes
+
+- suppress shellcheck issue (#176)
+- Fix jinja formatting issue (#178)
+- Add README-ansible.md to refer Ansible intro page on linux-system-roles.github.io (#185)
+- Fingerprint RHEL System Role managed config files (#186)
+
 [1.7.2] - 2023-01-20
 --------------------
 
