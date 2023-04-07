@@ -70,7 +70,12 @@
           changed_when: false
 
         - name: Check ntpd service
-          shell: ntpq -c rv | grep 'associd=0'
+          shell: |
+            set -eu
+            if set -o | grep -q pipefail; then
+              set -o pipefail  # no pipefail on debian, some ubuntu
+            fi
+            ntpq -c rv | grep 'associd=0'
           when: not is_ntp_default
           changed_when: false
 
@@ -88,7 +93,12 @@
             timeout: 2
 
         - name: Check ntpd service
-          shell: ntpq -c rv | grep 'associd=0'
+          shell: |
+            set -eu
+            if set -o | grep -q pipefail; then
+              set -o pipefail  # no pipefail on debian, some ubuntu
+            fi
+            ntpq -c rv | grep 'associd=0'
           when: is_ntp_default | bool
           changed_when: false
 
