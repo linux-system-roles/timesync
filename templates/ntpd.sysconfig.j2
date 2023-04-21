@@ -1,4 +1,4 @@
 {{ ansible_managed | comment }}
 {{ "system_role:timesync" | comment(prefix="", postfix="") }}
 
-OPTIONS="-g{{ ' -u ntp:ntp -p /var/run/ntpd.pid' if ansible_distribution in ['OracleLinux', 'RedHat', 'CentOS'] and ansible_distribution_major_version|int < 7 else '' }}"
+OPTIONS="-g{{ ' -u ntp:ntp -p /var/run/ntpd.pid' if ansible_distribution in ['OracleLinux', 'RedHat', 'CentOS'] and ansible_distribution_major_version | int < 7 else '' }}"

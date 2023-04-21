@@ -19,10 +19,13 @@
     timesync_step_threshold: 0.01
     timesync_dhcp_ntp_servers: true
     timesync_min_sources: 2
-  roles:
-    - linux-system-roles.timesync
 
   tasks:
+    - name: Run the role
+      include_role:
+        name: linux-system-roles.timesync
+        public: true
+
     - name: Run chrony tests
       tags: tests::verify
       block:
@@ -54,3 +57,13 @@
           assert:
             that:
               - "'tracking.log' in logfiles.stdout"
+
+        - name: Check headers for ansible_managed, fingerprint
+          include_tasks: tasks/check_header.yml
+          loop:
+            - "{{ timesync_chrony_conf_path }}"
+            - "{{ timesync_chrony_sysconfig_path }}"
+          loop_control:
+            loop_var: __file
+          vars:
+            __fingerprint: "system_role:timesync"
