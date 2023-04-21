@@ -1,5 +1,6 @@
 timesync
 ========
+
 ![CI Testing](https://github.com/linux-system-roles/timesync/workflows/tox/badge.svg)
 
 This role installs and configures an NTP and/or PTP implementation to operate
@@ -109,7 +110,8 @@ Example Playbook
 Install and configure ntp to synchronize the system clock with three NTP servers:
 
 ```yaml
-- hosts: targets
+- name: Manage timesync with 3 servers
+  hosts: targets
   vars:
     timesync_ntp_servers:
       - hostname: foo.example.com
@@ -127,7 +129,8 @@ Install and configure linuxptp to synchronize the system clock with a
 grandmaster in PTP domain number 0, which is accessible on interface eth0:
 
 ```yaml
-- hosts: targets
+- name: Manage timesync in PTP domain 0, interface eth0
+  hosts: targets
   vars:
     timesync_ptp_domains:
       - number: 0
@@ -141,7 +144,8 @@ multiple NTP servers and PTP domains for a highly accurate and resilient
 synchronization:
 
 ```yaml
-- hosts: targets
+- name: Manage multiple NTP servers and PTP domains
+  hosts: targets
   vars:
     timesync_ntp_servers:
       - hostname: foo.example.com
@@ -167,9 +171,9 @@ Install and configure chrony with multiple NTP servers and custom advanced
 settings: log `measurements`, `statistics` and `tracking`
 into `/var/log/chrony`:
 
-
 ```yaml
-- hosts: targets
+- name: Manage with custom advanced settings
+  hosts: targets
   vars:
     timesync_ntp_servers:
       - hostname: foo.example.com

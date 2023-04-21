@@ -22,10 +22,12 @@
     timesync_dhcp_ntp_servers: true
     timesync_min_sources: 2
     timesync_ntp_hwts_interfaces: ["*"]
-  roles:
-    - linux-system-roles.timesync
-
   tasks:
+    - name: Run the role
+      include_role:
+        name: linux-system-roles.timesync
+        public: true
+
     - name: Run test
       tags: tests::verify
       block:
@@ -108,4 +110,32 @@
               - ntp_conf is not search('172\.16\.123\.1.*true')
               - ntp_conf is not search('172\.16\.123\.2.*true')
               - ntp_conf is search('172\.16\.123\.3.*true')
+          when: ntp_conf is defined
+
+        - name: Check chrony conf for ansible_managed, fingerprint
+          include_tasks: tasks/check_header.yml
+          vars:
+            __file_content: "{{ chrony_conf_encoded }}"
+            __fingerprint: "system_role:timesync"
+          when: chrony_conf is defined
+
+        - name: Check chrony sysconf for ansible_managed, fingerprint
+          include_tasks: tasks/check_header.yml
+          vars:
+            __file: "{{ timesync_chrony_sysconfig_path }}"
+            __fingerprint: "system_role:timesync"
+          when: chrony_conf is defined
+
+        - name: Check ntp conf for ansible_managed, fingerprint
+          include_tasks: tasks/check_header.yml
+          vars:
+            __file_content: "{{ ntp_conf_encoded }}"
+            __fingerprint: "system_role:timesync"
+          when: ntp_conf is defined
+
+        - name: Check ntp sysconf for ansible_managed, fingerprint
+          include_tasks: tasks/check_header.yml
+          vars:
+            __file: "{{ timesync_ntp_sysconfig_path }}"
+            __fingerprint: "system_role:timesync"
           when: ntp_conf is defined

@@ -27,16 +27,16 @@
 - name: Check if only NTP is needed
   set_fact:
     timesync_mode: 1
-  when: timesync_ptp_domains|length == 0
+  when: timesync_ptp_domains | length == 0
 
 - name: Check if single PTP is needed
   set_fact:
     timesync_mode: 2
   when:
     - timesync_mode is not defined
-    - timesync_ntp_servers|length == 0
-    - timesync_ptp_domains|length == 1
-    - timesync_ptp_domains[0].interfaces|length == 1
+    - timesync_ntp_servers | length == 0
+    - timesync_ptp_domains | length == 1
+    - timesync_ptp_domains[0].interfaces | length == 1
 
 - name: Check if both NTP and PTP are needed
   set_fact:
