@@ -1,6 +1,22 @@
 Changelog
 =========
 
+[1.7.6] - 2023-07-19
+--------------------
+
+### Bug Fixes
+
+- fix: facts being gathered unnecessarily (#202)
+
+### Other Changes
+
+- docs: Consistent contributing.md for all roles - allow role specific contributing.md section (#196)
+- ci: update tox-lsr to version 3.0.0 (#197)
+- ci: Add pull request template and run commitlint on PR title only (#198)
+- ci: Rename commitlint to PR title Lint, echo PR titles from env var (#199)
+- ci: ansible-lint - ignore var-naming[no-role-prefix] (#200)
+- ci: ansible-test ignores file for ansible-core 2.15 (#201)
+
 [1.7.5] - 2023-04-27
 --------------------
 
