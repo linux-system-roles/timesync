@@ -1,5 +1,4 @@
-timesync
-========
+# timesync
 
 ![CI Testing](https://github.com/linux-system-roles/timesync/workflows/tox/badge.svg)
 
@@ -10,8 +9,7 @@ as an NTP client and/or PTP slave in order to synchronize the system clock with
 NTP servers and/or grandmasters in PTP domains. Supported NTP/PTP
 implementations are chrony, ntp (the reference implementation) and linuxptp.
 
-Warning
--------
+## Warning
 
 The role replaces the configuration of the given or detected provider
 service on the managed host. Previous settings will be lost, even if
@@ -21,8 +19,7 @@ replaced entirely). The only setting which is preserved is the choice
 of provider if `timesync_ntp_provider` is not defined (see the
 description of this variable below).
 
-Role Variables
---------------
+## Role Variables
 
 The variables that can be passed to this role are as follows:
 
@@ -104,8 +101,7 @@ timesync_chrony_custom_settings:
   - "log measurements statistics tracking"
 ```
 
-Example Playbook
-----------------
+## Example Playbooks
 
 Install and configure ntp to synchronize the system clock with three NTP servers:
 
