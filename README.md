@@ -1,6 +1,8 @@
 # timesync
 
-![CI Testing](https://github.com/linux-system-roles/timesync/workflows/tox/badge.svg)
+[![ansible-lint.yml](https://github.com/linux-system-roles/timesync/actions/workflows/ansible-lint.yml/badge.svg)](https://github.com/linux-system-roles/timesync/actions/workflows/ansible-lint.yml) [![ansible-test.yml](https://github.com/linux-system-roles/timesync/actions/workflows/ansible-test.yml/badge.svg)](https://github.com/linux-system-roles/timesync/actions/workflows/ansible-test.yml) [![shellcheck.yml](https://github.com/linux-system-roles/timesync/actions/workflows/shellcheck.yml/badge.svg)](https://github.com/linux-system-roles/timesync/actions/workflows/shellcheck.yml) [![markdownlint.yml](https://github.com/linux-system-roles/timesync/actions/workflows/markdownlint.yml/badge.svg)](https://github.com/linux-system-roles/timesync/actions/workflows/markdownlint.yml) [![woke.yml](https://github.com/linux-system-roles/timesync/actions/workflows/woke.yml/badge.svg)](https://github.com/linux-system-roles/timesync/actions/workflows/woke.yml)
+
+---
 
 This role installs and configures an NTP and/or PTP implementation to operate
 <!--- wokeignore:rule=slave -->
