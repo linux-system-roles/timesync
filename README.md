@@ -88,6 +88,14 @@ timesync_ntp_hwts_interfaces: ["*"]
 # package specific to the system and its version will be selected.
 timesync_ntp_provider: chrony
 
+# List of allowed network, ips and ranges that can request time.
+# This is required to operate chrony as a server, without it chronyd operates
+# purely as an NTP client.
+timesync_allow:
+  - 1.2.3.4
+  - 3.4.5.0/24
+  - all
+
 # Sometimes administrators might need extended configurations for chrony which
 # are not covered by the predefined settings provided by this role.
 # 'timesync_chrony_custom_settings' allows to define a list of custom settings

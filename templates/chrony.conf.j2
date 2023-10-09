@@ -17,6 +17,13 @@ value['hostname'] }}{{
                 'filter' in value and value['filter'] > 1 else '' }}
 {% endfor %}
 
+{% if timesync_allow is defined %}
+# Allowed networks to contact chronyd when not running only as a client.
+{% for address in timesync_allow %}
+allow {{ address }}
+{% endfor %}
+{% endif %}
+
 {% if timesync_dhcp_ntp_servers and timesync_chrony_dhcp_sourcedir %}
 # Use NTP servers from DHCP.
 sourcedir {{ timesync_chrony_dhcp_sourcedir }}
