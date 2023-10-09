@@ -1,0 +1,10 @@
+---
+timesync_ntp_provider_os_default: chrony
+timesync_chrony_dhcp_sourcedir: ""
+timesync_chrony_sysconfig_path: /etc/sysconfig/chronyd
+timesync_chrony_conf_path: "/etc/chrony.conf"
+timesync_ntp_sysconfig_path: /etc/sysconfig/ntpd
+timesync_ptp4l_sysconfig_path: /etc/sysconfig/ptp4l
+timesync_phc2sys_sysconfig_path: /etc/sysconfig/phc2sys
+# wokeignore:rule=master
+timesync_timemaster_config_path: /etc/timemaster.conf
