@@ -1,6 +1,17 @@
 Changelog
 =========
 
+[1.7.8] - 2023-10-23
+--------------------
+
+### Other Changes
+
+- Bump actions/checkout from 3 to 4 (#209)
+- ci: ensure dependabot git commit message conforms to commitlint (#212)
+- ci: use dump_packages.py callback to get packages used by role (#214)
+- refactor: Add CentOS 7-8, RedHat 7-8 and AlmaLinux 8-9 var files (#216)
+- ci: tox-lsr version 3.1.1 (#218)
+
 [1.7.7] - 2023-09-11
 --------------------
 
