@@ -102,7 +102,7 @@
     src: chrony.conf.j2
     dest: "{{ timesync_chrony_conf_path }}"
     backup: true
-    mode: 0644
+    mode: "0644"
   # wokeignore:rule=master
   notify: Restart {{ 'chronyd' if timesync_mode == 1 else 'timemaster' }}
   when:
@@ -115,7 +115,7 @@
     src: chronyd.sysconfig.j2
     dest: "{{ timesync_chrony_sysconfig_path }}"
     backup: true
-    mode: 0644
+    mode: "0644"
   notify: Restart chronyd
   when:
     - timesync_mode == 1
@@ -127,7 +127,7 @@
     src: ntp.conf.j2
     dest: /etc/ntp.conf
     backup: true
-    mode: 0644
+    mode: "0644"
   # wokeignore:rule=master
   notify: Restart {{ 'ntpd' if timesync_mode == 1 else 'timemaster' }}
   when:
@@ -140,7 +140,7 @@
     src: ntpd.sysconfig.j2
     dest: "{{ timesync_ntp_sysconfig_path }}"
     backup: true
-    mode: 0644
+    mode: "0644"
   notify: Restart ntpd
   when:
     - timesync_mode == 1
@@ -152,7 +152,7 @@
     src: ptp4l.conf.j2
     dest: /etc/ptp4l.conf
     backup: true
-    mode: 0644
+    mode: "0644"
   notify: Restart ptp4l
   when:
     - timesync_mode == 2
@@ -163,7 +163,7 @@
     src: ptp4l.sysconfig.j2
     dest: "{{ timesync_ptp4l_sysconfig_path }}"
     backup: true
-    mode: 0644
+    mode: "0644"
   notify: Restart ptp4l
   when:
     - timesync_mode == 2
@@ -175,7 +175,7 @@
     src: phc2sys.sysconfig.j2
     dest: /etc/sysconfig/phc2sys
     backup: true
-    mode: 0644
+    mode: "0644"
   notify: Restart phc2sys
   when:
     - timesync_mode == 2
@@ -191,7 +191,7 @@
     # wokeignore:rule=master
     dest: "{{ timesync_timemaster_config_path }}"
     backup: true
-    mode: 0644
+    mode: "0644"
   # wokeignore:rule=master
   notify: Restart timemaster
   when:
@@ -203,7 +203,7 @@
     dest: /etc/sysconfig/network
     create: true
     backup: true
-    mode: 0644
+    mode: "0644"
     regexp: '^PEERNTP='
     line: 'PEERNTP=no'
     # yamllint disable-line rule:line-length
