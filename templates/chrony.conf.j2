@@ -79,6 +79,10 @@ ntsdumpdir /var/lib/chrony
 # Limit maximum root distance.
 maxdistance {{ timesync_max_distance }}
 
+{% if __timesync_chrony_version is version('4.0', '>=') %}
+leapsectz timesync_chrony_leapsectz | default("right/UTC")
+{% endif %}
+
 {% endif %}
 {% if timesync_chrony_custom_settings | default([]) | length > 0 %}
 # Custom settings
