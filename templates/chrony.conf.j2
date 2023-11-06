@@ -80,7 +80,7 @@ ntsdumpdir /var/lib/chrony
 maxdistance {{ timesync_max_distance }}
 
 {% if __timesync_chrony_version is version('4.0', '>=') and timesync_chrony_leapsectz %}
-leapsectz timesync_chrony_leapsectz | default("right/UTC")
+leapsectz timesync_chrony_leapsectz
 {% endif %}
 
 {% endif %}
