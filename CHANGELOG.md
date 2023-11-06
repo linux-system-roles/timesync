@@ -1,6 +1,14 @@
 Changelog
 =========
 
+[1.7.9] - 2023-11-06
+--------------------
+
+### Other Changes
+
+- ci: Fix implicit octal values in main.yml (#220)
+- ci: Add ALP-Dolomite var file (#221)
+
 [1.7.8] - 2023-10-23
 --------------------
 
