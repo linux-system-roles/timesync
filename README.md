@@ -19,6 +19,19 @@ replaced entirely). The only setting which is preserved is the choice
 of provider if `timesync_ntp_provider` is not defined (see the
 description of this variable below).
 
+## Requirements
+
+See below
+
+### Collection requirements
+
+In order to manage `rpm-ostree` systems, the role requires modules from external
+collections.  Use the following command to install them:
+
+```bash
+ansible-galaxy collection install -vv -r meta/collection-requirements.yml
+```
+
 ## Role Variables
 
 The variables that can be passed to this role are as follows:
@@ -181,3 +194,7 @@ into `/var/log/chrony`:
   roles:
     - linux-system-roles.timesync
 ```
+
+## rpm-ostree
+
+See README-ostree.md

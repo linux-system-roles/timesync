@@ -25,6 +25,9 @@
         - name: Flush handlers
           meta: flush_handlers
 
+        - name: Common test setup tasks
+          include_tasks: tasks/setup.yml
+
         - name: Ensure ethtool is installed
           package:
             name: ethtool

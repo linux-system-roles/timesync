@@ -10,6 +10,11 @@
     both_avail: true
 
   tasks:
+    - name: Common test setup tasks
+      include_tasks: tasks/setup.yml
+      vars:
+        __timesync_ostree_unsupported: true
+
     - name: See if both providers are available
       check_mode: false
       tags: tests::setup

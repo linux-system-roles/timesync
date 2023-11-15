@@ -1,0 +1,48 @@
+---
+# common test setup tasks
+- name: Ensure correct package manager for ostree systems
+  vars:
+    ostree_pkg_mgr: ansible.posix.rhel_rpm_ostree
+    ostree_booted_file: /run/ostree-booted
+  when: ansible_facts.pkg_mgr | d("") != ostree_pkg_mgr
+  block:
+    - name: Check if system is ostree
+      stat:
+        path: "{{ ostree_booted_file }}"
+      register: __ostree_booted_stat
+
+    - name: Set package manager to use for ostree
+      ansible.utils.update_fact:
+        updates:
+          - path: ansible_facts.pkg_mgr
+            value: "{{ ostree_pkg_mgr }}"
+      when: __ostree_booted_stat.stat.exists
+
+- name: Ensure iproute for gathering default_ipv4 fact
+  package:
+    name: iproute  # for fact gathering for ip facts
+    state: present
+
+- name: Ensure ansible_facts used by test
+  setup:
+    gather_subset: "{{ __required_facts_subsets }}"
+  when: __required_facts |
+    difference(ansible_facts.keys() | list) | length > 0
+  vars:
+    __required_facts:
+      - default_ipv4
+      - distribution
+      - distribution_major_version
+      - distribution_version
+      - os_family
+    __required_facts_subsets: "{{ ['!all', '!min'] + __required_facts }}"
+
+- name: Debug
+  debug:
+    msg: facts {{ ansible_facts | to_nice_json }}
+
+- name: Skip test on ostree systems if unsupported
+  meta: end_host
+  when:
+    - __timesync_ostree_unsupported | d(false)
+    - ansible_facts.pkg_mgr | d() == "ansible.posix.rhel_rpm_ostree"
