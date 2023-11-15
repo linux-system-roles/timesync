@@ -20,13 +20,17 @@
     timesync_step_threshold: 0.001
     timesync_dhcp_ntp_servers: false
     timesync_min_sources: 2
-  roles:
-    - linux-system-roles.timesync
-
   tasks:
     - name: Run test
       tags: tests::verify
       block:
+        - name: Common test setup tasks
+          include_tasks: tasks/setup.yml
+
+        - name: Run role
+          include_role:
+            name: linux-system-roles.timesync
+
         - name: Flush handlers
           meta: flush_handlers
 

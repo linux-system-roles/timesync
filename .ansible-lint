@@ -24,3 +24,5 @@ exclude_paths:
   - examples/roles/
 mock_roles:
   - linux-system-roles.timesync
+mock_modules:
+  - ansible.utils.update_fact

@@ -8,6 +8,11 @@
     - linux-system-roles.timesync
 
   pre_tasks:
+    - name: Common test setup tasks
+      include_tasks: tasks/setup.yml
+      vars:
+        __timesync_ostree_unsupported: true
+
     - name: Remove the install ntp
       check_mode: false
       tags: tests::setup
