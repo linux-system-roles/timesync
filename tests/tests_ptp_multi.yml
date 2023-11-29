@@ -32,6 +32,8 @@
           package:
             name: ethtool
             state: present
+            use: "{{ (__timesync_is_ostree | d(false)) |
+                     ternary('ansible.posix.rhel_rpm_ostree', omit) }}"
 
         - name: Check if SW/HW timestamping is supported
           command: ethtool -T "{{ ansible_default_ipv4['interface'] }}"
