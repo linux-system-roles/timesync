@@ -60,6 +60,23 @@ timesync_ntp_servers:
     filter: 1                   # Number of NTP measurements per clock update
                                 # (default 1)
 
+# List of reclock
+timesync_refclocks:
+  - driver (either PPS, SHM, SOCK, PHC)
+    options                     # String added after the driver item
+
+# To get this setting
+# refclock PPS /dev/pps0 lock NMEA refid GPS
+# refclock SHM 0 offset 0.5 delay 0.2 refid NMEA noselect
+# 
+# timesync_refclocks:
+#   - driver: 'PPS'
+#     options: '/dev/pps0 lock NMEA refid GPS'
+#   - driver: SHM
+#     options: '0 offset 0.5 delay 0.2 refid NMEA noselect'
+# 
+
+
 # List of PTP domains
 timesync_ptp_domains:
   - number: 0                   # PTP domain number

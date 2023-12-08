@@ -86,3 +86,7 @@ maxdistance {{ timesync_max_distance }}
 {{     custom_setting }}
 {%   endfor %}
 {% endif %}
+
+{% for refclock in timesync_refclocks %}
+refclock {{ refclock.driver }} {{ refclock.options }}
+{% endfor %}

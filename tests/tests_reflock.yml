@@ -1,0 +1,63 @@
+---
+- name: Configure time synchronization with NTP servers
+  hosts: all
+  vars:
+    timesync_refclocks:
+      - driver: 'PPS'
+        options: '/dev/pps0 lock NMEA refid GPS'
+      - driver: SHM
+        options: '0 offset 0.5 delay 0.2 refid NMEA noselect'
+  tasks:
+    - name: Run the role
+      include_role:
+        name: linux-system-roles.timesync
+        public: true
+
+    - name: Run test
+      tags: tests::verify
+      block:
+        - name: Fetch chrony.conf file
+          slurp:
+            src: /etc/chrony.conf
+          when: "'LastRx' in sources.stdout"
+          register: chrony_conf_encoded
+
+        - name: Decode chrony.conf file
+          set_fact:
+            chrony_conf: "{{ chrony_conf_encoded.content | b64decode }}"
+          when: chrony_conf_encoded is not skipped
+
+        - name: Check chrony.conf file
+          assert:
+            that:
+              - chrony_conf is not search('refclock PPS /dev/pps0 lock NMEA refid GPS')
+              - chrony_conf is not search('refclock SHM 0 offset 0.5 delay 0.2 refid NMEA noselect')
+          when: chrony_conf is defined
+
+        - name: Check chrony conf for ansible_managed, fingerprint
+          include_tasks: tasks/check_header.yml
+          vars:
+            __file_content: "{{ chrony_conf_encoded }}"
+            __fingerprint: "system_role:timesync"
+          when: chrony_conf is defined
+
+        - name: Check chrony sysconf for ansible_managed, fingerprint
+          include_tasks: tasks/check_header.yml
+          vars:
+            __file: "{{ timesync_chrony_sysconfig_path }}"
+            __fingerprint: "system_role:timesync"
+          when: chrony_conf is defined
+
+        - name: Check ntp conf for ansible_managed, fingerprint
+          include_tasks: tasks/check_header.yml
+          vars:
+            __file_content: "{{ ntp_conf_encoded }}"
+            __fingerprint: "system_role:timesync"
+          when: ntp_conf is defined
+
+        - name: Check ntp sysconf for ansible_managed, fingerprint
+          include_tasks: tasks/check_header.yml
+          vars:
+            __file: "{{ timesync_ntp_sysconfig_path }}"
+            __fingerprint: "system_role:timesync"
+          when: ntp_conf is defined
