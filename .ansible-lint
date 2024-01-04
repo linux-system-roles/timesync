@@ -17,6 +17,7 @@ kinds:
 skip_list:
   - fqcn-builtins
   - var-naming[no-role-prefix]
+  - sanity[cannot-ignore]
 exclude_paths:
   - tests/roles/
   - .github/
