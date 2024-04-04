@@ -1,6 +1,15 @@
 Changelog
 =========
 
+[1.8.3] - 2024-04-04
+--------------------
+
+### Other Changes
+
+- ci: fix python unit test - copy pytest config to tests/unit (#234)
+- ci: Bump ansible/ansible-lint from 6 to 24 (#235)
+- ci: Bump mathieudutour/github-tag-action from 6.1 to 6.2 (#237)
+
 [1.8.2] - 2024-01-16
 --------------------
 
@@ -76,7 +85,6 @@ Changelog
   
   Signed-off-by: Sergei Petrosian <spetrosi@redhat.com>
 
-
 [1.7.7] - 2023-09-11
 --------------------
 
@@ -109,7 +117,6 @@ Changelog
   - Remove badges from README.md prior to converting to HTML
   
   Signed-off-by: Sergei Petrosian <spetrosi@redhat.com>
-
 
 [1.7.6] - 2023-07-19
 --------------------
@@ -210,7 +217,6 @@ on line 43 gives '>' not supported between instances of 'str' and 'float
 - Updated: type casting in overall timesync templates for testing
 
 - Updated: type casting adjusted (timesync_max_distance <= int)
-
 
 ### Other Changes
 
