@@ -112,6 +112,11 @@ timesync_ntp_provider: chrony
 timesync_chrony_custom_settings:
   - "logdir /var/log/chrony"
   - "log measurements statistics tracking"
+
+# List of daeomn options that will be configured at startup of the services
+# using 'OPTIONS' variable in '/etc/sysconfig/chronyd'. For all available
+# options, see 'chronyd(8)' man page.
+timesync_chrony_service_settings: []
 ```
 
 ## Example Playbooks
