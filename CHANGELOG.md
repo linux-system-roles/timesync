@@ -1,6 +1,15 @@
 Changelog
 =========
 
+[1.8.4] - 2024-06-11
+--------------------
+
+### Other Changes
+
+- ci: use tox-lsr 3.3.0 which uses ansible-test 2.17 (#239)
+- ci: tox-lsr 3.4.0 - fix py27 tests; move other checks to py310 (#241)
+- ci: Add supported_ansible_also to .ansible-lint (#242)
+
 [1.8.3] - 2024-04-04
 --------------------
 
