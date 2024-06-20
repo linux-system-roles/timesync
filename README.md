@@ -95,11 +95,20 @@ timesync_min_sources: 1
 # interfaces that support it.
 timesync_ntp_hwts_interfaces: ["*"]
 
+# Set a timezone in the system TZ database which chronyd can use to determine
+# when will the next leap second occur and what is the current offset between
+# TAI and UTC. It will periodically check if 23:59:59 and 23:59:60 are valid
+# times in the timezone. This typically works with the right/UTC timezone
+# (default empty). The directive is not compatible with servers that hide leap
+# seconds from their clients using a `leap smear`.
+timesync_chrony_leapsectz: "right/UTC"
+
 # Name of the package which should be installed and configured for NTP.
 # Possible values are "chrony" and "ntp". If not defined, the currently active
 # or enabled service will be configured. If no service is active or enabled, a
 # package specific to the system and its version will be selected.
 timesync_ntp_provider: chrony
+
 
 # Sometimes administrators might need extended configurations for chrony which
 # are not covered by the predefined settings provided by this role.
