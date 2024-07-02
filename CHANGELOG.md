@@ -1,6 +1,18 @@
 Changelog
 =========
 
+[1.8.5] - 2024-07-02
+--------------------
+
+### Bug Fixes
+
+- fix: add support for EL10 (#245)
+- fix: Don't use chrony-dhcp sourcedir on EL8 systems (#246)
+
+### Other Changes
+
+- ci: ansible-lint action now requires absolute directory (#244)
+
 [1.8.4] - 2024-06-11
 --------------------
 
