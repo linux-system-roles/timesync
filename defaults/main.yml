@@ -7,3 +7,4 @@ timesync_min_sources: 1
 timesync_ntp_hwts_interfaces: []
 timesync_ntp_provider: ""
 timesync_max_distance: 0
+timesync_chrony_service_settings: []

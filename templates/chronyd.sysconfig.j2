@@ -1,4 +1,4 @@
 {{ ansible_managed | comment }}
 {{ "system_role:timesync" | comment(prefix="", postfix="") }}
 
-OPTIONS=""
+OPTIONS="{{ timesync_chrony_service_settings | default([]) | join(' ') }}"
