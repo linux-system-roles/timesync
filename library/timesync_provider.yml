@@ -1,0 +1,19 @@
+DOCUMENTATION:
+  module: timesync_provider
+  short_description: Determine the timesync provider on the system
+  version_added: "2.14.0"
+  description:
+    - "WARNING: Do not use this module directly! It is only for role internal use."
+    - "Determine the timesync provider on the system and return it."
+  options: {}
+  author:
+    - Miroslav Lichvar (@mlichvar)
+EXAMPLES: |-
+  - name: Determine current NTP provider
+    timesync_provider:
+RETURN:
+  timesync_ntp_provider_current:
+    description: Name of current provider e.g. chrony or ntp
+    returned: success
+    type: str
+    sample: chrony
