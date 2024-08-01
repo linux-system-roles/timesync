@@ -1,6 +1,16 @@
 Changelog
 =========
 
+[1.8.6] - 2024-08-01
+--------------------
+
+### Other Changes
+
+- ci: Add tft plan and workflow (#248)
+- docs: add module documentation for timesync_provider (#250)
+- ci: Update fmf plan to add a separate job to prepare managed nodes (#251)
+- ci: Bump sclorg/testing-farm-as-github-action from 2 to 3 (#252)
+
 [1.8.5] - 2024-07-02
 --------------------
 
