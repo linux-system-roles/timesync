@@ -113,12 +113,13 @@ timesync_chrony_custom_settings:
   - "logdir /var/log/chrony"
   - "log measurements statistics tracking"
 
-#This variable is used to handle reboots required by transactional updates.
-#If a transactional update requires a reboot, the role will proceed with the
-#reboot if `timesync_transactional_update_reboot_ok` is set to `true`. If set
-#to `false`, the role will notify the user that a reboot is required, allowing
-#for custom handling of the reboot requirement. If this variable is not set,
-#the role will fail to ensure the reboot requirement is not overlooked.
+# This variable is applicable only for transactional update systems.
+# If a transactional update requires a reboot, the role will proceed with the
+# reboot if `timesync_transactional_update_reboot_ok` is set to `true`. If set
+# to `false`, the role will notify the user that a reboot is required, allowing
+# for custom handling of the reboot requirement. If this variable is not set,
+# the role will fail to ensure the reboot requirement is not overlooked.
+# For non-transactional update systems, this variable is ignored.
 timesync_transactional_update_reboot_ok: true
 ```
 
