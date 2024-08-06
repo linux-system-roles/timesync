@@ -67,6 +67,7 @@
   when:
     - timesync_mode != 2
     - timesync_ntp_provider == 'chrony'
+  register: timesync_chrony_result
 
 - name: Install ntp
   package:
@@ -77,6 +78,7 @@
   when:
     - timesync_mode != 2
     - timesync_ntp_provider == 'ntp'
+  register: timesync_ntp_result
 
 - name: Install linuxptp
   package:
@@ -85,6 +87,32 @@
     use: "{{ (__timesync_is_ostree | d(false)) |
              ternary('ansible.posix.rhel_rpm_ostree', omit) }}"
   when: timesync_mode != 1
+  register: timesync_linuxptp_result
+
+- name: Handle reboot for transactional update systems
+  when:
+    - __timesync_is_transactional | d(false)
+    - timesync_chrony_result is changed or
+      timesync_ntp_result is changed or
+      timesync_linuxptp_result is changed
+  block:
+    - name: Notify user that reboot is needed to apply changes
+      debug:
+        msg: >
+          Reboot required to apply changes due to transactional updates.
+
+    - name: Reboot transactional update systems
+      reboot:
+        msg: Rebooting the system to apply transactional update changes.
+      when: timesync_transactional_update_reboot_ok | bool
+
+    - name: Fail if reboot is needed and not set
+      fail:
+        msg: >
+          Reboot is required but not allowed. Please set
+          'timesync_transactional_update_reboot_ok' to proceed.
+      when:
+        - timesync_transactional_update_reboot_ok is none
 
 - name: Gather package facts
   package_facts:
