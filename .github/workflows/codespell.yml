@@ -1,0 +1,29 @@
+# Codespell configuration is within .codespellrc
+---
+name: Codespell
+on:  # yamllint disable-line rule:truthy
+  - pull_request
+permissions:
+  contents: read
+jobs:
+  codespell:
+    name: Check for spelling errors
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Get variable with regex values
+        id: regexvar
+        run: |
+          curl -L -s -o dictionary_usage.txt https://raw.githubusercontent.com/codespell-project/codespell/refs/heads/main/codespell_lib/data/dictionary_usage.txt
+          regexvar=$(sed 's/->.*//g' dictionary_usage.txt | sed 's/$/|/' | tr -d '\n' | sed 's/.$//')
+          rm dictionary_usage.txt
+          echo "regexvar=$regexvar" >> "$GITHUB_OUTPUT"
+
+      - name: Show errors from codespell as annotation in GitHub Actions
+        uses: codespell-project/codespell-problem-matcher@v1
+      - name: Codespell
+        uses: spetrosi/actions-codespell@add-regex-input
+        with:
+          regex: ${{ steps.regexvar.outputs.regexvar }}

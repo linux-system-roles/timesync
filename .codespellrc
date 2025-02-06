@@ -1,0 +1,4 @@
+[codespell]
+builtin = usage
+ignore-multiline-regex = codespell:ignore-begin.*codespell:ignore-end
+context=0
