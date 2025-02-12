@@ -105,7 +105,7 @@ timesync_ntp_provider: chrony
 # are not covered by the predefined settings provided by this role.
 # 'timesync_chrony_custom_settings' allows to define a list of custom settings
 # for the chrony.conf file, by providing a list of settings. As an example,
-# for debugging, one might need to log mesurements, statistics and tracking.
+# for debugging, one might need to log measurements, statistics and tracking.
 # This information is usually stored in the /var/log/chrony directory. For
 # that, one needs to define two different settings (logdir and log), as
 # follows:
