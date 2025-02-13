@@ -265,7 +265,7 @@ anymore. Match the lower-case strings instead.
 
 ### New Features
 
-- adding support fpr Oracle Linux 6,7,8 and 9
+- adding support for Oracle Linux 6,7,8 and 9
 
 ### Bug Fixes
 
