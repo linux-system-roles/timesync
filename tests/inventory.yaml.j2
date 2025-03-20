@@ -1,1 +1,11 @@
-{{ { 'all': { 'hosts': hostvars } } | to_yaml }}
+all:
+  hosts:
+    {{ inventory_hostname }}:
+{% for key in ["ansible_all_ipv4_addresses", "ansible_all_ipv6_addresses",
+                 "ansible_default_ipv4", "ansible_default_ipv6", "ansible_host",
+                 "ansible_port", "ansible_ssh_common_args",
+                 "ansible_ssh_private_key_file","ansible_user"] %}
+{%   if key in hostvars[inventory_hostname] %}
+      {{ key }}: {{ hostvars[inventory_hostname][key] }}
+{%   endif %}
+{% endfor %}
