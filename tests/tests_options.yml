@@ -1,0 +1,55 @@
+---
+- name: Test setting OPTIONS
+  hosts: all
+  gather_facts: true
+  tasks:
+    - name: Run tests
+      block:
+        - name: Run role with no arguments to get provider
+          include_role:
+            name: linux-system-roles.timesync
+            public: true
+
+        - name: Set vars based on provider
+          set_fact:
+            __test_file: "{{ timesync_chrony_sysconfig_path
+              if timesync_ntp_provider_current == 'chrony'
+              else timesync_ntp_sysconfig_path }}"
+
+        - name: Try timesync_ntp_ip_family IPv4
+          include_role:
+            name: linux-system-roles.timesync
+          vars:
+            timesync_ntp_ip_family: IPv4
+
+        - name: Verify IPv4 setting
+          command: grep 'OPTIONS=.* -4' {{ __test_file }}
+          changed_when: false
+
+        - name: Try timesync_ntp_ip_family IPv6
+          include_role:
+            name: linux-system-roles.timesync
+          vars:
+            timesync_ntp_ip_family: IPv6
+
+        - name: Verify IPv6 setting
+          command: grep 'OPTIONS=.* -6' {{ __test_file }}
+          changed_when: false
+
+      always:
+        - name: Reset OPTIONS
+          include_role:
+            name: linux-system-roles.timesync
+          vars:
+            timesync_ntp_ip_family: all
+
+        - name: Verify reset
+          shell: |
+            set -eux
+            if grep 'OPTIONS=.* -4' {{ __test_file }} || \
+              grep 'OPTIONS=.* -6' {{ __test_file }}; then
+                echo ERROR: {{ __test_file }} has incorrect OPTIONS
+                exit 1
+            fi
+            exit 0
+          changed_when: false
