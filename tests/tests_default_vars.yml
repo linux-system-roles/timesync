@@ -19,3 +19,4 @@
         - timesync_ntp_hwts_interfaces
         - timesync_ntp_provider
         - timesync_max_distance
+        - timesync_ntp_ip_family

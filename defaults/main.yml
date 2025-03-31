@@ -8,3 +8,6 @@ timesync_ntp_hwts_interfaces: []
 timesync_ntp_provider: ""
 timesync_max_distance: 0
 timesync_transactional_update_reboot_ok: null
+# options are all, IPv4, IPv6
+# default is none which is platform default
+timesync_ntp_ip_family: ""

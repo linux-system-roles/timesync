@@ -1,4 +1,6 @@
 {{ ansible_managed | comment }}
 {{ "system_role:timesync" | comment(prefix="", postfix="") }}
 
-OPTIONS=""
+OPTIONS="{{ ' -4' if timesync_ntp_ip_family == 'IPv4'
+    else ' -6' if timesync_ntp_ip_family == 'IPv6'
+    else '' }}"
