@@ -5,10 +5,7 @@
     timesync_ntp_servers:
       - hostname: 172.16.123.1
     timesync_ntp_provider: chrony
-  roles:
-    - linux-system-roles.timesync
-
-  pre_tasks:
+  tasks:
     - name: Common test setup tasks
       include_tasks: tasks/setup.yml
       vars:
@@ -27,21 +24,31 @@
 
         - name: Skip test if no package
           meta: end_play
-          when: package_install.failed
+          when: package_install is failed
 
         - name: Remove chrony
           package:
             name: chrony
             state: absent
 
-  post_tasks:
-    - name: Verify chronyd is running
-      tags: tests::verify
+    - name: Run the test
       block:
-        - name: Wait for services to start
-          wait_for:
-            timeout: 2
+        - name: Run the role
+          include_role:
+            name: linux-system-roles.timesync
+            public: true
 
-        - name: Check chronyd service
-          command: chronyc -n tracking
-          changed_when: false
+        - name: Verify chronyd is running
+          tags: tests::verify
+          block:
+            - name: Wait for services to start
+              wait_for:
+                timeout: 2
+
+            - name: Check chronyd service
+              command: chronyc -n tracking
+              changed_when: false
+
+      always:
+        - name: Cleanup after tests
+          include_tasks: tasks/cleanup.yml

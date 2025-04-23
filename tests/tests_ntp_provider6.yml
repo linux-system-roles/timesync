@@ -54,6 +54,7 @@
     - name: Call role to change provider
       include_role:
         name: linux-system-roles.timesync
+        public: true
       vars:
         # ntp is the default choice for RedHat and CentOS
         # version < 7.0 - reverse it
