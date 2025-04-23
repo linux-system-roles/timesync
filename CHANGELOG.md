@@ -1,6 +1,32 @@
 Changelog
 =========
 
+[1.10.0] - 2025-04-23
+--------------------
+
+### New Features
+
+- feat: add support for timesync_ntp_ip_family (#277)
+
+### Bug Fixes
+
+- fix: add default seccomp filters for el9/10 (#279)
+
+### Other Changes
+
+- ci: Check spelling with codespell (#267)
+- ci: ansible-plugin-scan is disabled for now (#268)
+- ci: bump ansible-lint to v25; provide collection requirements for ansible-lint (#271)
+- ci: Add test plan that runs CI tests and customize it for each role (#273)
+- ci: In test plans, prefix all relate variables with SR_ (#274)
+- ci: Create inventory for wrapper test with inventory_hostname (#275)
+- ci: Fix bug with ARTIFACTS_URL after prefixing with SR_ (#276)
+- ci: several changes related to new qemu test, ansible-lint, python versions, ubuntu versions (#281)
+- refactor: make OracleLinux vars files symlinks to RedHat vars files (#283)
+- ci: use tox-lsr 3.6.0; improve qemu test logging (#284)
+- ci: skip storage scsi, nvme tests in github qemu ci (#285)
+- test: ensure tests cleanup and restore the system state (#286)
+
 [1.9.2] - 2025-01-09
 --------------------
 
