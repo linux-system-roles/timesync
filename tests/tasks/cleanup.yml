@@ -1,6 +1,8 @@
 ---
-- name: Reset provider to os default
+- name: Reset settings and provider to os default
   include_role:
     name: linux-system-roles.timesync
   vars:
     timesync_ntp_provider: "{{ timesync_ntp_provider_os_default }}"
+    timesync_ptp_domains: []
+    timesync_ntp_servers: []
