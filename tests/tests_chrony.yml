@@ -67,3 +67,7 @@
             loop_var: __file
           vars:
             __fingerprint: "system_role:timesync"
+
+      always:
+        - name: Cleanup after tests
+          include_tasks: tasks/cleanup.yml
