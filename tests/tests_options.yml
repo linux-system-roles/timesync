@@ -5,16 +5,53 @@
   tasks:
     - name: Run tests
       block:
+        - name: Get vars needed to run the tests
+          include_role:
+            name: linux-system-roles.timesync
+            public: true
+            tasks_from: set_vars.yml
+
+        # install the provider to install the sysconfig file
+        - name: Install chrony
+          package:
+            name: chrony
+            state: present
+            use: "{{ (__timesync_is_ostree | d(false)) |
+                    ternary('ansible.posix.rhel_rpm_ostree', omit) }}"
+          when: timesync_ntp_provider == 'chrony'
+
+        - name: Install ntp
+          package:
+            name: ntp
+            state: present
+            use: "{{ (__timesync_is_ostree | d(false)) |
+                    ternary('ansible.posix.rhel_rpm_ostree', omit) }}"
+          when: timesync_ntp_provider == 'ntp'
+
+        - name: Get OPTIONS before running
+          command: grep ^OPTIONS= {{ timesync_chrony_sysconfig_path }}
+          changed_when: false
+          register: __timesync_config_before
+
         - name: Run role with no arguments to get provider
           include_role:
             name: linux-system-roles.timesync
             public: true
 
-        - name: Set vars based on provider
-          set_fact:
-            __test_file: "{{ timesync_chrony_sysconfig_path
-              if timesync_ntp_provider_current == 'chrony'
-              else timesync_ntp_sysconfig_path }}"
+        - name: Get OPTIONS after running
+          command: grep ^OPTIONS= {{ timesync_chrony_sysconfig_path }}
+          changed_when: false
+          register: __timesync_config_after
+
+        - name: Show options
+          debug:
+            msg: |
+              before [{{ __timesync_config_before.stdout }}]
+              after [{{ __timesync_config_after.stdout }}]
+
+        - name: Ensure that OPTIONS did not change
+          assert:
+            that: __timesync_config_before.stdout == __timesync_config_after.stdout
 
         - name: Try timesync_ntp_ip_family IPv4
           include_role:
@@ -23,7 +60,7 @@
             timesync_ntp_ip_family: IPv4
 
         - name: Verify IPv4 setting
-          command: grep 'OPTIONS=.* -4' {{ __test_file }}
+          command: grep 'OPTIONS=.* -4' {{ timesync_chrony_sysconfig_path }}
           changed_when: false
 
         - name: Try timesync_ntp_ip_family IPv6
@@ -33,7 +70,7 @@
             timesync_ntp_ip_family: IPv6
 
         - name: Verify IPv6 setting
-          command: grep 'OPTIONS=.* -6' {{ __test_file }}
+          command: grep 'OPTIONS=.* -6' {{ timesync_chrony_sysconfig_path }}
           changed_when: false
 
       always:
@@ -46,9 +83,9 @@
         - name: Verify reset
           shell: |
             set -eux
-            if grep 'OPTIONS=.* -4' {{ __test_file }} || \
-              grep 'OPTIONS=.* -6' {{ __test_file }}; then
-                echo ERROR: {{ __test_file }} has incorrect OPTIONS
+            if grep 'OPTIONS=.* -4' {{ timesync_chrony_sysconfig_path }} || \
+              grep 'OPTIONS=.* -6' {{ timesync_chrony_sysconfig_path }}; then
+                echo ERROR: {{ timesync_chrony_sysconfig_path }} has incorrect OPTIONS
                 exit 1
             fi
             exit 0
