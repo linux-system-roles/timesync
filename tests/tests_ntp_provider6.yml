@@ -91,7 +91,7 @@
       vars:
         timesync_ntp_provider: "{{ timesync_ntp_provider_os_default }}"
 
-    - name: Verify provider set correctly
+    - name: Verify provider set correctly - 2
       tags: tests::verify
       block:
         - name: Wait for services to start
