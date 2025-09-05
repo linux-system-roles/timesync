@@ -1,9 +1,14 @@
 ---
 - name: Create static inventory from hostvars
   tags:
-    - 'tests::slow'
+    - tests::slow
+    - tests::booted
   hosts: all
   tasks:
+    - name: Save connection method
+      set_fact:
+        __ansible_connection: "{{ ansible_connection }}"
+
     - name: Create temporary file
       tempfile:
         state: file
@@ -20,12 +25,14 @@
 
 - name: Run tests_default.yml normally
   tags:
-    - 'tests::slow'
+    - tests::slow
+    - tests::booted
   import_playbook: tests_default.yml
 
 - name: Run tests_default.yml in check_mode
   tags:
-    - 'tests::slow'
+    - tests::slow
+    - tests::booted
   hosts: all
   tasks:
     - name: Run ansible-playbook with tests_default.yml in check mode

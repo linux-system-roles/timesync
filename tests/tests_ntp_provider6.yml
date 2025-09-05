@@ -62,6 +62,7 @@
 
     - name: Verify provider set correctly
       tags: tests::verify
+      when: __timesync_is_booted
       block:
         - name: Flush handlers
           meta: flush_handlers

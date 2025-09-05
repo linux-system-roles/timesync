@@ -36,12 +36,13 @@
         - name: Enable ntpd
           service:
             name: ntpd
-            state: started
+            state: "{{ 'started' if __timesync_is_booted else omit }}"
             enabled: true
 
   post_tasks:
     - name: Verify ntpd is running
       tags: tests::verify
+      when: __timesync_is_booted
       block:
         - name: Wait for services to start
           wait_for:

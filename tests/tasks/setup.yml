@@ -1,16 +1,16 @@
 ---
 # common test setup tasks
-- name: Determine if system is ostree and set flag
-  when: not __timesync_is_ostree is defined
-  block:
-    - name: Check if system is ostree
-      stat:
-        path: /run/ostree-booted
-      register: __ostree_booted_stat
+- name: Run the role only to get vars needed for validation
+  include_role:
+    name: linux-system-roles.timesync
+    public: true
+    tasks_from: set_vars.yml
 
-    - name: Set flag to indicate system is ostree
-      set_fact:
-        __timesync_is_ostree: "{{ __ostree_booted_stat.stat.exists }}"
+- name: Skip test on ostree systems if unsupported
+  meta: end_host
+  when:
+    - __timesync_ostree_unsupported | d(false)
+    - __timesync_is_ostree | d(false)
 
 - name: Ensure iproute for gathering default_ipv4 fact
   package:
@@ -25,20 +25,9 @@
   when: __required_facts |
     difference(ansible_facts.keys() | list) | length > 0
   vars:
-    __required_facts:
-      - default_ipv4
-      - distribution
-      - distribution_major_version
-      - distribution_version
-      - os_family
+    __required_facts: "{{ __timesync_required_facts + ['default_ipv4'] }}"
     __required_facts_subsets: "{{ ['!all', '!min'] + __required_facts }}"
 
 - name: Debug
   debug:
     msg: facts {{ ansible_facts | to_nice_json }}
-
-- name: Skip test on ostree systems if unsupported
-  meta: end_host
-  when:
-    - __timesync_ostree_unsupported | d(false)
-    - __timesync_is_ostree | d(false)

@@ -18,6 +18,7 @@ galaxy_info:
   galaxy_tags:
     - centos
     - chrony
+    - containerbuild
     - el6
     - el7
     - el8
