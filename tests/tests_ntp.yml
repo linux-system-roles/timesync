@@ -33,15 +33,18 @@
       block:
         - name: Flush handlers
           meta: flush_handlers
+          when: __timesync_is_booted
 
         - name: Wait for services to start
           wait_for:
             timeout: 2
+          when: __timesync_is_booted
 
         - name: Get list of currently used time sources
           shell: chronyc -n sources || ntpq -pn
           register: sources
           changed_when: false
+          when: __timesync_is_booted
 
         - name: Check time sources
           assert:
@@ -49,17 +52,20 @@
               - "'172.16.123.1' in sources.stdout"
               - "'172.16.123.2' in sources.stdout"
               - "'172.16.123.3' in sources.stdout"
+          when: __timesync_is_booted
 
         - name: Fetch chrony.conf file
           slurp:
             src: /etc/chrony.conf
-          when: "'LastRx' in sources.stdout"
+          when: not __timesync_is_booted or "LastRx" in sources.stdout
           register: chrony_conf_encoded
 
         - name: Fetch ntp.conf file
           slurp:
             src: /etc/ntp.conf
-          when: "'LastRx' not in sources.stdout"
+          when:
+            - __timesync_is_booted
+            - "'LastRx' not in sources.stdout"
           register: ntp_conf_encoded
 
         - name: Decode chrony.conf file

@@ -25,16 +25,59 @@
       include_role:
         name: linux-system-roles.timesync
         public: true
+      when: not __bootc_validation | d(false)
+
+    - name: Run the role only to get vars needed for validation
+      include_role:
+        name: linux-system-roles.timesync
+        public: true
+        tasks_from: set_vars.yml
+      when: __bootc_validation | d(false)
 
     - name: Run chrony tests
       tags: tests::verify
       block:
         - name: Flush handlers
           meta: flush_handlers
+          when: not __bootc_validation | d(false)
 
         - name: Wait for services to start
           wait_for:
             timeout: 2
+          when: not __bootc_validation | d(false)
+
+        - name: Create QEMU deployment during bootc end-to-end test
+          delegate_to: localhost
+          command: "{{ lsr_scriptdir | quote }}/bootc-buildah-qcow.sh {{ ansible_host | quote }}"
+          changed_when: true
+          when: ansible_connection == "buildah"
+
+        - name: Check headers for ansible_managed, fingerprint
+          include_tasks: tasks/check_header.yml
+          loop:
+            - "{{ timesync_chrony_conf_path }}"
+            - "{{ timesync_chrony_sysconfig_path }}"
+          loop_control:
+            loop_var: __file
+          vars:
+            __fingerprint: "system_role:timesync"
+
+        # check settings in files - only check we can do in non-booted mode
+        - name: Check for settings in chrony.conf
+          command: grep -q {{ item | quote }} {{ timesync_chrony_conf_path }}
+          loop: "{{ timesync_chrony_custom_settings +
+            (timesync_ntp_servers | selectattr('hostname') | map(attribute='hostname') | list) +
+            ['makestep ' ~ timesync_step_threshold ~ ' 3'] +
+            ([sourcedirstr] if sourcedirstr | length > 0 else []) }}"
+          vars:
+            sourcedirstr: "{{ 'sourcedir ' ~ timesync_chrony_dhcp_sourcedir
+              if timesync_dhcp_ntp_servers and timesync_chrony_dhcp_sourcedir
+              else '' }}"
+          changed_when: false
+
+        - name: Skip remaining checks unless booted
+          meta: end_host
+          when: not __timesync_is_booted
 
         - name: Get list of currently used time sources
           shell: chronyc -n sources || ntpq -pn
@@ -57,16 +100,6 @@
           assert:
             that:
               - "'tracking.log' in logfiles.stdout"
-
-        - name: Check headers for ansible_managed, fingerprint
-          include_tasks: tasks/check_header.yml
-          loop:
-            - "{{ timesync_chrony_conf_path }}"
-            - "{{ timesync_chrony_sysconfig_path }}"
-          loop_control:
-            loop_var: __file
-          vars:
-            __fingerprint: "system_role:timesync"
 
       always:
         - name: Cleanup after tests

@@ -40,6 +40,7 @@
 
         - name: Verify ntpd service
           tags: tests::verify
+          when: __timesync_is_booted
           block:
             - name: Wait for services to start
               wait_for:

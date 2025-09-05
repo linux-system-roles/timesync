@@ -4,6 +4,7 @@
 
 - name: Populate service facts
   service_facts:
+  when: __timesync_is_booted | d(false)
 
 - name: Set variable `timesync_services` with filtered uniq service names
   set_fact:
@@ -18,6 +19,24 @@
           map('regex_replace', '@$', '') |
           unique |
           list }}"
+  when: __timesync_is_booted | d(false)
+
+- name: Populate service facts when in bootc mode
+  command: systemctl list-unit-files --type=service -l  # noqa command-instead-of-module
+  register: timesync_services_output
+  changed_when: false
+  when: not __timesync_is_booted | d(false)
+
+- name: Set variable `timesync_services` with filtered uniq service names when in bootc mode
+  set_fact:
+    timesync_services: "{{ timesync_services_output.stdout_lines |
+      select('search', ' enabled$') |
+      map('regex_replace', ' +enabled$', '') |
+      map('regex_replace', '[.]service.*$', '') |
+      map('regex_replace', '@$', '') |
+      unique |
+      list }}"
+  when: not __timesync_is_booted | d(false)
 
 - name: Check that variable 'timesync_services' is defined
   assert:
@@ -250,7 +269,7 @@
 - name: Disable chronyd
   service:
     name: chronyd
-    state: stopped
+    state: "{{ 'stopped' if __timesync_is_booted else omit }}"
     enabled: false
   when:
     - timesync_mode != 1 or timesync_ntp_provider != 'chrony'
@@ -264,7 +283,7 @@
 - name: Disable ntpd
   service:
     name: ntpd
-    state: stopped
+    state: "{{ 'stopped' if __timesync_is_booted else omit }}"
     enabled: false
   when:
     - timesync_mode != 1 or timesync_ntp_provider != 'ntp'
@@ -278,7 +297,7 @@
 - name: Disable ntpdate
   service:
     name: ntpdate
-    state: stopped
+    state: "{{ 'stopped' if __timesync_is_booted else omit }}"
     enabled: false
   when: "'ntpdate' in timesync_services"
   register: __disable_result
@@ -290,7 +309,7 @@
 - name: Disable sntp
   service:
     name: sntp
-    state: stopped
+    state: "{{ 'stopped' if __timesync_is_booted else omit }}"
     enabled: false
   when: "'sntp' in timesync_services"
   register: __disable_result
@@ -302,7 +321,7 @@
 - name: Disable ptp4l
   service:
     name: ptp4l
-    state: stopped
+    state: "{{ 'stopped' if __timesync_is_booted else omit }}"
     enabled: false
   when:
     - timesync_mode != 2
@@ -316,7 +335,7 @@
 - name: Disable phc2sys
   service:
     name: phc2sys
-    state: stopped
+    state: "{{ 'stopped' if __timesync_is_booted else omit }}"
     enabled: false
   when:
     - timesync_mode != 2 or not timesync_mode2_hwts
@@ -334,7 +353,7 @@
     __timemstr: timemaster
   service:
     name: "{{ __timemstr }}"
-    state: stopped
+    state: "{{ 'stopped' if __timesync_is_booted else omit }}"
     enabled: false
   when:
     - timesync_mode != 3
@@ -348,7 +367,7 @@
 - name: Enable chronyd
   service:
     name: chronyd
-    state: started
+    state: "{{ 'started' if __timesync_is_booted else omit }}"
     enabled: true
   when:
     - timesync_mode == 1
@@ -357,7 +376,7 @@
 - name: Enable ntpd
   service:
     name: ntpd
-    state: started
+    state: "{{ 'started' if __timesync_is_booted else omit }}"
     enabled: true
   when:
     - timesync_mode == 1
@@ -366,14 +385,14 @@
 - name: Enable ptp4l
   service:
     name: ptp4l
-    state: started
+    state: "{{ 'started' if __timesync_is_booted else omit }}"
     enabled: true
   when: timesync_mode == 2
 
 - name: Enable phc2sys
   service:
     name: phc2sys
-    state: started
+    state: "{{ 'started' if __timesync_is_booted else omit }}"
     enabled: true
   when:
     - timesync_mode == 2
@@ -384,6 +403,6 @@
   service:
     # wokeignore:rule=master
     name: timemaster
-    state: started
+    state: "{{ 'started' if __timesync_is_booted else omit }}"
     enabled: true
   when: timesync_mode == 3

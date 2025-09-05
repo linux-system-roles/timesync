@@ -34,6 +34,7 @@
 
         - name: Flush handlers
           meta: flush_handlers
+          when: __timesync_is_booted
 
         - name: Ensure ethtool is installed
           package:
@@ -49,7 +50,9 @@
           changed_when: false
 
         - name: Run test
-          when: "'ware-transmit' in ethtool.stdout"
+          when:
+            - __timesync_is_booted
+            - "'ware-transmit' in ethtool.stdout"
           block:
             - name: Wait for services to start
               wait_for:

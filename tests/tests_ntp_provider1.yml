@@ -28,6 +28,7 @@
   post_tasks:
     - name: Verify provider is working
       tags: tests::verify
+      when: __timesync_is_booted
       block:
         - name: Wait for services to start
           wait_for:
