@@ -138,7 +138,7 @@
     manager: auto
 
 - name: Run phc_ctl on PTP interface
-  command: phc_ctl -q {{ timesync_ptp_domains[0].interfaces[0] }}
+  command: phc_ctl -q {{ timesync_ptp_domains[0].interfaces[0] | quote }}
   register: timesync_phc_ctl_output
   changed_when: false
   check_mode: false

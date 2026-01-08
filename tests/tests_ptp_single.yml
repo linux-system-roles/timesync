@@ -5,7 +5,7 @@
   vars:
     timesync_ptp_domains:
       - number: 3
-        interfaces: "{{ [ ansible_default_ipv4['interface'] ] }}"
+        interfaces: "{{ [ ansible_facts['default_ipv4']['interface'] ] }}"
   roles:
     - linux-system-roles.timesync
 
@@ -28,7 +28,7 @@
                      ternary('ansible.posix.rhel_rpm_ostree', omit) }}"
 
         - name: Check if SW/HW timestamping is supported
-          command: ethtool -T "{{ ansible_default_ipv4['interface'] }}"
+          command: ethtool -T {{ ansible_facts['default_ipv4']['interface'] | quote }}
           register: ethtool
           ignore_errors: true  # noqa ignore-errors
           changed_when: false
@@ -57,5 +57,5 @@
                 that:
                   - pmc.stdout is search("portState\s+LISTENING")
               when:
-                - ansible_distribution not in ['RedHat', 'CentOS'] or
-                  ansible_distribution_version is not version('8.3', '<')
+                - ansible_facts['distribution'] not in ['RedHat', 'CentOS'] or
+                  ansible_facts['distribution_version'] is not version('8.3', '<')
