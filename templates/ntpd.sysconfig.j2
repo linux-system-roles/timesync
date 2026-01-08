@@ -1,7 +1,7 @@
 {{ ansible_managed | comment }}
 {{ "system_role:timesync" | comment(prefix="", postfix="") }}
 
-OPTIONS="-g{{ ' -u ntp:ntp -p /var/run/ntpd.pid' if ansible_distribution in ['OracleLinux', 'RedHat', 'CentOS'] and ansible_distribution_major_version | int < 7 else '' }}{{
+OPTIONS="-g{{ ' -u ntp:ntp -p /var/run/ntpd.pid' if ansible_facts['distribution'] in ['OracleLinux', 'RedHat', 'CentOS'] and ansible_facts['distribution_major_version'] | int < 7 else '' }}{{
     ' -4' if timesync_ntp_ip_family == 'IPv4'
     else ' -6' if timesync_ntp_ip_family == 'IPv6'
     else '' }}"
