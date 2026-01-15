@@ -21,6 +21,9 @@
     timesync_min_sources: 2
 
   tasks:
+    - name: Fail
+      fail:
+
     - name: Run the role
       include_role:
         name: linux-system-roles.timesync
