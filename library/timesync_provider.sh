@@ -6,17 +6,32 @@ is_service_enabled() {
 	name="$1"
 
 	# shellcheck disable=SC2034
-	read -r prev_runlevel runlevel < <(runlevel)
+	if type -p runlevel >/dev/null; then
+		read -r prev_runlevel runlevel < <(runlevel)
+	else
+		prev_runlevel="unknown"
+		runlevel="unknown"
+	fi
 
-	systemctl is-enabled "$name.service" &> /dev/null || \
-		chkconfig --list "$name" 2>/dev/null | grep -q "$runlevel:on"
+	if systemctl is-enabled "$name.service" &> /dev/null; then
+		return 0
+	fi
+	if type -p chkconfig >/dev/null && chkconfig --list "$name" 2>/dev/null | grep -q "$runlevel:on"; then
+		return 0
+	fi
+	return 1
 }
 
 is_service_active() {
 	local name=$1
 
-	systemctl is-active "$name.service" &> /dev/null || \
-		service "$name" status &>/dev/null
+	if systemctl is-active "$name.service" &> /dev/null; then
+		return 0
+	fi
+	if type -p service >/dev/null && service "$name" status &>/dev/null; then
+		return 0
+	fi
+	return 1
 }
 
 get_current_ntp_providers() {
