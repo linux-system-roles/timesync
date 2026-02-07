@@ -1,6 +1,19 @@
 Changelog
 =========
 
+[1.11.3] - 2026-02-06
+--------------------
+
+### Bug Fixes
+
+- fix: check for existence of runlevel, chkconfig, service before using them (#325)
+
+### Other Changes
+
+- ci: bump ansible/ansible-lint from 25 to 26 (#324)
+- ci: skip most CI checks if title contains citest skip [citest_skip] (#326)
+- ci: ansible-lint - remove .collection directory from converted collection [citest_skip] (#327)
+
 [1.11.2] - 2026-01-13
 --------------------
 
