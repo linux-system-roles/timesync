@@ -67,11 +67,12 @@
   when:
     - timesync_mode != 2
     - timesync_ntp_provider | length == 0
+  register: timesync_provider_result
 
 - name: Select NTP provider
   set_fact:
     timesync_ntp_provider: "{{
-        timesync_ntp_provider_current |
+        ansible_facts['timesync_ntp_provider_current'] |
         default(timesync_ntp_provider_os_default, true) }}"
   when:
     - timesync_mode != 2
