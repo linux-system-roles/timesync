@@ -1,6 +1,18 @@
 Changelog
 =========
 
+[1.11.4] - 2026-02-12
+--------------------
+
+### Bug Fixes
+
+- fix: use ansible_facts timesync_ntp_provider_current (#331)
+
+### Other Changes
+
+- ci: tox-lsr version 3.15.0 [citest_skip] (#329)
+- ci: Add Fedora 43, remove Fedora 41 from Testing Farm CI (#330)
+
 [1.11.3] - 2026-02-06
 --------------------
 
