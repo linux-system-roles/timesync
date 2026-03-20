@@ -1,7 +1,6 @@
 ---
 - name: Test setting OPTIONS
   hosts: all
-  gather_facts: true
   tasks:
     - name: Run tests
       block:
@@ -34,9 +33,9 @@
           register: __timesync_config_before
 
         - name: Run role with no arguments to get provider
-          include_role:
-            name: linux-system-roles.timesync
-            public: true
+          include_tasks: tasks/run_role_with_clear_facts.yml
+          vars:
+            __sr_public: true
 
         - name: Get OPTIONS after running
           command: grep ^OPTIONS= {{ timesync_chrony_sysconfig_path }}
@@ -54,9 +53,9 @@
             that: __timesync_config_before.stdout == __timesync_config_after.stdout
 
         - name: Try timesync_ntp_ip_family IPv4
-          include_role:
-            name: linux-system-roles.timesync
+          include_tasks: tasks/run_role_with_clear_facts.yml
           vars:
+            __sr_public: true
             timesync_ntp_ip_family: IPv4
 
         - name: Verify IPv4 setting
@@ -64,9 +63,9 @@
           changed_when: false
 
         - name: Try timesync_ntp_ip_family IPv6
-          include_role:
-            name: linux-system-roles.timesync
+          include_tasks: tasks/run_role_with_clear_facts.yml
           vars:
+            __sr_public: true
             timesync_ntp_ip_family: IPv6
 
         - name: Verify IPv6 setting
@@ -75,9 +74,9 @@
 
       always:
         - name: Reset OPTIONS
-          include_role:
-            name: linux-system-roles.timesync
+          include_tasks: tasks/run_role_with_clear_facts.yml
           vars:
+            __sr_public: true
             timesync_ntp_ip_family: all
 
         - name: Verify reset

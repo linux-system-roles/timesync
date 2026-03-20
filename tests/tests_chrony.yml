@@ -22,9 +22,9 @@
 
   tasks:
     - name: Run the role
-      include_role:
-        name: linux-system-roles.timesync
-        public: true
+      include_tasks: tasks/run_role_with_clear_facts.yml
+      vars:
+        __sr_public: true
       when: not __bootc_validation | d(false)
 
     - name: Run the role only to get vars needed for validation
