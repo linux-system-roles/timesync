@@ -34,14 +34,17 @@
     - name: Run the test
       block:
         - name: Run the role
-          include_role:
-            name: linux-system-roles.timesync
-            public: true
+          include_tasks: tasks/run_role_with_clear_facts.yml
+          vars:
+            __sr_public: true
 
         - name: Verify chronyd is running
           tags: tests::verify
           when: __timesync_is_booted
           block:
+            - name: Flush handlers
+              meta: flush_handlers
+
             - name: Wait for services to start
               wait_for:
                 timeout: 2

@@ -28,6 +28,12 @@
     __required_facts: "{{ __timesync_required_facts + ['default_ipv4'] }}"
     __required_facts_subsets: "{{ ['!all', '!min'] + __required_facts }}"
 
+# This var is used in several tests and must be a fact not a var due
+# to the clear_facts task.
+- name: Set var for default_ipv4 interface fact
+  set_fact:
+    __timesync_default_ipv4_interface: "{{ ansible_facts['default_ipv4']['interface'] }}"
+
 - name: Debug
   debug:
     msg: facts {{ ansible_facts | to_nice_json }}

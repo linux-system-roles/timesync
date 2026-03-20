@@ -24,35 +24,34 @@
     timesync_ntp_hwts_interfaces: ["*"]
   tasks:
     - name: Run the role
-      include_role:
-        name: linux-system-roles.timesync
-        public: true
+      include_tasks: tasks/run_role_with_clear_facts.yml
+      vars:
+        __sr_public: true
 
     - name: Run test
       tags: tests::verify
       block:
-        - name: Flush handlers
-          meta: flush_handlers
+        - name: Ensure services are running properly if booted
           when: __timesync_is_booted
+          block:
+            - name: Flush handlers
+              meta: flush_handlers
 
-        - name: Wait for services to start
-          wait_for:
-            timeout: 2
-          when: __timesync_is_booted
+            - name: Wait for services to start
+              wait_for:
+                timeout: 2
 
-        - name: Get list of currently used time sources
-          shell: chronyc -n sources || ntpq -pn
-          register: sources
-          changed_when: false
-          when: __timesync_is_booted
+            - name: Get list of currently used time sources
+              shell: chronyc -n sources || ntpq -pn
+              register: sources
+              changed_when: false
 
-        - name: Check time sources
-          assert:
-            that:
-              - "'172.16.123.1' in sources.stdout"
-              - "'172.16.123.2' in sources.stdout"
-              - "'172.16.123.3' in sources.stdout"
-          when: __timesync_is_booted
+            - name: Check time sources
+              assert:
+                that:
+                  - "'172.16.123.1' in sources.stdout"
+                  - "'172.16.123.2' in sources.stdout"
+                  - "'172.16.123.3' in sources.stdout"
 
         - name: Fetch chrony.conf file
           slurp:

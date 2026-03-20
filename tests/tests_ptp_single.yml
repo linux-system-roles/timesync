@@ -1,25 +1,21 @@
 ---
 - name: Configure time synchronization with single PTP domain
   hosts: all
-  gather_facts: true
   vars:
     timesync_ptp_domains:
       - number: 3
-        interfaces: "{{ [ ansible_facts['default_ipv4']['interface'] ] }}"
-  roles:
-    - linux-system-roles.timesync
+        interfaces: "{{ [ __timesync_default_ipv4_interface ] }}"
 
   tasks:
+    - name: Common test setup tasks
+      include_tasks: tasks/setup.yml
+
+    - name: Run linux-system-roles.timesync
+      include_tasks: tasks/run_role_with_clear_facts.yml
+
     - name: Run test
       tags: tests::verify
       block:
-        - name: Common test setup tasks
-          include_tasks: tasks/setup.yml
-
-        - name: Flush handlers
-          meta: flush_handlers
-          when: __timesync_is_booted
-
         - name: Ensure ethtool is installed
           package:
             name: ethtool
@@ -28,7 +24,7 @@
                      ternary('ansible.posix.rhel_rpm_ostree', omit) }}"
 
         - name: Check if SW/HW timestamping is supported
-          command: ethtool -T {{ ansible_facts['default_ipv4']['interface'] | quote }}
+          command: ethtool -T {{ __timesync_default_ipv4_interface | quote }}
           register: ethtool
           ignore_errors: true  # noqa ignore-errors
           changed_when: false
@@ -38,6 +34,9 @@
             - __timesync_is_booted
             - "'ware-transmit' in ethtool.stdout"
           block:
+            - name: Flush handlers
+              meta: flush_handlers
+
             - name: Wait for services to start
               wait_for:
                 timeout: 2

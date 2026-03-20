@@ -4,8 +4,6 @@
   vars:
     timesync_ntp_servers:
       - hostname: 172.16.123.1
-  roles:
-    - linux-system-roles.timesync
 
   pre_tasks:
     - name: Common test setup tasks
@@ -39,11 +37,18 @@
             state: "{{ 'started' if __timesync_is_booted else omit }}"
             enabled: true
 
+  tasks:
+    - name: Run linux-system-roles.timesync
+      include_tasks: tasks/run_role_with_clear_facts.yml
+
   post_tasks:
     - name: Verify chronyd running
       tags: tests::verify
       when: __timesync_is_booted
       block:
+        - name: Flush handlers
+          meta: flush_handlers
+
         - name: Wait for services to start
           wait_for:
             timeout: 2

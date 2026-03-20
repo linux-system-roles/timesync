@@ -3,9 +3,9 @@
   hosts: all
   tasks:
     - name: Include the timesync role
-      include_role:
-        name: linux-system-roles.timesync
-        public: true
+      include_tasks: tasks/run_role_with_clear_facts.yml
+      vars:
+        __sr_public: true
 
     - name: Check that public vars are defined
       assert:
