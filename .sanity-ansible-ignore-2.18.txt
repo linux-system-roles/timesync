@@ -1,0 +1,4 @@
+plugins/modules/timesync_provider.sh shebang
+plugins/modules/timesync_provider.yml validate-modules:missing-gplv3-license
+plugins/modules/timesync_provider.sh validate-modules:invalid-extension
+plugins/modules/timesync_provider.sh validate-modules:missing-gplv3-license
