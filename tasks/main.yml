@@ -4,6 +4,7 @@
 
 - name: Populate service facts
   service_facts:
+  no_log: "{{ ansible_verbosity < 2 }}"
   when: __timesync_is_booted | d(false)
 
 - name: Set variable `timesync_services` with filtered uniq service names
@@ -137,6 +138,7 @@
 - name: Gather package facts
   package_facts:
     manager: auto
+  no_log: "{{ ansible_verbosity < 2 }}"
 
 - name: Run phc_ctl on PTP interface
   command: phc_ctl -q {{ timesync_ptp_domains[0].interfaces[0] | quote }}
