@@ -59,6 +59,36 @@ timesync_ntp_servers:
     xleave: false               # Flag enabling interleaved mode (default false)
     filter: 1                   # Number of NTP measurements per clock update
                                 # (default 1)
+    key: !vault ...             # Optional NTP authentication key for the
+                                # server when using chrony. The value must be
+                                # a full line for the chrony key file,
+                                # beginning with the numeric key ID, as
+                                # described in the chrony keyfile
+                                # documentation. Multiple servers may share
+                                # the same key. IMPORTANT: you are strongly
+                                # recommended to vault encrypt the value,
+                                # see
+                                # https://docs.ansible.com/ansible/latest/user_guide/vault.html
+                                # for details.  An unencrypted key looks like this:
+                                # 10 AES256 HEX:816B9F7990F0F3A03D74E4A8F6DE17CB
+
+# NOTE: For the `key` field, it is an error to have the same key ID used with
+# different key values. For example, this is an error:
+# 10 somepassword
+# 10 someotherpassword
+# Using the same key value with different key IDs is allowed but produces a
+# warning. For example, this configuration warns:
+# 10 somepassword
+# 20 somepassword
+
+# Flag enabling secure logging for tasks that handle sensitive data
+# (default true). Set to false for debugging.
+timesync_secure_logging: true
+
+# When using chrony, remove the key file if no NTP servers have a key
+# configured (default false). If false, an existing key file is left in
+# place when keys are removed from the configuration.
+timesync_remove_keyfile_if_no_keys: false
 
 # List of PTP domains
 timesync_ptp_domains:

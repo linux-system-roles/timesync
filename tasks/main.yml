@@ -153,30 +153,121 @@
     timesync_mode2_hwts: "{{ timesync_phc_ctl_output.rc == 0 }}"
   when: timesync_mode == 2
 
-- name: Generate chrony.conf file
-  template:
-    src: chrony.conf.j2
-    dest: "{{ timesync_chrony_conf_path }}"
-    backup: true
-    mode: "0644"
-  # wokeignore:rule=master
-  notify: Restart {{ 'chronyd' if timesync_mode == 1 else 'timemaster' }}
+- name: Manage config and key files
   when:
     - timesync_mode != 2
     - timesync_ntp_provider == 'chrony'
     - "'chrony' in ansible_facts.packages"
+  block:
+    - name: Ensure NTP server keys begin with an integer ID
+      assert:
+        that: item.key is search('^[0-9]+\s')
+        fail_msg: >-
+          NTP server key for {{ item.hostname }} must be a full chrony.keys
+          line beginning with an integer ID.
+      loop: "{{ timesync_ntp_servers | selectattr('key', 'defined') |
+        selectattr('key') | list }}"
+      loop_control:
+        label: "{{ item.hostname }}"
+      no_log: "{{ timesync_secure_logging }}"
 
-- name: Generate chronyd sysconfig file
-  template:
-    src: chronyd.sysconfig.j2
-    dest: "{{ timesync_chrony_sysconfig_path }}"
-    backup: true
-    mode: "0644"
-  notify: Restart chronyd
-  when:
-    - timesync_mode == 1
-    - timesync_ntp_provider == 'chrony'
-    - "'chrony' in ansible_facts.packages"
+    - name: Build list of unique NTP keys
+      set_fact:
+        __timesync_ntp_unique_keys: "{{ timesync_ntp_servers |
+          selectattr('key', 'defined') |
+          selectattr('key') |
+          map(attribute='key') | unique | list }}"
+      no_log: "{{ timesync_secure_logging }}"
+
+    - name: Warn if the same key value is used with different IDs
+      debug:
+        msg: >-
+          WARNING: NTP authentication keys should not use the same key
+          value with different IDs.  This might be a misconfiguration.
+      when:
+        - __timesync_ntp_unique_keys | length > 0
+        - >
+          (__timesync_ntp_unique_keys |
+           map('regex_replace', '^[0-9]+\s+', '') |
+           unique | list | length) !=
+          (__timesync_ntp_unique_keys | length)
+
+    - name: Ensure the same key ID is not used with different key values
+      assert:
+        that: >
+          (__timesync_ntp_unique_keys |
+           map('regex_search', '^[0-9]+') |
+           unique | list | length) ==
+          (__timesync_ntp_unique_keys | length)
+        fail_msg: >-
+          NTP authentication keys must not use the same key ID with
+          different key values.
+      no_log: "{{ timesync_secure_logging }}"
+      when: __timesync_ntp_unique_keys | length > 0
+
+    - name: Build NTP key ID mapping from key lines
+      set_fact:
+        __timesync_ntp_key_ids: "{{ __timesync_ntp_key_ids | default({}) |
+          combine({item: item | regex_search('^[0-9]+')}) }}"
+      loop: "{{ __timesync_ntp_unique_keys }}"
+      no_log: "{{ timesync_secure_logging }}"
+      when: __timesync_ntp_unique_keys | length > 0
+
+    - name: Generate chrony key file
+      template:
+        src: chrony.keys.j2
+        dest: "{{ timesync_chrony_keyfile_path }}"
+        backup: true
+        owner: root
+        group: "{{ __timesync_chrony_keyfile_group }}"
+        mode: "0640"
+      no_log: "{{ timesync_secure_logging }}"
+      # wokeignore:rule=master
+      notify: Restart {{ 'chronyd' if timesync_mode == 1 else 'timemaster' }}
+      when: __timesync_ntp_unique_keys | default([]) | length > 0
+
+    - name: Remove chrony key file if no keys are configured and flag is set
+      file:
+        path: "{{ timesync_chrony_keyfile_path }}"
+        state: absent
+      # wokeignore:rule=master
+      notify: Restart {{ 'chronyd' if timesync_mode == 1 else 'timemaster' }}
+      when:
+        - __timesync_ntp_unique_keys | default([]) | length == 0
+        - timesync_remove_keyfile_if_no_keys | bool
+
+    - name: Generate chrony.conf file
+      template:
+        src: chrony.conf.j2
+        dest: "{{ timesync_chrony_conf_path }}"
+        backup: true
+        mode: "0644"
+      no_log: "{{ timesync_secure_logging }}"
+      # wokeignore:rule=master
+      notify: Restart {{ 'chronyd' if timesync_mode == 1 else 'timemaster' }}
+
+    - name: Generate chronyd sysconfig file
+      template:
+        src: chronyd.sysconfig.j2
+        dest: "{{ timesync_chrony_sysconfig_path }}"
+        backup: true
+        mode: "0644"
+      notify: Restart chronyd
+      when: timesync_mode == 1
+
+  rescue:
+    # have to re-raise the error here - the always block will eat
+    # ansible_failed_result on older versions of Ansible
+    - name: Re-raise the error
+      fail:
+        msg: "{{ ansible_failed_result }}"
+
+  always:
+    # ensure that we don't leak these to the global scope
+    - name: Reset key variables
+      set_fact:
+        __timesync_ntp_key_ids: {}
+        __timesync_ntp_unique_keys: []
 
 - name: Generate ntp.conf file
   template:
@@ -184,6 +275,7 @@
     dest: /etc/ntp.conf
     backup: true
     mode: "0644"
+  no_log: "{{ timesync_secure_logging }}"
   # wokeignore:rule=master
   notify: Restart {{ 'ntpd' if timesync_mode == 1 else 'timemaster' }}
   when:

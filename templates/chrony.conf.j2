@@ -10,6 +10,8 @@ value['hostname'] }}{{
 ' iburst' if 'iburst' in value and value['iburst'] else '' }}{{
 ' prefer' if 'prefer' in value and value['prefer'] else '' }}{{
 ' trust' if 'trust' in value and value['trust'] else '' }}{{
+' key {0}'.format(__timesync_ntp_key_ids[value['key']])
+        if 'key' in value and value['key'] else '' }}{{
 ' xleave' if __timesync_chrony_version is version('3.0', '>=') and
         'xleave' in value and value['xleave'] else '' }}{{
 ' filter {0}'.format(value['filter'])
@@ -59,10 +61,9 @@ bindcmdaddress 127.0.0.1
 bindcmdaddress ::1
 
 {% endif %}
-{% if __timesync_chrony_version is version('2.2', '<') %}
 # Specify file containing keys for NTP and command authentication.
-keyfile /etc/chrony.keys
-
+keyfile {{ timesync_chrony_keyfile_path }}
+{% if __timesync_chrony_version is version('2.2', '<') %}
 # Specify ID of command key.
 commandkey 1
 

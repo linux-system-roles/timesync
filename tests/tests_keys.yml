@@ -1,0 +1,174 @@
+# Assisted-by: Cursor using models Cursor Grok 4.5, Composer 2.5, Sonnet 5.
+---
+- name: Test NTP server authentication keys
+  hosts: all
+  vars:
+    timesync_secure_logging: false
+    timesync_ntp_provider: chrony
+    timesync_ntp_servers:
+      - hostname: 172.16.124.1
+        key: "{{ __timesync_test_key_simple }}"
+      - hostname: 172.16.124.2
+        key: "{{ __timesync_test_key_simple }}"
+      - hostname: 172.16.124.3
+        key: "{{ __timesync_test_key_md5 }}"
+      - hostname: 172.16.124.4
+        key: "{{ __timesync_test_key_md5 }}"
+      - hostname: 172.16.124.5
+        key: "{{ __timesync_test_key_sha1 }}"
+      - hostname: 172.16.124.6
+        key: "{{ __timesync_test_key_sha1 }}"
+
+  tasks:
+    - name: Run key tests
+      tags: tests::verify
+      block:
+        - name: Run the role
+          include_tasks: tasks/run_role_with_clear_facts.yml
+          vars:
+            __sr_public: true
+
+        - name: Flush handlers
+          meta: flush_handlers
+
+        - name: Fetch chrony.conf file
+          slurp:
+            src: "{{ timesync_chrony_conf_path }}"
+          register: __keys_chrony_conf_encoded
+
+        - name: Decode chrony.conf file
+          set_fact:
+            __keys_chrony_conf: "{{ __keys_chrony_conf_encoded.content | b64decode }}"
+
+        - name: Fetch chrony key file
+          slurp:
+            src: "{{ timesync_chrony_keyfile_path }}"
+          register: __keys_chrony_keys_encoded
+
+        - name: Decode chrony key file
+          set_fact:
+            __keys_chrony_keys: "{{ __keys_chrony_keys_encoded.content | b64decode }}"
+
+        - name: Check chrony.conf key settings
+          assert:
+            that:
+              - __keys_chrony_conf is search('keyfile ' ~ timesync_chrony_keyfile_path)
+              - __keys_chrony_conf is search('172\.16\.124\.1.* key 10')
+              - __keys_chrony_conf is search('172\.16\.124\.2.* key 10')
+              - __keys_chrony_conf is search('172\.16\.124\.3.* key 20')
+              - __keys_chrony_conf is search('172\.16\.124\.4.* key 20')
+              - __keys_chrony_conf is search('172\.16\.124\.5.* key 30')
+              - __keys_chrony_conf is search('172\.16\.124\.6.* key 30')
+
+        - name: Check chrony key file contents
+          assert:
+            that:
+              - __keys_chrony_keys is search('10 timesync-test-simple-key-32chars')
+              - __keys_chrony_keys is search('20 MD5 ASCII:abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789')
+              - __keys_chrony_keys is search('30 SHA1 HEX:933F62BE1D604E68A81B557F18CFA200483F5B70')
+
+        - name: Check chrony key file permissions
+          stat:
+            path: "{{ timesync_chrony_keyfile_path }}"
+          register: __keys_chrony_keys_stat
+
+        - name: Verify chrony key file permissions
+          assert:
+            that:
+              - __keys_chrony_keys_stat.stat.pw_name == 'root'
+              - __keys_chrony_keys_stat.stat.gr_name == __timesync_chrony_keyfile_group
+              - __keys_chrony_keys_stat.stat.mode == '0640'
+
+        - name: Check chrony conf for ansible_managed, fingerprint
+          include_tasks: tasks/check_header.yml
+          vars:
+            __file_content: "{{ __keys_chrony_conf_encoded }}"
+            __fingerprint: "system_role:timesync"
+
+        - name: Grab the journal for chronyd
+          command: journalctl -u chronyd
+          register: __keys_chrony_journal
+          changed_when: false
+
+        - name: Check for chrony entries in the journal
+          assert:
+            that:
+              - __keys_chrony_journal.stdout is not search("Key .* is too short")
+              - __keys_chrony_journal.stdout is not search("Key .* is missing")
+
+        - name: Test same key ID with different key values is rejected
+          block:
+            - name: Run the role with same key ID under different key values
+              include_tasks: tasks/run_role_with_clear_facts.yml
+              vars:
+                __sr_public: true
+                timesync_ntp_provider: chrony
+                timesync_ntp_servers:
+                  - hostname: 172.16.124.1
+                    key: "{{ __timesync_test_key_simple }}"
+                  - hostname: 172.16.124.2
+                    key: "{{ __timesync_test_key_duplicate }}"
+
+            - name: Unreachable task
+              fail:
+                msg: UNREACH
+
+          rescue:
+            - name: Check that we failed in the role
+              assert:
+                that: ansible_failed_result.msg != 'UNREACH'
+                msg: Role has not failed when it should have
+
+            - name: Verify error message about duplicate key IDs
+              assert:
+                that: >
+                  ansible_failed_result.msg is search(
+                    'same key ID with different key values')
+                fail_msg: >-
+                  Unexpected error message:
+                  {{ ansible_failed_result.msg }}
+
+        - name: Test timesync_remove_keyfile_if_no_keys
+          block:
+            - name: Run the role without keys and default remove keyfile setting
+              include_tasks: tasks/run_role_with_clear_facts.yml
+              vars:
+                __sr_public: true
+                timesync_ntp_provider: chrony
+                timesync_ntp_servers:
+                  - hostname: 172.16.124.1
+
+            - name: Check chrony key file is retained by default
+              stat:
+                path: "{{ timesync_chrony_keyfile_path }}"
+              register: __keys_chrony_keys_retained_stat
+
+            - name: Verify chrony key file is retained by default
+              assert:
+                that: __keys_chrony_keys_retained_stat.stat.exists
+
+            - name: Run the role without keys and remove keyfile enabled
+              include_tasks: tasks/run_role_with_clear_facts.yml
+              vars:
+                __sr_public: true
+                timesync_ntp_provider: chrony
+                timesync_ntp_servers:
+                  - hostname: 172.16.124.1
+                timesync_remove_keyfile_if_no_keys: true
+
+            - name: Flush handlers
+              meta: flush_handlers
+
+            - name: Check chrony key file was removed
+              stat:
+                path: "{{ timesync_chrony_keyfile_path }}"
+              register: __keys_chrony_keys_removed_stat
+
+            - name: Verify chrony key file was removed
+              assert:
+                that: not __keys_chrony_keys_removed_stat.stat.exists
+
+      always:
+        - name: Cleanup after tests
+          tags: tests::cleanup
+          include_tasks: tasks/cleanup.yml
