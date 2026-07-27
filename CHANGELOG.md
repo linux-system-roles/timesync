@@ -1,6 +1,20 @@
 Changelog
 =========
 
+[1.13.0] - 2026-07-27
+--------------------
+
+### New Features
+
+- feat: Support key and keyfile for authentication (#357)
+
+### Other Changes
+
+- ci: use gha checkout v7, codecov v7 [citest_skip] (#355)
+- ci: Use our own pr_title_lint.py instead of NPM commitlint [citest_skip] (#356)
+- ci: bump tox-lsr version to 3.20.0 to fix tox 4.58 api breakage [citest_skip] (#358)
+- ci: Add support for Fedora 44 and drop Fedora 42 - use ansible-core 2.21 [citest_skip] (#360)
+
 [1.12.2] - 2026-06-24
 --------------------
 
