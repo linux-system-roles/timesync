@@ -41,8 +41,16 @@
         --check tests_default.yml
       changed_when: false
       delegate_to: localhost
+      register: __check_mode_result
+      failed_when: __check_mode_result is failed
+        or __check_mode_result.stdout_lines | select('search', _begin_pattern) | list | length == 0
+        or __check_mode_result.stdout_lines | select('search', _success_pattern) | list | length == 0
       vars:
         __ap_cmd: "{{ ansible_playbook_filepath | d('ansible-playbook') }}"
+        _begin_pattern: >-
+          Check mode: message not logged - .* role_name=timesync .* status=begin .* ansible_check_mode=[Tt]rue
+        _success_pattern: >-
+          Check mode: message not logged - .* role_name=timesync .* status=success .* ansible_check_mode=[Tt]rue
 
     - name: Remove the temporary file
       file:
