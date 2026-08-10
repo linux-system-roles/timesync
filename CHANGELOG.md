@@ -1,6 +1,13 @@
 Changelog
 =========
 
+[1.14.1] - 2026-08-10
+--------------------
+
+### Other Changes
+
+- test: ensure fingerprint test works in check mode (#366)
+
 [1.14.0] - 2026-08-06
 --------------------
 
