@@ -1,0 +1,12 @@
+# SPDX-License-Identifier: MIT
+---
+- name: Assert timesync_transactional_update_reboot_ok is null or a boolean
+  ansible.builtin.assert:
+    that:
+      - >-
+        (timesync_transactional_update_reboot_ok is none)
+        or (timesync_transactional_update_reboot_ok is sameas true)
+        or (timesync_transactional_update_reboot_ok is sameas false)
+    fail_msg: >-
+      timesync_transactional_update_reboot_ok must be null or a boolean,
+      got {{ timesync_transactional_update_reboot_ok | type_debug }}

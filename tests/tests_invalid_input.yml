@@ -1,0 +1,398 @@
+# SPDX-License-Identifier: MIT
+---
+- name: Verify invalid parameters are rejected
+  hosts: all
+  tasks:
+    - name: Run invalid input tests
+      block:
+        # ====================================================
+        # Section 1: Verify role works with valid defaults
+        # ====================================================
+        - name: Run role with valid defaults
+          ansible.builtin.include_role:
+            name: linux-system-roles.timesync
+
+        # ====================================================
+        # Section 2: argument_specs validation (Ansible 2.11+)
+        # ====================================================
+        - name: Run argument specs validation tests
+          when: ansible_version.full is version('2.11', '>=')
+          block:
+            # --- Test: required field missing (timesync_ntp_servers.hostname) ---
+            - name: Argument specs reject missing hostname in timesync_ntp_servers
+              block:
+                - name: Run role without required hostname
+                  ansible.builtin.include_role:
+                    name: linux-system-roles.timesync
+                  vars:
+                    timesync_ntp_servers:
+                      - iburst: true
+              rescue:
+                - name: Mark missing hostname rejected
+                  ansible.builtin.set_fact:
+                    __invalid_input_missing_hostname_failed: true
+                  when: >-
+                    'missing required arguments' in
+                    (ansible_failed_result | default({}) | to_json)
+
+            - name: Assert missing hostname was rejected
+              ansible.builtin.assert:
+                that:
+                  - __invalid_input_missing_hostname_failed | default(false)
+                fail_msg: >-
+                  argument_specs should reject timesync_ntp_servers entries
+                  missing the required hostname field
+
+            # --- Test: required field missing (timesync_ptp_domains.number) ---
+            - name: Argument specs reject missing number in timesync_ptp_domains
+              block:
+                - name: Run role without required number
+                  ansible.builtin.include_role:
+                    name: linux-system-roles.timesync
+                  vars:
+                    timesync_ptp_domains:
+                      - interfaces: [eth0]
+              rescue:
+                - name: Mark missing number rejected
+                  ansible.builtin.set_fact:
+                    __invalid_input_missing_number_failed: true
+                  when: >-
+                    'missing required arguments' in
+                    (ansible_failed_result | default({}) | to_json)
+
+            - name: Assert missing number was rejected
+              ansible.builtin.assert:
+                that:
+                  - __invalid_input_missing_number_failed | default(false)
+                fail_msg: >-
+                  argument_specs should reject timesync_ptp_domains entries
+                  missing the required number field
+
+            # --- Test: required field missing (timesync_ptp_domains.interfaces) ---
+            - name: Argument specs reject missing interfaces in timesync_ptp_domains
+              block:
+                - name: Run role without required interfaces
+                  ansible.builtin.include_role:
+                    name: linux-system-roles.timesync
+                  vars:
+                    timesync_ptp_domains:
+                      - number: 0
+              rescue:
+                - name: Mark missing interfaces rejected
+                  ansible.builtin.set_fact:
+                    __invalid_input_missing_interfaces_failed: true
+                  when: >-
+                    'missing required arguments' in
+                    (ansible_failed_result | default({}) | to_json)
+
+            - name: Assert missing interfaces was rejected
+              ansible.builtin.assert:
+                that:
+                  - __invalid_input_missing_interfaces_failed | default(false)
+                fail_msg: >-
+                  argument_specs should reject timesync_ptp_domains entries
+                  missing the required interfaces field
+
+            # --- Test: invalid type (timesync_dhcp_ntp_servers) ---
+            - name: Argument specs reject non-boolean timesync_dhcp_ntp_servers
+              block:
+                - name: Run role with non-boolean timesync_dhcp_ntp_servers
+                  ansible.builtin.include_role:
+                    name: linux-system-roles.timesync
+                  vars:
+                    timesync_dhcp_ntp_servers: not_a_bool
+              rescue:
+                - name: Mark invalid timesync_dhcp_ntp_servers type rejected
+                  ansible.builtin.set_fact:
+                    __invalid_input_dhcp_ntp_servers_type_failed: true
+
+            - name: Assert invalid timesync_dhcp_ntp_servers type was rejected
+              ansible.builtin.assert:
+                that:
+                  - __invalid_input_dhcp_ntp_servers_type_failed | default(false)
+                fail_msg: >-
+                  argument_specs should reject timesync_dhcp_ntp_servers
+                  values that are not booleans
+
+            # --- Test: invalid type (timesync_min_sources) ---
+            - name: Argument specs reject non-integer timesync_min_sources
+              block:
+                - name: Run role with non-integer timesync_min_sources
+                  ansible.builtin.include_role:
+                    name: linux-system-roles.timesync
+                  vars:
+                    timesync_min_sources: not_an_int
+              rescue:
+                - name: Mark invalid timesync_min_sources type rejected
+                  ansible.builtin.set_fact:
+                    __invalid_input_min_sources_type_failed: true
+
+            - name: Assert invalid timesync_min_sources type was rejected
+              ansible.builtin.assert:
+                that:
+                  - __invalid_input_min_sources_type_failed | default(false)
+                fail_msg: >-
+                  argument_specs should reject timesync_min_sources values
+                  that are not integers
+
+            # --- Test: invalid type (timesync_secure_logging) ---
+            - name: Argument specs reject non-boolean timesync_secure_logging
+              block:
+                - name: Run role with non-boolean timesync_secure_logging
+                  ansible.builtin.include_role:
+                    name: linux-system-roles.timesync
+                  vars:
+                    timesync_secure_logging: not_a_bool
+              rescue:
+                - name: Mark invalid timesync_secure_logging type rejected
+                  ansible.builtin.set_fact:
+                    __invalid_input_secure_logging_type_failed: true
+
+            - name: Assert invalid timesync_secure_logging type was rejected
+              ansible.builtin.assert:
+                that:
+                  - __invalid_input_secure_logging_type_failed | default(false)
+                fail_msg: >-
+                  argument_specs should reject timesync_secure_logging values
+                  that are not booleans
+
+            # --- Test: invalid type (timesync_ntp_hwts_interfaces) ---
+            - name: Argument specs reject non-list timesync_ntp_hwts_interfaces
+              block:
+                - name: Run role with a mapping for timesync_ntp_hwts_interfaces
+                  ansible.builtin.include_role:
+                    name: linux-system-roles.timesync
+                  vars:
+                    timesync_ntp_hwts_interfaces:
+                      eth0: true
+              rescue:
+                - name: Mark invalid timesync_ntp_hwts_interfaces type rejected
+                  ansible.builtin.set_fact:
+                    __invalid_input_hwts_interfaces_type_failed: true
+
+            - name: Assert invalid timesync_ntp_hwts_interfaces type was rejected
+              ansible.builtin.assert:
+                that:
+                  - __invalid_input_hwts_interfaces_type_failed | default(false)
+                fail_msg: >-
+                  argument_specs should reject timesync_ntp_hwts_interfaces
+                  values that are not lists (e.g. a mapping)
+
+            # --- Test: invalid choice (timesync_ntp_provider) ---
+            - name: Argument specs reject invalid timesync_ntp_provider choice
+              block:
+                - name: Run role with invalid timesync_ntp_provider value
+                  ansible.builtin.include_role:
+                    name: linux-system-roles.timesync
+                  vars:
+                    timesync_ntp_provider: invalid_provider
+              rescue:
+                - name: Mark invalid timesync_ntp_provider choice rejected
+                  ansible.builtin.set_fact:
+                    __invalid_input_ntp_provider_choice_failed: true
+                  when: >-
+                    'invalid_provider' in
+                    (ansible_failed_result | default({}) | to_json)
+
+            - name: Assert invalid timesync_ntp_provider choice was rejected
+              ansible.builtin.assert:
+                that:
+                  - __invalid_input_ntp_provider_choice_failed | default(false)
+                fail_msg: >-
+                  argument_specs should reject timesync_ntp_provider value
+                  'invalid_provider'
+
+            # --- Test: invalid choice (timesync_ntp_ip_family) ---
+            - name: Argument specs reject invalid timesync_ntp_ip_family choice
+              block:
+                - name: Run role with invalid timesync_ntp_ip_family value
+                  ansible.builtin.include_role:
+                    name: linux-system-roles.timesync
+                  vars:
+                    timesync_ntp_ip_family: invalid_family
+              rescue:
+                - name: Mark invalid timesync_ntp_ip_family choice rejected
+                  ansible.builtin.set_fact:
+                    __invalid_input_ip_family_choice_failed: true
+                  when: >-
+                    'invalid_family' in
+                    (ansible_failed_result | default({}) | to_json)
+
+            - name: Assert invalid timesync_ntp_ip_family choice was rejected
+              ansible.builtin.assert:
+                that:
+                  - __invalid_input_ip_family_choice_failed | default(false)
+                fail_msg: >-
+                  argument_specs should reject timesync_ntp_ip_family value
+                  'invalid_family'
+
+            # --- Test: invalid choice (timesync_ptp_domains.transport) ---
+            - name: Argument specs reject invalid transport choice in timesync_ptp_domains
+              block:
+                - name: Run role with invalid transport value
+                  ansible.builtin.include_role:
+                    name: linux-system-roles.timesync
+                  vars:
+                    timesync_ptp_domains:
+                      - number: 0
+                        interfaces: [eth0]
+                        transport: invalid_transport
+              rescue:
+                - name: Mark invalid transport choice rejected
+                  ansible.builtin.set_fact:
+                    __invalid_input_transport_choice_failed: true
+                  when: >-
+                    'invalid_transport' in
+                    (ansible_failed_result | default({}) | to_json)
+
+            - name: Assert invalid transport choice was rejected
+              ansible.builtin.assert:
+                that:
+                  - __invalid_input_transport_choice_failed | default(false)
+                fail_msg: >-
+                  argument_specs should reject timesync_ptp_domains transport
+                  value 'invalid_transport'
+
+            # --- Test: invalid type (timesync_ntp_servers.minpoll) ---
+            - name: Argument specs reject non-integer minpoll in timesync_ntp_servers
+              block:
+                - name: Run role with non-integer minpoll
+                  ansible.builtin.include_role:
+                    name: linux-system-roles.timesync
+                  vars:
+                    timesync_ntp_servers:
+                      - hostname: foo.example.com
+                        minpoll: not_an_int
+              rescue:
+                - name: Mark invalid minpoll type rejected
+                  ansible.builtin.set_fact:
+                    __invalid_input_minpoll_type_failed: true
+
+            - name: Assert invalid minpoll type was rejected
+              ansible.builtin.assert:
+                that:
+                  - __invalid_input_minpoll_type_failed | default(false)
+                fail_msg: >-
+                  argument_specs should reject timesync_ntp_servers minpoll
+                  values that are not integers
+
+            # --- Test: invalid type (timesync_ptp_domains.hybrid_e2e) ---
+            - name: Argument specs reject non-boolean hybrid_e2e in timesync_ptp_domains
+              block:
+                - name: Run role with non-boolean hybrid_e2e
+                  ansible.builtin.include_role:
+                    name: linux-system-roles.timesync
+                  vars:
+                    timesync_ptp_domains:
+                      - number: 0
+                        interfaces: [eth0]
+                        hybrid_e2e: not_a_bool
+              rescue:
+                - name: Mark invalid hybrid_e2e type rejected
+                  ansible.builtin.set_fact:
+                    __invalid_input_hybrid_e2e_type_failed: true
+
+            - name: Assert invalid hybrid_e2e type was rejected
+              ansible.builtin.assert:
+                that:
+                  - __invalid_input_hybrid_e2e_type_failed | default(false)
+                fail_msg: >-
+                  argument_specs should reject timesync_ptp_domains
+                  hybrid_e2e values that are not booleans
+
+            # --- Test: invalid type (timesync_step_threshold) ---
+            - name: Argument specs reject non-float timesync_step_threshold
+              block:
+                - name: Run role with non-float timesync_step_threshold
+                  ansible.builtin.include_role:
+                    name: linux-system-roles.timesync
+                  vars:
+                    timesync_step_threshold: not_a_float
+              rescue:
+                - name: Mark invalid timesync_step_threshold type rejected
+                  ansible.builtin.set_fact:
+                    __invalid_input_step_threshold_type_failed: true
+
+            - name: Assert invalid timesync_step_threshold type was rejected
+              ansible.builtin.assert:
+                that:
+                  - __invalid_input_step_threshold_type_failed | default(false)
+                fail_msg: >-
+                  argument_specs should reject timesync_step_threshold values
+                  that are not floats
+
+        # ====================================================
+        # Section 3: assert_role_vars validation (all versions)
+        # ====================================================
+
+        # --- Test: raw type field with wrong type (string) ---
+        - name: Assert rejects timesync_transactional_update_reboot_ok as string
+          block:
+            - name: Run role with timesync_transactional_update_reboot_ok as string
+              ansible.builtin.include_role:
+                name: linux-system-roles.timesync
+              vars:
+                timesync_transactional_update_reboot_ok: not_a_bool
+          rescue:
+            - name: Mark timesync_transactional_update_reboot_ok string rejected
+              ansible.builtin.set_fact:
+                __invalid_input_reboot_ok_string_failed: true
+              when: >-
+                'must be null or a boolean' in
+                (ansible_failed_result | default({}) | to_json)
+
+        - name: Assert timesync_transactional_update_reboot_ok as string was rejected
+          ansible.builtin.assert:
+            that:
+              - >-
+                __invalid_input_reboot_ok_string_failed
+                | default(false)
+            fail_msg: >-
+              assert_role_vars should reject timesync_transactional_update_reboot_ok
+              when given a string value
+
+        # --- Test: raw type field with wrong type (integer) ---
+        - name: Assert rejects timesync_transactional_update_reboot_ok as integer
+          block:
+            - name: Run role with timesync_transactional_update_reboot_ok as integer
+              ansible.builtin.include_role:
+                name: linux-system-roles.timesync
+              vars:
+                timesync_transactional_update_reboot_ok: 42
+          rescue:
+            - name: Mark timesync_transactional_update_reboot_ok integer rejected
+              ansible.builtin.set_fact:
+                __invalid_input_reboot_ok_int_failed: true
+              when: >-
+                'must be null or a boolean' in
+                (ansible_failed_result | default({}) | to_json)
+
+        - name: Assert timesync_transactional_update_reboot_ok as integer was rejected
+          ansible.builtin.assert:
+            that:
+              - >-
+                __invalid_input_reboot_ok_int_failed
+                | default(false)
+            fail_msg: >-
+              assert_role_vars should reject timesync_transactional_update_reboot_ok
+              when given an integer value
+
+      always:
+        - name: Clear test facts
+          ansible.builtin.set_fact:
+            __invalid_input_missing_hostname_failed:
+            __invalid_input_missing_number_failed:
+            __invalid_input_missing_interfaces_failed:
+            __invalid_input_dhcp_ntp_servers_type_failed:
+            __invalid_input_min_sources_type_failed:
+            __invalid_input_secure_logging_type_failed:
+            __invalid_input_hwts_interfaces_type_failed:
+            __invalid_input_ntp_provider_choice_failed:
+            __invalid_input_ip_family_choice_failed:
+            __invalid_input_transport_choice_failed:
+            __invalid_input_minpoll_type_failed:
+            __invalid_input_hybrid_e2e_type_failed:
+            __invalid_input_step_threshold_type_failed:
+            __invalid_input_reboot_ok_string_failed:
+            __invalid_input_reboot_ok_int_failed:
+          tags: tests::cleanup
