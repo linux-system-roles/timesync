@@ -1,0 +1,224 @@
+# SPDX-License-Identifier: MIT
+---
+argument_specs:
+  main:
+    short_description: The timesync role.
+    description: >
+      The timesync role installs and configures an NTP and/or PTP
+      implementation to operate as an NTP client and/or PTP
+      grandmaster follower, in order to synchronize the system clock
+      with NTP servers and/or grandmasters in PTP domains.
+
+      Supported NTP/PTP implementations are `chrony`, `ntp` (the
+      reference implementation), and `linuxptp`. The role replaces
+      the configuration of the given or detected provider service on
+      the managed host entirely; previous settings are not preserved
+      or merged.
+    options:
+      timesync_ntp_servers:
+        type: list
+        elements: dict
+        default: []
+        description: >
+          A list of NTP servers to synchronize the system clock with.
+        options:
+          hostname:
+            type: str
+            required: true
+            description: >
+              The hostname or address of the NTP server.
+          minpoll:
+            type: int
+            description: >
+              The minimum polling interval, expressed as a power of
+              two in seconds. If omitted, the NTP implementation's
+              own default is used.
+          maxpoll:
+            type: int
+            description: >
+              The maximum polling interval, expressed as a power of
+              two in seconds. If omitted, the NTP implementation's
+              own default is used.
+          iburst:
+            type: bool
+            description: >
+              Whether to enable fast initial synchronization.
+          pool:
+            type: bool
+            description: >
+              Whether each address that `hostname` resolves to is
+              treated as a separate NTP server.
+          nts:
+            type: bool
+            description: >
+              Whether to enable the Network Time Security (NTS)
+              authentication mechanism. Only supported with `chrony`
+              4.0 and later.
+          prefer:
+            type: bool
+            description: >
+              Whether this source is preferred for synchronization
+              over other sources.
+          trust:
+            type: bool
+            description: >
+              Whether this source is trusted over sources that do
+              not have this flag set.
+          xleave:
+            type: bool
+            description: >
+              Whether to enable interleaved mode. Only supported with
+              `chrony` 3.0 and later.
+          filter:
+            type: int
+            description: >
+              The number of NTP measurements per clock update. Only
+              applied with `chrony` 3.4 and later, and only when set
+              to a value greater than `1`.
+          key:
+            type: str
+            no_log: true
+            description: >
+              The NTP authentication key for the server, used only
+              with `chrony`. The value must be a full line for the
+              chrony key file, beginning with the numeric key ID, as
+              described in the chrony keyfile documentation, such as
+              `10 AES256 HEX:816B9F7990F0F3A03D74E4A8F6DE17CB`.
+              Multiple servers may share the same key. It is strongly
+              recommended to vault encrypt this value.
+      timesync_ptp_domains:
+        type: list
+        elements: dict
+        default: []
+        description: >
+          A list of PTP domains to synchronize the system clock with.
+        options:
+          number:
+            type: int
+            required: true
+            description: >
+              The PTP domain number.
+          interfaces:
+            type: list
+            elements: str
+            required: true
+            description: >
+              The list of network interfaces in the domain, such as
+              `eth0`.
+          delay:
+            type: float
+            description: >
+              The assumed maximum network delay to the grandmaster,
+              in seconds. If omitted, the `linuxptp` default (100
+              microseconds) is used.
+          transport:
+            type: str
+            choices:
+              - UDPv4
+              - UDPv6
+              - L2
+            description: >
+              The network transport used to communicate with the
+              grandmaster. If omitted, `UDPv4` is used.
+          udp_ttl:
+            type: int
+            description: >
+              The TTL used for the `UDPv4` and `UDPv6` transports. If
+              omitted, `1` is used.
+          hybrid_e2e:
+            type: bool
+            description: >
+              Whether to enable unicast end-to-end delay requests.
+      timesync_dhcp_ntp_servers:
+        type: bool
+        default: false
+        description: >
+          Whether to use NTP servers provided by DHCP.
+      timesync_step_threshold:
+        type: float
+        default: -1.0
+        description: >
+          The minimum offset of the clock which can be corrected by
+          stepping. A negative value causes the NTP implementation's
+          own default to be used. A value of `0` disables all steps.
+      timesync_min_sources:
+        type: int
+        default: 1
+        description: >
+          The minimum number of selectable time sources required to
+          allow synchronization of the clock.
+      timesync_ntp_hwts_interfaces:
+        type: list
+        elements: str
+        default: []
+        description: >
+          A list of network interfaces which should have hardware
+          timestamping enabled for NTP. As a special value, `*`
+          enables the timestamping on all interfaces that support it.
+      timesync_ntp_provider:
+        type: str
+        default: ""
+        choices:
+          - ""
+          - chrony
+          - ntp
+        description: >
+          The name of the package which should be installed and
+          configured for NTP. When set to `""`, the currently active
+          or enabled service is configured. If no service is active
+          or enabled, a package specific to the system and its
+          version is selected.
+      timesync_max_distance:
+        type: int
+        default: 0
+        description: >
+          The maximum root distance to accept measurements from NTP
+          servers. Set to `0` to use the provider default.
+      timesync_transactional_update_reboot_ok:
+        type: raw
+        default: null
+        description: >
+          Whether the role is allowed to reboot a transactional
+          update system when a transactional update requires it. This
+          option is only applicable on transactional update systems
+          and is ignored otherwise. Accepts a boolean or `null`. When
+          `null`, the role fails rather than reboot without explicit
+          permission, so that the reboot requirement is not
+          overlooked.
+      timesync_ntp_ip_family:
+        type: str
+        default: ""
+        choices:
+          - ""
+          - all
+          - IPv4
+          - IPv6
+        description: >
+          Restricts the NTP implementation to use only `IPv4` or only
+          `IPv6` addresses. Corresponds to the `-4` and `-6` options
+          for `chronyd` and `ntpd`. When set to `""` or `all`, both
+          address families are used, which is the platform default.
+      timesync_secure_logging:
+        type: bool
+        default: true
+        description: >
+          Whether to enable secure logging for tasks that handle
+          sensitive data, such as NTP authentication keys. Set to
+          `false` for debugging.
+      timesync_remove_keyfile_if_no_keys:
+        type: bool
+        default: false
+        description: >
+          Whether to remove the `chrony` key file when no NTP servers
+          have a key configured. When `false`, an existing key file
+          is left in place when keys are removed from the
+          configuration.
+      timesync_chrony_custom_settings:
+        type: list
+        elements: str
+        default: []
+        description: >
+          A list of custom settings lines to append to the
+          `chrony.conf` file. Useful for extended `chrony`
+          configuration that is not covered by the other role
+          variables, such as `logdir /var/log/chrony`.
