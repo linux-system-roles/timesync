@@ -113,12 +113,32 @@
   when: timesync_mode != 1
   register: timesync_linuxptp_result
 
+# A staged install reports ok on re-runs, so ask rpm (by provides) if it is live.
+- name: Check whether the packages are live on a transactional update system
+  command:  # noqa command-instead-of-module
+    argv: "{{ ['rpm', '-q', '--whatprovides'] + __timesync_wanted_packages }}"
+  register: __timesync_packages_live
+  changed_when: false
+  failed_when: false
+  check_mode: false
+  vars:
+    __timesync_wanted_packages: "{{
+      (['chrony'] if (timesync_mode != 2 and
+                      timesync_ntp_provider == 'chrony') else []) +
+      (['ntp'] if (timesync_mode != 2 and
+                   timesync_ntp_provider == 'ntp') else []) +
+      (['linuxptp'] if timesync_mode != 1 else []) }}"
+  when:
+    - __timesync_is_transactional | d(false)
+    - __timesync_wanted_packages | length > 0
+
 - name: Handle reboot for transactional update systems
   when:
     - __timesync_is_transactional | d(false)
     - timesync_chrony_result is changed or
       timesync_ntp_result is changed or
-      timesync_linuxptp_result is changed
+      timesync_linuxptp_result is changed or
+      (__timesync_packages_live.rc | d(0)) != 0
   block:
     - name: Notify user that reboot is needed to apply changes
       debug:
@@ -128,7 +148,9 @@
     - name: Reboot transactional update systems
       reboot:
         msg: Rebooting the system to apply transactional update changes.
-      when: timesync_transactional_update_reboot_ok | bool
+      when:
+        - timesync_transactional_update_reboot_ok is not none
+        - timesync_transactional_update_reboot_ok | bool
 
     - name: Fail if reboot is needed and not set
       fail:
