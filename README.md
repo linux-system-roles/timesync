@@ -209,6 +209,11 @@ Install and configure chrony and linuxptp to synchronize the system clock with
 multiple NTP servers and PTP domains for a highly accurate and resilient
 synchronization:
 
+<!--- wokeignore:rule=master -->
+This is not yet supported on SUSE systems, whose linuxptp has no `timemaster`
+service, which the role uses when NTP servers are combined with PTP domains, or
+when more than one PTP domain or interface is configured.
+
 ```yaml
 - name: Manage multiple NTP servers and PTP domains
   hosts: targets

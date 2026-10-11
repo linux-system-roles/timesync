@@ -20,6 +20,12 @@
     timesync_dhcp_ntp_servers: false
     timesync_min_sources: 2
   tasks:
+    # wokeignore:rule=master
+    # SUSE linuxptp ships no timemaster.service
+    - name: Skip test on SUSE
+      meta: end_host
+      when: ansible_facts['os_family'] == 'Suse'
+
     - name: Run test
       tags: tests::verify
       block:
