@@ -4,8 +4,6 @@
     then change it to the default provider
   hosts: all
   vars:
-    is_ntp_default: "{{ ansible_facts['distribution'] in ['RedHat', 'CentOS']
-      and ansible_facts['distribution_version'] is version('7.0', '<') }}"
     both_avail: true
 
   tasks:
@@ -13,6 +11,12 @@
       include_tasks: tasks/setup.yml
       vars:
         __timesync_ostree_unsupported: true
+
+    # set_fact: a play var is templated only after the role runner clears facts
+    - name: Determine whether ntp is the default provider
+      set_fact:
+        is_ntp_default: "{{ ansible_facts['distribution'] in ['RedHat', 'CentOS']
+          and ansible_facts['distribution_version'] is version('7.0', '<') }}"
 
     - name: See if both providers are available
       check_mode: false

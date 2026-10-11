@@ -16,6 +16,12 @@
     timesync_min_sources: 2
 
   tasks:
+    # wokeignore:rule=master
+    # SUSE linuxptp ships no timemaster.service
+    - name: Skip test on SUSE
+      meta: end_host
+      when: ansible_facts['os_family'] == 'Suse'
+
     - name: Common test setup tasks
       include_tasks: tasks/setup.yml
 
