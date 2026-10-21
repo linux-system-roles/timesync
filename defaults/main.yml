@@ -13,3 +13,4 @@ timesync_transactional_update_reboot_ok: null
 timesync_ntp_ip_family: ""
 timesync_secure_logging: true
 timesync_remove_keyfile_if_no_keys: false
+timesync_restart_immediate: false
