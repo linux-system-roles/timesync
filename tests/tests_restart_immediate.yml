@@ -1,0 +1,46 @@
+---
+- name: Restart chronyd during the role with timesync_restart_immediate
+  hosts: all
+  vars:
+    timesync_ntp_provider: chrony
+    timesync_restart_immediate: true
+  tasks:
+    - name: Run the test
+      when: not __bootc_validation | d(false)
+      block:
+        - name: Run the role to set up chrony
+          include_tasks: tasks/run_role_with_clear_facts.yml
+          vars:
+            timesync_ntp_servers:
+              - hostname: 172.16.123.1
+
+        - name: Check the restart on booted systems
+          tags: tests::verify
+          when: __timesync_is_booted
+          block:
+            - name: Get chronyd status before the configuration change
+              systemd:
+                name: chronyd
+              register: __chronyd_before
+
+            - name: Run the role with a different NTP server
+              include_tasks: tasks/run_role_with_clear_facts.yml
+              vars:
+                timesync_ntp_servers:
+                  - hostname: 172.16.123.2
+
+            - name: Get chronyd status after the configuration change
+              systemd:
+                name: chronyd
+              register: __chronyd_after
+
+            - name: Check that chronyd was restarted during the role
+              assert:
+                that:
+                  - __chronyd_after.status.ExecMainPID !=
+                    __chronyd_before.status.ExecMainPID
+
+      always:
+        - name: Cleanup after tests
+          include_tasks: tasks/cleanup.yml
+          tags: tests::cleanup

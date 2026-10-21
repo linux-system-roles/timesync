@@ -90,6 +90,12 @@ timesync_secure_logging: true
 # place when keys are removed from the configuration.
 timesync_remove_keyfile_if_no_keys: false
 
+# Restart the time services during the role when their configuration
+# changes, instead of notifying handlers that run at the end of the play
+# (default false). Useful when later roles in the same play need the
+# correct time.
+timesync_restart_immediate: false
+
 # List of PTP domains
 timesync_ptp_domains:
   - number: 0                   # PTP domain number

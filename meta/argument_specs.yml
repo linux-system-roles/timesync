@@ -222,3 +222,10 @@ argument_specs:
           `chrony.conf` file. Useful for extended `chrony`
           configuration that is not covered by the other role
           variables, such as `logdir /var/log/chrony`.
+      timesync_restart_immediate:
+        type: bool
+        default: false
+        description: >
+          Whether to restart the time services during the role as
+          soon as their configuration changes, instead of notifying
+          handlers that run at the end of the play.

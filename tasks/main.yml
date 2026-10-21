@@ -249,6 +249,7 @@
       no_log: "{{ timesync_secure_logging }}"
       # wokeignore:rule=master
       notify: Restart {{ 'chronyd' if timesync_mode == 1 else 'timemaster' }}
+      register: __timesync_chrony_keys_file
       when: __timesync_ntp_unique_keys | default([]) | length > 0
 
     - name: Remove chrony key file if no keys are configured and flag is set
@@ -257,6 +258,7 @@
         state: absent
       # wokeignore:rule=master
       notify: Restart {{ 'chronyd' if timesync_mode == 1 else 'timemaster' }}
+      register: __timesync_chrony_keys_removed
       when:
         - __timesync_ntp_unique_keys | default([]) | length == 0
         - timesync_remove_keyfile_if_no_keys | bool
@@ -270,6 +272,7 @@
       no_log: "{{ timesync_secure_logging }}"
       # wokeignore:rule=master
       notify: Restart {{ 'chronyd' if timesync_mode == 1 else 'timemaster' }}
+      register: __timesync_chrony_conf
 
     - name: Generate chronyd sysconfig file
       template:
@@ -279,6 +282,7 @@
         mode: "0644"
       notify: Restart chronyd
       when: timesync_mode == 1
+      register: __timesync_chronyd_sysconfig
 
   rescue:
     # have to re-raise the error here - the always block will eat
@@ -303,6 +307,7 @@
   no_log: "{{ timesync_secure_logging }}"
   # wokeignore:rule=master
   notify: Restart {{ 'ntpd' if timesync_mode == 1 else 'timemaster' }}
+  register: __timesync_ntp_conf
   when:
     - timesync_mode != 2
     - timesync_ntp_provider == 'ntp'
@@ -315,6 +320,7 @@
     backup: true
     mode: "0644"
   notify: Restart ntpd
+  register: __timesync_ntpd_sysconfig
   when:
     - timesync_mode == 1
     - timesync_ntp_provider == 'ntp'
@@ -327,6 +333,7 @@
     backup: true
     mode: "0644"
   notify: Restart ptp4l
+  register: __timesync_ptp4l_conf
   when:
     - timesync_mode == 2
     - "'linuxptp' in ansible_facts.packages"
@@ -338,6 +345,7 @@
     backup: true
     mode: "0644"
   notify: Restart ptp4l
+  register: __timesync_ptp4l_sysconfig
   when:
     - timesync_mode == 2
     - "'linuxptp' in ansible_facts.packages"
@@ -350,6 +358,7 @@
     backup: true
     mode: "0644"
   notify: Restart phc2sys
+  register: __timesync_phc2sys_sysconfig
   when:
     - timesync_mode == 2
     - timesync_mode2_hwts
@@ -367,6 +376,7 @@
     mode: "0644"
   # wokeignore:rule=master
   notify: Restart timemaster
+  register: __timesync_timemstr_conf
   when:
     - timesync_mode == 3
     - "'linuxptp' in ansible_facts.packages"
@@ -382,6 +392,7 @@
     # yamllint disable-line rule:line-length
     state: "{{ 'absent' if timesync_dhcp_ntp_servers else 'present' }}"  # noqa args[module]
   notify: Restart {{ timesync_ntp_provider + 'd' }}
+  register: __timesync_network_sysconfig
   when:
     - timesync_mode == 1
     - ansible_facts['os_family'] == 'RedHat'
@@ -526,6 +537,71 @@
     state: "{{ 'started' if __timesync_is_booted else omit }}"
     enabled: true
   when: timesync_mode == 3
+
+- name: Restart chronyd now if timesync_restart_immediate is true
+  service:
+    name: chronyd
+    state: restarted
+  when:
+    - timesync_restart_immediate | bool
+    - __timesync_is_booted | d(false)
+    - timesync_mode == 1
+    - timesync_ntp_provider == 'chrony'
+    - __timesync_chrony_keys_file is changed or
+      __timesync_chrony_keys_removed is changed or
+      __timesync_chrony_conf is changed or
+      __timesync_chronyd_sysconfig is changed or
+      __timesync_network_sysconfig is changed
+
+- name: Restart ntpd now if timesync_restart_immediate is true
+  service:
+    name: ntpd
+    state: restarted
+  when:
+    - timesync_restart_immediate | bool
+    - __timesync_is_booted | d(false)
+    - timesync_mode == 1
+    - timesync_ntp_provider == 'ntp'
+    - __timesync_ntp_conf is changed or
+      __timesync_ntpd_sysconfig is changed or
+      __timesync_network_sysconfig is changed
+
+- name: Restart ptp4l now if timesync_restart_immediate is true
+  service:
+    name: ptp4l
+    state: restarted
+  when:
+    - timesync_restart_immediate | bool
+    - __timesync_is_booted | d(false)
+    - timesync_mode == 2
+    - __timesync_ptp4l_conf is changed or
+      __timesync_ptp4l_sysconfig is changed
+
+- name: Restart phc2sys now if timesync_restart_immediate is true
+  service:
+    name: phc2sys
+    state: restarted
+  when:
+    - timesync_restart_immediate | bool
+    - __timesync_is_booted | d(false)
+    - timesync_mode == 2
+    - __timesync_phc2sys_sysconfig is changed
+
+# wokeignore:rule=master
+- name: Restart timemaster now if timesync_restart_immediate is true
+  service:
+    # wokeignore:rule=master
+    name: timemaster
+    state: restarted
+  when:
+    - timesync_restart_immediate | bool
+    - __timesync_is_booted | d(false)
+    - timesync_mode == 3
+    - __timesync_chrony_keys_file is changed or
+      __timesync_chrony_keys_removed is changed or
+      __timesync_chrony_conf is changed or
+      __timesync_ntp_conf is changed or
+      __timesync_timemstr_conf is changed
 
 - name: Record role success fingerprint
   sr_fingerprint:

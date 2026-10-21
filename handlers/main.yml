@@ -3,25 +3,33 @@
   service:
     name: chronyd
     state: restarted
-  when: __timesync_is_booted | d(false)
+  when:
+    - __timesync_is_booted | d(false)
+    - not timesync_restart_immediate | bool
 
 - name: Restart ntpd
   service:
     name: ntpd
     state: restarted
-  when: __timesync_is_booted | d(false)
+  when:
+    - __timesync_is_booted | d(false)
+    - not timesync_restart_immediate | bool
 
 - name: Restart ptp4l
   service:
     name: ptp4l
     state: restarted
-  when: __timesync_is_booted | d(false)
+  when:
+    - __timesync_is_booted | d(false)
+    - not timesync_restart_immediate | bool
 
 - name: Restart phc2sys
   service:
     name: phc2sys
     state: restarted
-  when: __timesync_is_booted | d(false)
+  when:
+    - __timesync_is_booted | d(false)
+    - not timesync_restart_immediate | bool
 
 # wokeignore:rule=master
 - name: Restart timemaster
@@ -29,4 +37,6 @@
     # wokeignore:rule=master
     name: timemaster
     state: restarted
-  when: __timesync_is_booted | d(false)
+  when:
+    - __timesync_is_booted | d(false)
+    - not timesync_restart_immediate | bool
