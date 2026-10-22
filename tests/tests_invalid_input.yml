@@ -2,6 +2,13 @@
 ---
 - name: Verify invalid parameters are rejected
   hosts: all
+  vars:
+    __invalid_input_failure_messages: >-
+      {{ ([ansible_failed_result.msg | default('') | string,
+           ansible_failed_result.msg.msg | default('') | string]
+          + (ansible_failed_result.results | default([])
+             | map(attribute='msg') | map('default', '') | list))
+         | join(' ') }}
   tasks:
     - name: Run invalid input tests
       block:
@@ -32,8 +39,8 @@
                   ansible.builtin.set_fact:
                     __invalid_input_missing_hostname_failed: true
                   when: >-
-                    'missing required arguments' in
-                    (ansible_failed_result | default({}) | to_json)
+                    'missing required arguments: hostname found in timesync_ntp_servers'
+                    in __invalid_input_failure_messages
 
             - name: Assert missing hostname was rejected
               ansible.builtin.assert:
@@ -57,8 +64,8 @@
                   ansible.builtin.set_fact:
                     __invalid_input_missing_number_failed: true
                   when: >-
-                    'missing required arguments' in
-                    (ansible_failed_result | default({}) | to_json)
+                    'missing required arguments: number found in timesync_ptp_domains'
+                    in __invalid_input_failure_messages
 
             - name: Assert missing number was rejected
               ansible.builtin.assert:
@@ -82,8 +89,8 @@
                   ansible.builtin.set_fact:
                     __invalid_input_missing_interfaces_failed: true
                   when: >-
-                    'missing required arguments' in
-                    (ansible_failed_result | default({}) | to_json)
+                    'missing required arguments: interfaces found in timesync_ptp_domains'
+                    in __invalid_input_failure_messages
 
             - name: Assert missing interfaces was rejected
               ansible.builtin.assert:
@@ -105,6 +112,10 @@
                 - name: Mark invalid timesync_dhcp_ntp_servers type rejected
                   ansible.builtin.set_fact:
                     __invalid_input_dhcp_ntp_servers_type_failed: true
+                  when: >-
+                    "argument 'timesync_dhcp_ntp_servers'" in
+                    __invalid_input_failure_messages and
+                    'convert to bool' in __invalid_input_failure_messages
 
             - name: Assert invalid timesync_dhcp_ntp_servers type was rejected
               ansible.builtin.assert:
@@ -126,6 +137,10 @@
                 - name: Mark invalid timesync_min_sources type rejected
                   ansible.builtin.set_fact:
                     __invalid_input_min_sources_type_failed: true
+                  when: >-
+                    "argument 'timesync_min_sources'" in
+                    __invalid_input_failure_messages and
+                    'convert to int' in __invalid_input_failure_messages
 
             - name: Assert invalid timesync_min_sources type was rejected
               ansible.builtin.assert:
@@ -147,6 +162,10 @@
                 - name: Mark invalid timesync_secure_logging type rejected
                   ansible.builtin.set_fact:
                     __invalid_input_secure_logging_type_failed: true
+                  when: >-
+                    "argument 'timesync_secure_logging'" in
+                    __invalid_input_failure_messages and
+                    'convert to bool' in __invalid_input_failure_messages
 
             - name: Assert invalid timesync_secure_logging type was rejected
               ansible.builtin.assert:
@@ -169,6 +188,10 @@
                 - name: Mark invalid timesync_ntp_hwts_interfaces type rejected
                   ansible.builtin.set_fact:
                     __invalid_input_hwts_interfaces_type_failed: true
+                  when: >-
+                    "argument 'timesync_ntp_hwts_interfaces'" in
+                    __invalid_input_failure_messages and
+                    'convert to list' in __invalid_input_failure_messages
 
             - name: Assert invalid timesync_ntp_hwts_interfaces type was rejected
               ansible.builtin.assert:
@@ -191,8 +214,9 @@
                   ansible.builtin.set_fact:
                     __invalid_input_ntp_provider_choice_failed: true
                   when: >-
-                    'invalid_provider' in
-                    (ansible_failed_result | default({}) | to_json)
+                    'value of timesync_ntp_provider must be one of' in
+                    __invalid_input_failure_messages and
+                    'got: invalid_provider' in __invalid_input_failure_messages
 
             - name: Assert invalid timesync_ntp_provider choice was rejected
               ansible.builtin.assert:
@@ -215,8 +239,9 @@
                   ansible.builtin.set_fact:
                     __invalid_input_ip_family_choice_failed: true
                   when: >-
-                    'invalid_family' in
-                    (ansible_failed_result | default({}) | to_json)
+                    'value of timesync_ntp_ip_family must be one of' in
+                    __invalid_input_failure_messages and
+                    'got: invalid_family' in __invalid_input_failure_messages
 
             - name: Assert invalid timesync_ntp_ip_family choice was rejected
               ansible.builtin.assert:
@@ -242,8 +267,10 @@
                   ansible.builtin.set_fact:
                     __invalid_input_transport_choice_failed: true
                   when: >-
-                    'invalid_transport' in
-                    (ansible_failed_result | default({}) | to_json)
+                    'value of transport must be one of' in
+                    __invalid_input_failure_messages and
+                    'invalid_transport found in timesync_ptp_domains'
+                    in __invalid_input_failure_messages
 
             - name: Assert invalid transport choice was rejected
               ansible.builtin.assert:
@@ -267,6 +294,10 @@
                 - name: Mark invalid minpoll type rejected
                   ansible.builtin.set_fact:
                     __invalid_input_minpoll_type_failed: true
+                  when: >-
+                    "argument 'minpoll'" in __invalid_input_failure_messages
+                    and 'timesync_ntp_servers' in __invalid_input_failure_messages
+                    and 'convert to int' in __invalid_input_failure_messages
 
             - name: Assert invalid minpoll type was rejected
               ansible.builtin.assert:
@@ -291,6 +322,10 @@
                 - name: Mark invalid hybrid_e2e type rejected
                   ansible.builtin.set_fact:
                     __invalid_input_hybrid_e2e_type_failed: true
+                  when: >-
+                    "argument 'hybrid_e2e'" in __invalid_input_failure_messages
+                    and 'timesync_ptp_domains' in __invalid_input_failure_messages
+                    and 'convert to bool' in __invalid_input_failure_messages
 
             - name: Assert invalid hybrid_e2e type was rejected
               ansible.builtin.assert:
@@ -312,6 +347,10 @@
                 - name: Mark invalid timesync_step_threshold type rejected
                   ansible.builtin.set_fact:
                     __invalid_input_step_threshold_type_failed: true
+                  when: >-
+                    "argument 'timesync_step_threshold'" in
+                    __invalid_input_failure_messages and
+                    'convert to float' in __invalid_input_failure_messages
 
             - name: Assert invalid timesync_step_threshold type was rejected
               ansible.builtin.assert:
@@ -338,8 +377,10 @@
               ansible.builtin.set_fact:
                 __invalid_input_reboot_ok_string_failed: true
               when: >-
-                'must be null or a boolean' in
-                (ansible_failed_result | default({}) | to_json)
+                'timesync_transactional_update_reboot_ok must be null or a boolean'
+                in __invalid_input_failure_messages and
+                ('got str' in __invalid_input_failure_messages or
+                 'got AnsibleUnicode' in __invalid_input_failure_messages)
 
         - name: Assert timesync_transactional_update_reboot_ok as string was rejected
           ansible.builtin.assert:
@@ -364,8 +405,8 @@
               ansible.builtin.set_fact:
                 __invalid_input_reboot_ok_int_failed: true
               when: >-
-                'must be null or a boolean' in
-                (ansible_failed_result | default({}) | to_json)
+                'timesync_transactional_update_reboot_ok must be null or a boolean, got int'
+                in __invalid_input_failure_messages
 
         - name: Assert timesync_transactional_update_reboot_ok as integer was rejected
           ansible.builtin.assert:
